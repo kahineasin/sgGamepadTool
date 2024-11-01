@@ -73,6 +73,7 @@ set CLASSPATH=%APP_HOME%\lib\*
 if %ERRORLEVEL% equ 0 goto mainEnd
 
 :fail
+pause
 rem Set variable GRADLE_EXIT_CONSOLE if you need the _script_ return code instead of
 rem the _cmd.exe /c_ return code!
 set EXIT_CODE=%ERRORLEVEL%
