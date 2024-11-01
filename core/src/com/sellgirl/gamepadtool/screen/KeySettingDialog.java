@@ -87,7 +87,8 @@ private static  final String tag=KeySettingDialog.class.getName();
 
 		start=false;
 		if(inited){
-			keyTipLbl.setText(keyName+", 按下想要设置的按键(支持按键组合)");
+//			keyTipLbl.setText(keyName+", 按下想要设置的按键(支持按键组合)");
+			keyTipLbl.setText(keyName+", 按下想要映射的键盘按键");
 			keyMaskLbl.setText("未按任何按键");
 			keyMask=0;
 			done=false;
@@ -166,7 +167,8 @@ private static  final String tag=KeySettingDialog.class.getName();
 
 
 
-		 keyTipLbl = new Label(keyName+", 按下想要设置的按键(支持按键组合)",app.skin);
+//		 keyTipLbl = new Label(keyName+", 按下想要设置的按键(支持按键组合)",app.skin);
+		keyTipLbl = new Label(keyName+", 按下想要映射的键盘按键",app.skin);
 		 keyMaskLbl = new Label("未按任何按键",app.skin);
 		iapTable.add(keyTipLbl);
 		iapTable.row();
