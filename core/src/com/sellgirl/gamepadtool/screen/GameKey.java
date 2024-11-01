@@ -6,13 +6,12 @@ import com.sellgirl.sgGameHelper.gamepad.ISGPS5Gamepad;
 import com.sellgirl.sgJavaHelper.config.SGDataHelper;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
- * 游戏按钮, 用于按键设置映射
- * 此类是方案2, 根据游戏screen上的功能来定义影射
- * 暂时不允许设置L2 R2吧, 以后改也可以的
- * 存在的问题:
- * 1. 由于按键可以组合, 那么轴功能是否能用就很难判断了
+ * 手柄映射键盘的类
+ * 注意：jump等字段保存的是需要映射的键盘按键, gamepadMask是手柄按钮，所以isJump等方法的值都不对了
+ *
  */
 public class GameKey implements IKnightSashaGameKey//extends GameKeyBase
 {
@@ -451,6 +450,13 @@ public class GameKey implements IKnightSashaGameKey//extends GameKeyBase
         gameKey.setStick2Right(map.get("stick2Right"));
 
     }
+    private Map<Integer, Integer> combineMap=null;
+    public void applyCombinedMap(Map<Integer, Integer> map){
+        combineMap=map;
+    }
+    public Map<Integer, Integer> getCombinedMap(){
+        return combineMap;
+    }
     public String getKeyNamesByMask(int mask){
 
 //        return XBoxKey.getTexts(mask);
@@ -458,4 +464,12 @@ public class GameKey implements IKnightSashaGameKey//extends GameKeyBase
         else if(Input.Keys.UNKNOWN==mask){return "";}
         return Input.Keys.toString(mask);
     }
+
+    public boolean isBtn(int btn){
+        return SGDataHelper.EnumHasFlag(gamepadMask,btn);
+    }
+//    public String getGamepadKeyNamesByMask(int mask){
+//
+//        return XBoxKey.getTexts(mask);
+//    }
 }

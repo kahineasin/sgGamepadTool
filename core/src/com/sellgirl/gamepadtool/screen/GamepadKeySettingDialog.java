@@ -11,10 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-//import com.mygdx.game.sasha.language.TXT;
-//import com.mygdx.game.sasha.screen.kof.KofPlayer;
 import com.sellgirl.gamepadtool.language.TXT;
-import com.sellgirl.sgGameHelper.gamepad.XBoxKey;
 import com.sellgirl.sgGameHelper.gamepad.ISGPS5Gamepad;
 import com.sellgirl.sgGameHelper.gamepad.SGKeyboardGamepad;
 import com.sellgirl.sgJavaHelper.SGAction;
@@ -24,7 +21,7 @@ import com.sellgirl.sgJavaHelper.config.SGDataHelper;
  * Created by Benjamin Schulte on 26.11.2018.
  */
 
-public class KeySettingDialog extends Dialog {
+public class GamepadKeySettingDialog extends Dialog {
 //	private  final String tag="KeySettingDialog";
 private static  final String tag=KeySettingDialog.class.getName();
 //    public static final String MY_ENTITLEMENT = "entitlement_sku";
@@ -51,17 +48,78 @@ private static  final String tag=KeySettingDialog.class.getName();
 //     TextButton[] characterBtns=new TextButton[3];
      TextButton[] characterBtns=null;
 
-	private String keyName=null;
+//	private String keyName=null;
 	private int keyMask=0;
 	private boolean done=false;
 	private boolean start=false;
 	ISGPS5Gamepad gamepad;
 	SGAction<String,Integer,Object> action;
 	SGAction<String,Integer,Object> onPopupClose=null;
+//    public KeySettingDialog(final KeySettingScreen app,//final PurchaseManager purchaseManager,
+//                            //final SashaData sasha,
+//                            //KofPlayer player, final int playerId,
+//							ISGPS5Gamepad gamepad,
+//							String keyName,
+//							final SGAction1<Object> action) {
+//        super("", app.skin);
+//        this.app = app;
+//        this.skin = app.skin;
+////        this.player = player;
+//		this.gamepad=gamepad;
+//		this.keyName=keyName;
+//		this.action=action;
+//
+//        closeButton = new TextButton(TXT.g("cancel"), app.skin);
+//        button(closeButton);
+//
+//        restoreButton = new TextButton(TXT.g("confirm"), app.skin);
+//        //restoreButton.setDisabled(true);
+//        restoreButton.addListener(new ChangeListener() {
+//            @Override
+//            public void changed(ChangeEvent event, Actor actor) {
+//            	//if(null!=action) {
+//				try {
+//					action.go(keyMask);
+//				} catch (Exception e) {
+//					SGDataHelper.getLog().printException(e,tag);
+//				}
+////				}else {
+////                    app.onSelectCharacterDialogConfirm(playerId);
+////                }
+//                KeySettingDialog.this.hide();
+//            }
+//        });
+//
+//        getButtonTable().add(restoreButton);
+//
+//
+////		AssetManager manager = new AssetManager();
+////		// manager.load("data/mytexture.png", Texture.class);
+//////		manager.load("sasha/man1.png", Texture.class);
+//////		manager.load("sasha/man2.png", Texture.class);
+//////		manager.load("sasha/man3.png", Texture.class);
+////		manager.load("paycode.jpg", Texture.class);
+////		//boolean b =
+////				manager.update();
+////		manager.finishLoading();
+////		 frame1 = manager.get("paycode.jpg", Texture.class);
+////
+//////		 paycode = new TextureRegion(frame1,200,300);
+////		 paycode = new TextureRegion(frame1);
+//
+////		 paycode.setRegionWidth(200);
+////		 paycode.setRegionHeight(300);
+//
+//        // GUI erstmal so aufbauen
+//        fillContent();
+//
+//        // den Init lostreten so früh es geht, aber nicht bevor die GUI-Referenzen existieren :-)
+//        //initPurchaseManager();
+//    }
 
-	public KeySettingDialog(final KeySettingScreen app//,//final PurchaseManager purchaseManager,
-                            //final SashaData sasha,
-                            //KofPlayer player, final int playerId,
+	public GamepadKeySettingDialog(final KeySettingScreen app//,//final PurchaseManager purchaseManager,
+								   //final SashaData sasha,
+								   //KofPlayer player, final int playerId,
 	){
 		super("", app.skin);
 		this.app = app;
@@ -74,21 +132,23 @@ private static  final String tag=KeySettingDialog.class.getName();
 							//final SashaData sasha,
 							//KofPlayer player, final int playerId,
 							ISGPS5Gamepad gamepad,
-							String keyName,
+							//String keyName,
 							final SGAction<String,Integer,Object> action,
 					 final SGAction<String,Integer,Object> onPopupClose) {
-
-
+//		super("", app.skin);
+//		this.app = app;
+		//this.skin = app.skin;
+//        this.player = player;
 		this.gamepad=gamepad;
 		this.useKeyMask= SGKeyboardGamepad.class!=gamepad.getClass();
-		this.keyName=keyName;
+//		this.keyName=keyName;
 		this.action=action;
 		this.onPopupClose=onPopupClose;
 
 		start=false;
 		if(inited){
 //			keyTipLbl.setText(keyName+", 按下想要设置的按键(支持按键组合)");
-			keyTipLbl.setText(keyName+", 按下想要映射的键盘按键");
+			keyTipLbl.setText("按下手柄按键(支持按键组合)");
 			keyMaskLbl.setText("未按任何按键");
 			keyMask=0;
 			done=false;
@@ -101,8 +161,8 @@ private static  final String tag=KeySettingDialog.class.getName();
 		closeButton.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
-				if(null!=KeySettingDialog.this.onPopupClose){
-					KeySettingDialog.this.onPopupClose.go(null,null,null);
+				if(null!= GamepadKeySettingDialog.this.onPopupClose){
+					GamepadKeySettingDialog.this.onPopupClose.go(null,null,null);
 				}
 			}
 		});
@@ -115,14 +175,18 @@ private static  final String tag=KeySettingDialog.class.getName();
 			public void changed(ChangeEvent event, Actor actor) {
 				//if(null!=action) {
 				try {
-					KeySettingDialog.this.action.go(KeySettingDialog.this.keyName,KeySettingDialog.this.keyMask,null);
+					GamepadKeySettingDialog.this.action.go(
+							null,
+							//GamepadKeySettingDialog.this.keyName,
+							GamepadKeySettingDialog.this.keyMask,null);
+					String aa="aa";
 				} catch (Exception e) {
 					SGDataHelper.getLog().printException(e,tag);
 				}
 //				}else {
 //                    app.onSelectCharacterDialogConfirm(playerId);
 //                }
-				KeySettingDialog.this.hide();
+				GamepadKeySettingDialog.this.hide();
 			}
 		});
 
@@ -166,10 +230,31 @@ private static  final String tag=KeySettingDialog.class.getName();
         ;
 
 
+//        new Image(null);
+//        iapTable.add(new ImageButton(paycode.get));
 
-//		 keyTipLbl = new Label(keyName+", 按下想要设置的按键(支持按键组合)",app.skin);
-		keyTipLbl = new Label(keyName+", 按下想要映射的键盘按键",app.skin);
-		keyTipLbl.setText(keyName+", 按下想要映射的键盘按键");
+////		int paycodeW = 220;
+////		int paycodeH = 300;
+//		//Image img=new Image(paycode);
+//		Image img=new Image(frame1);
+//		//img.setBounds(0, 0, paycodeW, paycodeH);//.setWidth(paycodeW);
+////		img.scaleBy(220/frame1.getWidth());
+//		//img.scaleBy(0.01f);
+//		//img.setHeight(paycodeH);
+//        iapTable.add(img);
+//        //iapTable.add(new Image(paycode));
+//		iapTable.row();
+//////        buyEntitlement = new IapButton("已支付",MY_ENTITLEMENT, 179);
+////        //iapTable.add(buyEntitlement);
+////        TextButton tb = new TextButton("已支付",app.skin);
+////        iapTable.add(tb);
+//        //buyConsumable = new IapButton(MY_CONSUMABLE, 349);
+//        iapTable.row();
+//        //iapTable.add(buyConsumable);
+
+
+		// keyTipLbl = new Label(keyName+", 按下想要设置的按键(支持按键组合)",app.skin);
+		keyTipLbl = new Label("按下手柄按键(支持按键组合)",app.skin);
 		 keyMaskLbl = new Label("未按任何按键",app.skin);
 		iapTable.add(keyTipLbl);
 		iapTable.row();
@@ -250,10 +335,7 @@ private static  final String tag=KeySettingDialog.class.getName();
 			}
 			return;
 		}
-			if(
-					false
-//					useKeyMask
-			){
+			if(useKeyMask){
 //				if(done){//多按键组合的方式,没法自动重启
 //					if(0==gamepad.getQuickBtnKey()){
 //						done=false;
@@ -265,7 +347,7 @@ private static  final String tag=KeySettingDialog.class.getName();
 
 					}else if(SGDataHelper.EnumHasFlag(tmpKeyMask,keyMask)){
 						keyMask=tmpKeyMask;
-						keyMaskLbl.setText(XBoxKey.getTexts(keyMask));
+						keyMaskLbl.setText(com.sellgirl.sgGameHelper.gamepad.XBoxKey.getTexts(keyMask));
 					}else{
 						done=true;
 

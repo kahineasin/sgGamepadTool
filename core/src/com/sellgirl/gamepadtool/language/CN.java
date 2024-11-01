@@ -10,6 +10,8 @@ import java.util.Map;
 public class CN {
 	public static Map<String,String> get(){
 		Map<String,String> r=new HashMap<String,String>();
+		//设置映射的页面
+		r.put("add combin key","添加组合键");
 		//模拟页面
 		r.put("stop simulate (simulating...)","停止模拟(模拟中...)");
 		r.put("start simulate","开始模拟");

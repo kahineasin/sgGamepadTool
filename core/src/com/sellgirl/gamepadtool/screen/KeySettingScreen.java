@@ -34,6 +34,7 @@ import com.sellgirl.gamepadtool.ScreenSetting;
 import com.sellgirl.sgGameHelper.gamepad.ISGPS5Gamepad;
 import com.sellgirl.sgGameHelper.gamepad.SGPS5Gamepad;
 import com.sellgirl.sgGameHelper.gamepad.SGTouchGamepad;
+import com.sellgirl.sgGameHelper.gamepad.XBoxKey;
 import com.sellgirl.sgGameHelper.tabUi.TabUi;
 import com.sellgirl.sgJavaHelper.SGAction;
 
@@ -115,15 +116,22 @@ public class KeySettingScreen implements Screen {
 	//ArrayList<Label> playerlbls = new ArrayList<Label>();
 //	ArrayList<TextButton> keySettingLbls = null;
 	HashMap<String,Label> keySettingLbls = null;
+	HashMap<String,Label> combinKeyLbls = null;
+//	HashMap<String,Label> combinKeySettingLbls = null;
+	HashMap<Integer,Label> combinKeySettingLbls = null;
+	HashMap<Integer,TextButton> combinKeyBtns=null;
 	//Label settingTypeLbl=null;//多配置的方式似乎不需要默认
 	IKnightSashaGameKey gameKey=null;
 	HashMap<String,Integer> gameKeyMap=null;
+
+	HashMap<Integer,Integer> gameKeyCombinMap=null;
 	/**
 	 * 当前正在设定的手柄
 	 */
 	ISGPS5Gamepad gamepad;
 	boolean settingDefault=true;
 	KeySettingDialog dialog;
+	GamepadKeySettingDialog gamepadKeyDialog;
 	TabUi tabUi;
 //
 //	public SelectCharacterScreen(final SashaGame game, final SashaData sasha
@@ -153,6 +161,17 @@ public class KeySettingScreen implements Screen {
 			gameKeyMap=new LinkedHashMap<>();
 		}
 		gameKeyMap=gameKey.toMap(gameKeyMap);
+//		if(null==gameKeyCombinMap){
+//			gameKeyCombinMap=new LinkedHashMap<>();
+//		}
+//		gameKeyMap=gameKey.toMap(gameKeyMap);
+		if(null==gameKey.getCombinedMap()){
+			gameKeyCombinMap=new LinkedHashMap<>();
+		}else{
+			gameKeyCombinMap=new LinkedHashMap<>(gameKey.getCombinedMap());
+		}
+//		gameKeyCombinMap=gameKey.getCombinedMap();
+
 		this.gamepad=gamepad;
 
 //		if(SGPS5Gamepad.class==gamepad.getClass()){
@@ -194,6 +213,52 @@ public class KeySettingScreen implements Screen {
 				keySettingLbls.get(m1.getKey()).setText(gameKey.getKeyNamesByMask(m1.getValue()) );
 			}
 		}
+//		if(gameKeyCombinMap.isEmpty()){
+//
+//		}else {
+//			int more = combinKeySettingLbls.size() - gameKeyCombinMap.size();
+//			ArrayList<Integer> keys = new ArrayList<>();
+//		if(0<more){
+//			for(int i=combinKeySettingLbls.size()-1;combinKeySettingLbls.size()-more<=i;i--){
+//				combinKeySettingLbls.get(i).remove();
+//				combinKeySettingLbls.remove(i);
+//			}
+//		}
+//			int cnt = 0;
+//			for (Map.Entry<Integer, Label> m1 : combinKeySettingLbls.entrySet()) {
+//				keys.add(m1.getKey());
+//				cnt++;
+//				if (cnt == more) {
+//					break;
+//				}
+//			}
+//			for (Integer i : keys) {
+//				combinKeySettingLbls.get(i).remove();
+//				combinKeySettingLbls.remove(i);
+//			}
+//		}
+		//由于按钮事件的参数不一样，所以combine的label还是全清再加才对的
+
+//		for (Map.Entry<Integer, Label> m1 : combinKeySettingLbls.entrySet()) {
+//			//keys.add(m1.getKey());
+////			cnt++;
+////			if (cnt == more) {
+////				break;
+////			}
+//			combinKeySettingLbls.get(m1.getKey()).remove();
+////			combinKeySettingLbls.get(m1.getKey()).getParent().remove();
+//			combinKeyBtns.get(m1.getKey()).remove();
+//		}
+////		for (Integer i : keys) {
+////			combinKeySettingLbls.get(i).remove();
+//////			combinKeySettingLbls.remove(i);
+////		}
+		combinKeySettingLbls.clear();
+		combinKeyBtns.clear();
+		playerRow2.clear();
+
+		generateCombineLbls();
+
 //		axisLeftX1TF.setText(String.valueOf(SGDataHelper.getFloatPrecision(axisLeftTmp.x1,3)));
 //		axisLeftX2TF.setText(String.valueOf(SGDataHelper.getFloatPrecision(axisLeftTmp.x2,3)));
 //		axisLeftY1TF.setText(String.valueOf(SGDataHelper.getFloatPrecision(axisLeftTmp.y1,3)));
@@ -307,6 +372,8 @@ public class KeySettingScreen implements Screen {
 	// private Table table=null;
 	private SelectBox<String> settingCombo=null;
 	private Array<String> settingComboItem=null;
+	private Table playerRow;
+	private Table playerRow2;
 	private void prepareUI() {
 
 
@@ -325,7 +392,9 @@ public class KeySettingScreen implements Screen {
 
 
 
-		final Table playerRow = new Table();
+//		final Table playerRow = new Table();
+		playerRow = new Table();
+		playerRow2 = new Table();
 
 		SelectBox<String> gamepadCombo = getStringSelectBox();
 //		SelectBox<String>
@@ -396,18 +465,9 @@ public class KeySettingScreen implements Screen {
 
 
 		dialog=new KeySettingDialog(KeySettingScreen.this//, //sasha,
-				//player, pcCount,
-//				gamepad,player.getKey(),
-//				new SGAction1<Object>() {
-//
-//					@Override
-//					public void go(Object t) {
-////									playerlbl.setText("team" + player.getTeam() + ", " + player.getCharacter());
-//						player.setValue((int)t);
-//						playerlbl.setText(XBoxKey.getTexts(player.getValue()));
-//					}
-//				}
 				);
+		gamepadKeyDialog=new GamepadKeySettingDialog(KeySettingScreen.this//, //sasha,
+		);
 //		keySettingLbls=new ArrayList<>();
 		keySettingLbls=new HashMap<>();
 		for (final Map.Entry<String, Integer> player : gameKeyMap.entrySet()) {
@@ -514,6 +574,82 @@ public class KeySettingScreen implements Screen {
 			i++;
 		}
 
+		combinKeySettingLbls=new HashMap<>();
+//		combinKeySettingLbls=new LinkedHashMap<>();
+		combinKeyBtns=new HashMap<>();
+		generateCombineLbls();
+//		for (final Map.Entry<Integer, Integer> player : gameKeyCombinMap.entrySet()) {
+//			final Label playerlbl = new Label(gameKey.getKeyNamesByMask(player.getValue()), skin);
+//			//playerlbls.add(playerlbl);
+//		   this.combinKeySettingLbls.put(player.getKey(),playerlbl);
+//
+//		   final String keyName=XBoxKey.getTexts( player.getKey());
+//			TextButton padNameBtn = new TextButton( keyName+ ":", skin);
+//			//// final SGRef<Integer> iRef=new SGRef<Integer>(i);
+//			//final int i2 = i;
+//			ClickListener listener = new ClickListener() {
+//
+//				@Override
+//				public void clicked(InputEvent event, float x, float y) {
+//					 dialog.init(//KeySettingScreen.this, //sasha,
+//							//player, pcCount,
+//							gamepad,
+//							keyName,//player.getKey(),
+//							new SGAction<String,Integer,Object>() {
+//
+//								@Override
+//								public void go(String s, Integer integer, Object o) {
+//
+//								 onGamepadKeySettingChange(player.getKey(),integer);
+//									if (SGTouchGamepad.class ==gamepad.getClass()) {
+//										((SGTouchGamepad) gamepad).remove();
+//										//((SGTouchGamepad) gamepad).setVisible(false);
+//										//if(!needAccessStageInput){needAccessStageInput=true;}
+//									}
+//								}
+//
+////								@Override
+////								public void go(Object t) {
+////////									playerlbl.setText("team" + player.getTeam() + ", " + player.getCharacter());
+//////									player.setValue((int)t);//这里用iter操作已经很有风险了
+//////									playerlbl.setText(XBoxKey.getTexts(player.getValue()));
+////									onKeyChange(player.getKey(),(int)t);
+////								}
+//							},
+//							SGTouchGamepad.class ==gamepad.getClass()?new SGAction<String,Integer,Object>() {
+//
+//								@Override
+//								public void go(String s, Integer integer, Object o) {
+//									if (SGTouchGamepad.class ==gamepad.getClass()) {
+//										((SGTouchGamepad) gamepad).remove();
+////										((SGTouchGamepad) gamepad).setVisible(false);
+////										//if(!needAccessStageInput){needAccessStageInput=true;}
+//									}
+//								}
+//
+////								@Override
+////								public void go(Object t) {
+////////									playerlbl.setText("team" + player.getTeam() + ", " + player.getCharacter());
+//////									player.setValue((int)t);//这里用iter操作已经很有风险了
+//////									playerlbl.setText(XBoxKey.getTexts(player.getValue()));
+////									onKeyChange(player.getKey(),(int)t);
+////								}
+//							}:null
+//					);
+//					dialog.show(stage);
+//
+//				}
+//			};
+//			playerlbl.addListener(listener);
+//			padNameBtn.addListener(listener);
+//			playerRow.add(padNameBtn).spaceBottom(20).spaceRight(10);
+//			playerRow.add(playerlbl).spaceBottom(20);
+//			playerRow.row();
+//
+//			tabUi.addItem(padNameBtn);
+//			//i++;
+//		}
+		playerRow.add(playerRow2).colspan(2);
 		ScrollPane scrollPane=new ScrollPane(playerRow);
 		scrollPane.setWidth(ScreenSetting.WORLD_WIDTH);
 
@@ -696,6 +832,44 @@ public class KeySettingScreen implements Screen {
 //		});
 //		tabUi.addItem(axisRightAutoBtn);
 
+		combinKeyLbls=new LinkedHashMap<>();
+//		combinKeySettingLbls=new LinkedHashMap<>();
+		TextButton combinKeyBtn=new TextButton(TXT.g("add combin key"), skin);
+		combinKeyBtn.addListener(new ClickListener() {
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+
+				gamepadKeyDialog.init(//KeySettingScreen.this, //sasha,
+						//player, pcCount,
+						gamepad,//player.getKey(),
+						new SGAction<String,Integer,Object>() {
+
+							@Override
+							public void go(String s, Integer integer, Object o) {
+//								onKeyChange(s,integer);
+								onGamepadKeyChange(s,integer);
+								if (SGTouchGamepad.class ==gamepad.getClass()) {
+									((SGTouchGamepad) gamepad).remove();
+								}
+							}
+						},
+						SGTouchGamepad.class ==gamepad.getClass()?new SGAction<String,Integer,Object>() {
+
+							@Override
+							public void go(String s, Integer integer, Object o) {
+								if (SGTouchGamepad.class ==gamepad.getClass()) {
+									((SGTouchGamepad) gamepad).remove();
+								}
+							}
+
+						}:null
+				);
+//				dialog.show(stage);
+				gamepadKeyDialog.show(stage);
+
+			}
+		});
+
 		saveResultLbl=new Label("",skin);
 		TextButton saveBtn = new TextButton(TXT.g("save setting, press □"), skin);
 		saveBtn.addListener(new ClickListener() {
@@ -753,6 +927,8 @@ public class KeySettingScreen implements Screen {
 //		table.add(axisRightGroup).spaceRight(20).spaceBottom(20);
 //		table.add(axisRightAutoBtn).spaceBottom(20);
 //		table.row();
+		table.add(combinKeyBtn).colspan(2).spaceBottom(20);
+		table.row();
 		table.add(saveResultLbl).colspan(2).spaceBottom(20);
 		table.row();
 		table.add(saveBtn).colspan(2).spaceBottom(20);
@@ -777,6 +953,82 @@ public class KeySettingScreen implements Screen {
 //		}
 	}
 
+	private void generateCombineLbls(){
+
+		for (final Map.Entry<Integer, Integer> player : gameKeyCombinMap.entrySet()) {
+			final Label playerlbl = new Label(gameKey.getKeyNamesByMask(player.getValue()), skin);
+			//playerlbls.add(playerlbl);
+			this.combinKeySettingLbls.put(player.getKey(),playerlbl);
+
+			final String keyName=XBoxKey.getTexts( player.getKey());
+			TextButton padNameBtn = new TextButton( keyName+ ":", skin);
+			this.combinKeyBtns.put(player.getKey(),padNameBtn);
+			//// final SGRef<Integer> iRef=new SGRef<Integer>(i);
+			//final int i2 = i;
+			ClickListener listener = new ClickListener() {
+
+				@Override
+				public void clicked(InputEvent event, float x, float y) {
+					dialog.init(//KeySettingScreen.this, //sasha,
+							//player, pcCount,
+							gamepad,
+							keyName,//player.getKey(),
+							new SGAction<String,Integer,Object>() {
+
+								@Override
+								public void go(String s, Integer integer, Object o) {
+
+									onGamepadKeySettingChange(player.getKey(),integer);
+									if (SGTouchGamepad.class ==gamepad.getClass()) {
+										((SGTouchGamepad) gamepad).remove();
+										//((SGTouchGamepad) gamepad).setVisible(false);
+										//if(!needAccessStageInput){needAccessStageInput=true;}
+									}
+								}
+
+//								@Override
+//								public void go(Object t) {
+//////									playerlbl.setText("team" + player.getTeam() + ", " + player.getCharacter());
+////									player.setValue((int)t);//这里用iter操作已经很有风险了
+////									playerlbl.setText(XBoxKey.getTexts(player.getValue()));
+//									onKeyChange(player.getKey(),(int)t);
+//								}
+							},
+							SGTouchGamepad.class ==gamepad.getClass()?new SGAction<String,Integer,Object>() {
+
+								@Override
+								public void go(String s, Integer integer, Object o) {
+									if (SGTouchGamepad.class ==gamepad.getClass()) {
+										((SGTouchGamepad) gamepad).remove();
+//										((SGTouchGamepad) gamepad).setVisible(false);
+//										//if(!needAccessStageInput){needAccessStageInput=true;}
+									}
+								}
+
+//								@Override
+//								public void go(Object t) {
+//////									playerlbl.setText("team" + player.getTeam() + ", " + player.getCharacter());
+////									player.setValue((int)t);//这里用iter操作已经很有风险了
+////									playerlbl.setText(XBoxKey.getTexts(player.getValue()));
+//									onKeyChange(player.getKey(),(int)t);
+//								}
+							}:null
+					);
+					dialog.show(stage);
+
+				}
+			};
+			playerlbl.addListener(listener);
+			padNameBtn.addListener(listener);
+			playerRow2.add(padNameBtn).spaceBottom(20).spaceRight(10);
+			playerRow2.add(playerlbl).spaceBottom(20);
+			playerRow2.row();
+
+			tabUi.addItem(padNameBtn);
+			//i++;
+		}
+		String aa="aa";
+	}
 	private SelectBox<String> getStringSelectBox() {
 		SelectBox<String> gamepadCombo=new SelectBox(skin);
 
@@ -856,6 +1108,7 @@ public class KeySettingScreen implements Screen {
 	private void saveKey(){
 //				MainMenuScreen.saveKnightGameKeyData(game.knightGameKey);
 		gameKey.applyMap(gameKeyMap);
+		gameKey.applyCombinedMap(gameKeyCombinMap);
 //				LocalSaveSettingHelper.saveKnightGameKeyData(gamepad.getPadUniqueName(),gameKey);
 //		localSaveSettingHelper2.saveGameKey(gamepad.getPadUniqueName(),gameKey);
 		String setting=settingCombo.getSelected();
@@ -889,6 +1142,82 @@ public class KeySettingScreen implements Screen {
 		gameKeyMap.put(key,keyMask);//这里用iter操作已经很有风险了
 //		keySettingLbls.get(key).setText(XBoxKey.getTexts(keyMask));
 		keySettingLbls.get(key).setText(gameKey.getKeyNamesByMask(keyMask));
+	}
+	private void onGamepadKeyChange(String key, final int keyMask){
+		if(gameKeyCombinMap.containsKey(keyMask)){
+			return;
+		}
+//		gameKeyMap.put(key,keyMask);//这里用iter操作已经很有风险了
+		gameKeyCombinMap.put(keyMask,0);
+
+//				final Label playerlbl = new Label("设置键盘按键", skin);
+		final Label playerlbl = new Label("设置键盘按键", skin);
+
+				//playerlbls.add(playerlbl);
+//				combinKeySettingLbls.put(String.valueOf(keyMask),playerlbl);
+		combinKeySettingLbls.put(keyMask,playerlbl);
+
+//				TextButton padNameBtn = new TextButton(player.getKey() + ":", skin);
+//		final String keyName=gameKey.getKeyNamesByMask(keyMask);
+		final String keyName=XBoxKey.getTexts(keyMask);
+				TextButton padNameBtn = new TextButton(keyName+":", skin);
+				ClickListener listener = new ClickListener() {
+
+					@Override
+					public void clicked(InputEvent event, float x, float y) {
+						dialog.init(//KeySettingScreen.this, //sasha,
+								//player, pcCount,
+								gamepad,
+								keyName,//player.getKey(),
+								new SGAction<String,Integer,Object>() {
+
+									@Override
+									public void go(String s, Integer integer, Object o) {
+
+//										onGamepadKeySettingChange(s,integer);// onKeyChange(s,integer);
+
+										onGamepadKeySettingChange(keyMask,integer);
+										if (SGTouchGamepad.class ==gamepad.getClass()) {
+											((SGTouchGamepad) gamepad).remove();
+											//((SGTouchGamepad) gamepad).setVisible(false);
+											//if(!needAccessStageInput){needAccessStageInput=true;}
+										}
+									}
+								},
+								SGTouchGamepad.class ==gamepad.getClass()?new SGAction<String,Integer,Object>() {
+
+									@Override
+									public void go(String s, Integer integer, Object o) {
+										if (SGTouchGamepad.class ==gamepad.getClass()) {
+											((SGTouchGamepad) gamepad).remove();
+										}
+									}
+
+
+								}:null
+						);
+						dialog.show(stage);
+
+					}
+				};
+				playerlbl.addListener(listener);
+				padNameBtn.addListener(listener);
+				playerRow2.add(padNameBtn).spaceBottom(20).spaceRight(10);
+				playerRow2.add(playerlbl).spaceBottom(20);
+				playerRow2.row();
+
+//		keySettingLbls.get(key).setText(gameKey.getKeyNamesByMask(keyMask));
+	}
+
+	private void onGamepadKeySettingChange(//String key,
+										   int key,
+										   int keyMask){
+//		gameKeyMap.put(key,keyMask);//这里用iter操作已经很有风险了
+//		gameKeyCombinMap.put(keyMask,0);
+//		gameKeyCombinMap.put(Integer.valueOf(key),keyMask);
+		gameKeyCombinMap.put(key,keyMask);
+//		keySettingLbls.get(key).setText(XBoxKey.getTexts(keyMask));
+		this.combinKeySettingLbls.get(key).setText(gameKey.getKeyNamesByMask(keyMask));
 	}
 //	private void goToGamePage() {
 //////		if (null == screen) {
@@ -1078,8 +1407,12 @@ public class KeySettingScreen implements Screen {
 //					robot.keyPress(KeyEvent.VK_Z);
 //				}
 //			}else{
-
-				if (null == dialog || (!dialog.isVisible()) || null == dialog.getStage()) {
+				boolean isDialogOpen=(null == dialog || (!dialog.isVisible()) || null == dialog.getStage());
+			boolean isGamepadKeyDialogOpen=(null == gamepadKeyDialog || (!gamepadKeyDialog.isVisible()) || null == gamepadKeyDialog.getStage());
+				if (
+						isDialogOpen
+				&&isGamepadKeyDialogOpen
+				) {
 					if (tabUi.isEditing()) {
 
 						if (0 >= buttonWaitCount) {
@@ -1124,12 +1457,22 @@ public class KeySettingScreen implements Screen {
 					}
 				} else {
 					//有弹窗时
-					if (0 >= buttonWaitCount) {
+					if (isDialogOpen&&0 >= buttonWaitCount) {
 						if (null != sgcontroller && sgcontroller.isCROSS() && dialog.isDone()) {
 							dialog.getRestoreButton().toggle();
 							buttonWaitCount = buttonWait;
 						} else if (null != sgcontroller && sgcontroller.isROUND() && dialog.isDone()) {
 							dialog.getCloseButton().toggle();
+							buttonWaitCount = buttonWait;
+						}
+					}
+
+					if (isGamepadKeyDialogOpen&&0 >= buttonWaitCount) {
+						if (null != sgcontroller && sgcontroller.isCROSS() && gamepadKeyDialog.isDone()) {
+							gamepadKeyDialog.getRestoreButton().toggle();
+							buttonWaitCount = buttonWait;
+						} else if (null != sgcontroller && sgcontroller.isROUND() && gamepadKeyDialog.isDone()) {
+							gamepadKeyDialog.getCloseButton().toggle();
 							buttonWaitCount = buttonWait;
 						}
 					}

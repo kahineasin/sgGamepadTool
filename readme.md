@@ -1,5 +1,6 @@
 # 简介
 GamepadTool 可以帮你用游戏手柄映射键盘的输入，他使用的是libGDX框架，项目结构使用gradle管理
+此项目支持有键盘设备，如电脑
 
 # 打包
 1. .\gradlew desktop:dist

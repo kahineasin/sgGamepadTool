@@ -3,6 +3,7 @@ package com.sellgirl.gamepadtool.screen;
 //import com.mygdx.game.share.gamepad.ISGPS5Gamepad;
 import com.sellgirl.sgGameHelper.gamepad.ISGPS5Gamepad;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 手柄映射键盘
@@ -97,4 +98,7 @@ public interface IKnightSashaGameKey {
     //-------------Map转换-----------
     HashMap<String,Integer> toMap(HashMap<String, Integer> r);
     void applyMap(HashMap<String, Integer> map);
+    void applyCombinedMap(Map<Integer, Integer> map);
+    Map<Integer, Integer> getCombinedMap();
+    boolean isBtn(int btn);
 }
