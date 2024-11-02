@@ -887,7 +887,7 @@ public class SimulateScreen implements Screen {
 
 			//鼠标速度大概是5秒移动一个屏幕高度
 //			speed= (ScreenSetting.WORLD_HEIGHT/(5*ScreenSetting.FPS));
-			speed= (ScreenSetting.WORLD_HEIGHT/(2*ScreenSetting.FPS));
+			speed= (ScreenSetting.WORLD_HEIGHT/(ScreenSetting.FPS));
 
 		} catch (AWTException e) {
 			throw new RuntimeException(e);

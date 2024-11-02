@@ -15,6 +15,8 @@ public class CN {
 		//模拟页面
 		r.put("stop simulate (simulating...)","停止模拟(模拟中...)");
 		r.put("start simulate","开始模拟");
+		//手柄相应区设置
+		r.put("dead zone of joystick","摇杆死区设置");
 
 		r.put("edit userInfo, or press TRIANGLE", "编辑用户信息,或者点 △");
 		r.put("enter the game, or press X", "进入游戏,或者点 X");

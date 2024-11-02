@@ -41,6 +41,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.sellgirl.gamepadtool.language.CN;
 import com.sellgirl.gamepadtool.language.TXT;
+import com.sellgirl.gamepadtool.screen.GamepadSettingScreen;
 import com.sellgirl.gamepadtool.screen.KeySettingScreen;
 import com.sellgirl.gamepadtool.screen.SimulateScreen;
 import com.sellgirl.sgGameHelper.SGGameHelper;
@@ -266,10 +267,12 @@ public class MainMenuScreen implements Screen {
 //		});
 		TextButton gamePadToKeyboardBtn = null;
 		TextButton gamePadToKeyboardSettingBtn=null;
+		TextButton gamePadDeadZoneSettingBtn=null;
 		//if(game.hasKeyboard) {
 
 			gamePadToKeyboardBtn=new TextButton(TXT.g("gamepad to keyboard input"), skin);
 			gamePadToKeyboardSettingBtn = new TextButton(TXT.g("setting"), skin);
+			gamePadDeadZoneSettingBtn = new TextButton(TXT.g("dead zone of joystick"), skin);
 			gamePadToKeyboardBtn.addListener(new ClickListener() {
 
 				@Override
@@ -284,6 +287,13 @@ public class MainMenuScreen implements Screen {
 					goToGamepadToKeyboardSettingPage();
 				}
 			});
+		gamePadDeadZoneSettingBtn.addListener(new ClickListener() {
+
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				goToGamepadDeadZoneSettingPage();
+			}
+		});
 		//}
 //		enterD3GameBtn.addListener(new ClickListener() {
 //
@@ -340,6 +350,8 @@ public class MainMenuScreen implements Screen {
 		table.add(gamePadToKeyboardBtn).spaceBottom(buttonSpace);
 		table.row();
 		table.add(gamePadToKeyboardSettingBtn).spaceBottom(buttonSpace);
+		table.row();
+		table.add(gamePadDeadZoneSettingBtn).spaceBottom(buttonSpace);
 		table.row();
 //		table.add(enterKofGameBtn).spaceBottom(buttonSpace);
 //		table.row();
@@ -431,6 +443,14 @@ public class MainMenuScreen implements Screen {
 	private  void goToGamepadToKeyboardSettingPage() {
 
 		game.setScreen(new KeySettingScreen(game));
+
+		dispose();
+
+	}
+
+	private  void goToGamepadDeadZoneSettingPage() {
+
+		game.setScreen(new GamepadSettingScreen(game));
 
 		dispose();
 
