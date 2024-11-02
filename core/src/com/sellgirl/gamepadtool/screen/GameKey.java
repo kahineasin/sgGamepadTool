@@ -2,10 +2,13 @@ package com.sellgirl.gamepadtool.screen;
 
 import com.badlogic.gdx.Input;
 //import com.mygdx.game.share.gamepad.ISGPS5Gamepad;
+import com.sellgirl.gamepadtool.model.KeySimulateItem;
 import com.sellgirl.sgGameHelper.gamepad.ISGPS5Gamepad;
+import com.sellgirl.sgGameHelper.gamepad.XBoxKey;
 import com.sellgirl.sgJavaHelper.config.SGDataHelper;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,7 +21,9 @@ public class GameKey implements IKnightSashaGameKey//extends GameKeyBase
 
     /**
      * 这些值都是binary模式
+     * @deprecated 这些值不用了，改用keyMap
      */
+    @Deprecated
     private int jump;
     private int dodge;
     private int attack;
@@ -387,6 +392,36 @@ public class GameKey implements IKnightSashaGameKey//extends GameKeyBase
         return gameKeyToMap(this,r);
 
     }
+//    public HashMap<Integer,Integer> toMap2(HashMap<Integer,Integer> r){
+//        IKnightSashaGameKey gameKey=this;
+//        r.put(XBoxKey.CROSS.ordinal(),gameKey.getJump());
+//        r.put(XBoxKey.ROUND.ordinal(),gameKey.getDodge());
+//        r.put(XBoxKey.SQUARE.ordinal(), gameKey.getAttack());
+//        r.put(XBoxKey.TRIANGLE.ordinal(), gameKey.getKick());
+//        r.put(XBoxKey.L1.ordinal(), gameKey.getDefend());
+//        r.put(XBoxKey.R1.ordinal(), gameKey.getSkill());
+//        r.put(XBoxKey.L2.ordinal(), gameKey.getL2());
+//        r.put(XBoxKey.R2.ordinal(), gameKey.getR2());
+//        r.put(XBoxKey.UP.ordinal(), gameKey.getUp());
+//        r.put(XBoxKey.DOWN.ordinal(), gameKey.getDown());
+//        r.put(XBoxKey.LEFT.ordinal(), gameKey.getLeft());
+//        r.put(XBoxKey.RIGHT.ordinal(), gameKey.getRight());
+//        r.put(XBoxKey.L3.ordinal(), gameKey.getL3());
+//        r.put(XBoxKey.R3.ordinal(), gameKey.getR3());
+//        r.put(XBoxKey.MENU.ordinal(), gameKey.getBack());
+//        r.put(XBoxKey.START.ordinal(), gameKey.getStart());
+//
+//        r.put(XBoxKey.stick1Up.ordinal(), gameKey.getStick1Up());
+//        r.put(XBoxKey.stick1Down.ordinal(),gameKey.getStick1Down());
+//        r.put(XBoxKey.stick1Left.ordinal(),gameKey.getStick1Left());
+//        r.put(XBoxKey.stick1Right.ordinal(),gameKey.getStick1Right());
+//        r.put(XBoxKey.stick2Up.ordinal(), gameKey.getStick2Up());
+//        r.put(XBoxKey.stick2Down.ordinal(),gameKey.getStick2Down());
+//        r.put(XBoxKey.stick2Left.ordinal(),gameKey.getStick2Left());
+//        r.put(XBoxKey.stick2Right.ordinal(),gameKey.getStick2Right());
+//        return r;
+//
+//    }
     public static HashMap<String,Integer> gameKeyToMap(IKnightSashaGameKey gameKey, HashMap<String,Integer> r){
         //HashMap<String,Integer> r=new HashMap<>();
         r.put("a",gameKey.getJump());
@@ -457,6 +492,44 @@ public class GameKey implements IKnightSashaGameKey//extends GameKeyBase
     public Map<Integer, Integer> getCombinedMap(){
         return combineMap;
     }
+
+    private List< KeySimulateItem> keyMap=null;
+    public void setKeyMap(List< KeySimulateItem> map){
+        keyMap=map;
+    }
+    public List<KeySimulateItem> getKeyMap(){
+        return keyMap;
+    }
+    public static List< KeySimulateItem> intDefaultKeyMap(List< KeySimulateItem> r){
+        //HashMap<String,Integer> r=new HashMap<>();
+        r.add(new KeySimulateItem(XBoxKey.CROSS.ordinal()));
+        r.add(new KeySimulateItem(XBoxKey.ROUND.ordinal()));
+        r.add(new KeySimulateItem(XBoxKey.SQUARE.ordinal()));
+        r.add(new KeySimulateItem(XBoxKey.TRIANGLE.ordinal()));
+        r.add(new KeySimulateItem(XBoxKey.L1.ordinal()));
+        r.add(new KeySimulateItem(XBoxKey.R1.ordinal()));
+        r.add(new KeySimulateItem(XBoxKey.L2.ordinal()));
+        r.add(new KeySimulateItem(XBoxKey.R2.ordinal()));
+        r.add(new KeySimulateItem(XBoxKey.UP.ordinal()));
+        r.add(new KeySimulateItem(XBoxKey.DOWN.ordinal()));
+        r.add(new KeySimulateItem(XBoxKey.LEFT.ordinal()));
+        r.add(new KeySimulateItem(XBoxKey.RIGHT.ordinal()));
+        r.add(new KeySimulateItem(XBoxKey.L3.ordinal()));
+        r.add(new KeySimulateItem(XBoxKey.R3.ordinal()));
+        r.add(new KeySimulateItem(XBoxKey.MENU.ordinal()));
+        r.add(new KeySimulateItem(XBoxKey.START.ordinal()));
+        r.add(new KeySimulateItem(XBoxKey.stick1Up.ordinal()));
+        r.add(new KeySimulateItem(XBoxKey.stick1Down.ordinal()));
+        r.add(new KeySimulateItem(XBoxKey.stick1Left.ordinal()));
+        r.add(new KeySimulateItem(XBoxKey.stick1Right.ordinal()));
+        r.add(new KeySimulateItem(XBoxKey.stick2Up.ordinal()));
+        r.add(new KeySimulateItem(XBoxKey.stick2Down.ordinal()));
+        r.add(new KeySimulateItem(XBoxKey.stick2Left.ordinal()));
+        r.add(new KeySimulateItem(XBoxKey.stick2Right.ordinal()));
+
+        return r;
+
+    }
     public String getKeyNamesByMask(int mask){
 
 //        return XBoxKey.getTexts(mask);
@@ -472,4 +545,38 @@ public class GameKey implements IKnightSashaGameKey//extends GameKeyBase
 //
 //        return XBoxKey.getTexts(mask);
 //    }
+
+    /**
+     * 轴幅度，统一返回正数
+     * @param gamepad
+     * @param key
+     * @return
+     */
+    public static float getAxisPercent(ISGPS5Gamepad gamepad,XBoxKey key){
+        switch (key){
+            case L2:
+                return gamepad.axisL2();
+            case R2:
+                return -gamepad.axisR2();
+            case stick1Up:
+                return -gamepad.axisLeftY();
+            case stick1Down:
+                return gamepad.axisLeftY();
+            case stick1Left:
+                return -gamepad.axisLeftX();
+            case stick1Right:
+                return gamepad.axisLeftX();
+            case stick2Up:
+                return -gamepad.axisRightY();
+            case stick2Down:
+                return gamepad.axisRightY();
+            case stick2Left:
+                return -gamepad.axisRightX();
+            case stick2Right:
+                return gamepad.axisRightX();
+            default:
+                break;
+        }
+        return 0;
+    }
 }

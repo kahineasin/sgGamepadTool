@@ -1,8 +1,10 @@
 package com.sellgirl.gamepadtool.screen;
 
 //import com.mygdx.game.share.gamepad.ISGPS5Gamepad;
+import com.sellgirl.gamepadtool.model.KeySimulateItem;
 import com.sellgirl.sgGameHelper.gamepad.ISGPS5Gamepad;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -100,5 +102,13 @@ public interface IKnightSashaGameKey {
     void applyMap(HashMap<String, Integer> map);
     void applyCombinedMap(Map<Integer, Integer> map);
     Map<Integer, Integer> getCombinedMap();
+     void setKeyMap(List<KeySimulateItem> map);
+     List< KeySimulateItem> getKeyMap();
+
+    /**
+     * 判断按下了手柄按键
+     * @param btn btnMask
+     * @return
+     */
     boolean isBtn(int btn);
 }

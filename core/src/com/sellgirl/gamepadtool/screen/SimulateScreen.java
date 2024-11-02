@@ -36,6 +36,8 @@ import com.sellgirl.gamepadtool.GamepadTool;
 import com.sellgirl.gamepadtool.MainMenuScreen;
 import com.sellgirl.gamepadtool.ScreenSetting;
 import com.sellgirl.gamepadtool.language.TXT;
+import com.sellgirl.gamepadtool.model.KeySimulateItem;
+import com.sellgirl.gamepadtool.model.MouseKey;
 import com.sellgirl.sgGameHelper.SGLibGdxHelper;
 import com.sellgirl.sgGameHelper.gamepad.ISGPS5Gamepad;
 import com.sellgirl.sgGameHelper.gamepad.SGPS5Gamepad;
@@ -47,6 +49,8 @@ import com.sellgirl.sgJavaHelper.SGAction;
 import com.sellgirl.sgJavaHelper.config.SGDataHelper;
 
 import java.awt.AWTException;
+import java.awt.MouseInfo;
+import java.awt.Point;
 import java.awt.Robot;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
@@ -130,12 +134,15 @@ public class SimulateScreen implements Screen {
 	//ArrayList<Label> playerlbls = new ArrayList<Label>();
 //	ArrayList<TextButton> keySettingLbls = null;
 	HashMap<String,Label> keySettingLbls = null;
+	//HashMap<Integer,TextButton> keyBtns=null;
 	HashMap<String,Label> combinKeyLbls = null;
 	HashMap<Integer,Label> combinKeySettingLbls = null;
 	HashMap<Integer,TextButton> combinKeyBtns=null;
 //	Label settingTypeLbl=null;
 	IKnightSashaGameKey gameKey=null;
+	@Deprecated
 	HashMap<String,Integer> gameKeyMap=null;
+	Array2<KeySimulateItem> gameKeyMap2=null;
 	HashMap<Integer,Integer> gameKeyCombinMap=null;
 	/**
 	 * 当前正在设定的手柄
@@ -173,6 +180,29 @@ public class SimulateScreen implements Screen {
 			gameKeyMap=new LinkedHashMap<>();
 		}
 		gameKeyMap=gameKey.toMap(gameKeyMap);
+
+
+		if(null==gameKeyMap2){
+			gameKeyMap2=new Array2<KeySimulateItem>();
+		}else{
+			gameKeyMap2.clear();
+		}
+		if(null==gameKey.getKeyMap()){
+			//gameKeyMap2=new Array2<KeySimulateItem>();
+		}else{
+			for(KeySimulateItem i:gameKey.getKeyMap()){
+				if(null!=i.getDstKeyType()&&KeySimulateItem.KeyType.NONE!=i.getDstKeyType()) {
+					gameKeyMap2.add(i);
+				}
+			}
+			//gameKeyMap2=gameKey.getKeyMap();
+		}
+//		if(gameKeyMap2.isEmpty()){
+//			for(KeySimulateItem i:GameKey.intDefaultKeyMap(new ArrayList<KeySimulateItem>())){
+//				gameKeyMap2.add(i);
+//			}
+//			//gameKeyMap2=GameKey.intDefaultKeyMap(gameKeyMap2);
+//		}
 
 		if(null==gameKey.getCombinedMap()){
 			gameKeyCombinMap=new LinkedHashMap<>();
@@ -215,13 +245,37 @@ public class SimulateScreen implements Screen {
 
 		if(null!=saveResultLbl){
 			saveResultLbl.setText("");}
-		if(null!=keySettingLbls){
+//		if(null!=keySettingLbls){
+//
+//			for (Map.Entry<String, Integer> m1 : gameKeyMap.entrySet()) {
+////				keySettingLbls.get(m1.getKey()).setText(XBoxKey.getTexts(m1.getValue()));
+//				keySettingLbls.get(m1.getKey()).setText(gameKey.getKeyNamesByMask(m1.getValue()) );
+//			}
+//
+//		}
 
-			for (Map.Entry<String, Integer> m1 : gameKeyMap.entrySet()) {
-//				keySettingLbls.get(m1.getKey()).setText(XBoxKey.getTexts(m1.getValue()));
-				keySettingLbls.get(m1.getKey()).setText(gameKey.getKeyNamesByMask(m1.getValue()) );
-			}
-		}
+		keySettingLbls.clear();
+		//keyBtns.clear();
+		playerRow1.clear();
+		generateKeyLbls();
+
+//		for (KeySimulateItem m1 : gameKeyMap2) {
+//			if(m1.getDstKeyType()== KeySimulateItem.KeyType.KEYBOARD){
+//				keySettingLbls.get(XBoxKey.values()[ m1.getSrcKey()].toString())
+//						.setText(gameKey.getKeyNamesByMask(m1.getDstKey()) );
+//			}else{
+//				keySettingLbls.get(XBoxKey.values()[ m1.getSrcKey()].toString())
+//						.setText("映射键盘");
+//			}
+//			if(m1.getDstKeyType()== KeySimulateItem.KeyType.MOUSE){
+//				mouseKeySettingLbls.get(XBoxKey.values()[ m1.getSrcKey()].toString())
+//						.setText(MouseKey.values()[m1.getDstKey()].toString() );
+//			}else{
+//				mouseKeySettingLbls.get(XBoxKey.values()[ m1.getSrcKey()].toString())
+//						.setText("映射鼠标");
+//			}
+//		}
+
 		combinKeySettingLbls.clear();
 		combinKeyBtns.clear();
 		playerRow2.clear();
@@ -374,6 +428,7 @@ public class SimulateScreen implements Screen {
 	private SelectBox<String> settingCombo=null;
 	private Array<String> settingComboItem=null;
 	private Table playerRow;
+	private Table playerRow1;
 	private Table playerRow2;
 	private void prepareUI() {
 
@@ -394,6 +449,7 @@ public class SimulateScreen implements Screen {
 
 
 		 playerRow = new Table();
+		playerRow1 = new Table();
 		 playerRow2 = new Table();
 
 		final SelectBox<String> gamepadCombo = getStringSelectBox();
@@ -437,22 +493,8 @@ public class SimulateScreen implements Screen {
 //				);
 //		keySettingLbls=new ArrayList<>();
 		keySettingLbls=new HashMap<>();
-		for (final Map.Entry<String, Integer> player : gameKeyMap.entrySet()) {
-////			final Label playerlbl = new Label(null == player.getCharacter() ? "选择角色"
-////					: "" + ("team" + player.getTeam() + ", " + player.getCharacter()), skin);
-//			final Label playerlbl = new Label(XBoxKey.getTexts(player.getValue()), skin);
-			final Label playerlbl = new Label(gameKey.getKeyNamesByMask(player.getValue()), skin);
-			//playerlbls.add(playerlbl);
-			keySettingLbls.put(player.getKey(),playerlbl);
-
-			TextButton padNameBtn = new TextButton(player.getKey() + ":", skin);
-			playerRow.add(padNameBtn).spaceBottom(20).spaceRight(10);
-			playerRow.add(playerlbl).spaceBottom(20);
-			playerRow.row();
-
-			tabUi.addItem(padNameBtn);
-			i++;
-		}
+		combinKeyBtns=new HashMap<>();
+		generateKeyLbls();
 
 
 		combinKeySettingLbls=new HashMap<>();
@@ -529,7 +571,9 @@ public class SimulateScreen implements Screen {
 //			tabUi.addItem(padNameBtn);
 //			//i++;
 //		}
-
+		int rowSpaceBottom=20;
+		playerRow.add(playerRow1).colspan(2).spaceBottom(rowSpaceBottom);
+		playerRow.row();
 		playerRow.add(playerRow2).colspan(2);
 		ScrollPane scrollPane=new ScrollPane(playerRow);
 		scrollPane.setWidth(ScreenSetting.WORLD_WIDTH);
@@ -840,11 +884,45 @@ public class SimulateScreen implements Screen {
 
 //			keyDowns=new boolean[24];
 			keyDowns=new boolean[24+gameKey.getCombinedMap().size()];
+
+			//鼠标速度大概是5秒移动一个屏幕高度
+//			speed= (ScreenSetting.WORLD_HEIGHT/(5*ScreenSetting.FPS));
+			speed= (ScreenSetting.WORLD_HEIGHT/(2*ScreenSetting.FPS));
+
 		} catch (AWTException e) {
 			throw new RuntimeException(e);
 		}
 	}
+	private float speed;
+	private void generateKeyLbls(){
 
+		//for (final Map.Entry<String, Integer> player : gameKeyMap.entrySet()) {
+		for (final KeySimulateItem player : gameKeyMap2) {
+			if(KeySimulateItem.KeyType.NONE!=player.getDstKeyType()
+			&&0<player.getDstKey()
+			){
+
+			}else{
+				continue;
+			}
+			String lblPrev=KeySimulateItem.KeyType.KEYBOARD==player.getDstKeyType()?"键盘:":"鼠标:";
+			String lblText=KeySimulateItem.KeyType.KEYBOARD==player.getDstKeyType()
+					?gameKey.getKeyNamesByMask(player.getDstKey())
+					:MouseKey.values()[player.getDstKey()].toString();
+			final Label playerlbl = new Label(lblPrev+lblText, skin);
+			//playerlbls.add(playerlbl);
+			final String keyName=XBoxKey.values()[ player.getSrcKey()].toString();
+			keySettingLbls.put(keyName,playerlbl);
+
+			TextButton padNameBtn = new TextButton(keyName + "->", skin);
+			playerRow1.add(padNameBtn).spaceBottom(20).spaceRight(10);
+			playerRow1.add(playerlbl).spaceBottom(20);
+			playerRow1.row();
+
+			tabUi.addItem(padNameBtn);
+//			i++;
+		}
+	}
 	private void generateCombineLbls(){
 
 		for (final Map.Entry<Integer, Integer> player : gameKeyCombinMap.entrySet()) {
@@ -855,63 +933,6 @@ public class SimulateScreen implements Screen {
 			final String keyName=XBoxKey.getTexts( player.getKey());
 			TextButton padNameBtn = new TextButton( keyName+ ":", skin);
 			this.combinKeyBtns.put(player.getKey(),padNameBtn);
-//			//// final SGRef<Integer> iRef=new SGRef<Integer>(i);
-//			//final int i2 = i;
-//			ClickListener listener = new ClickListener() {
-//
-//				@Override
-//				public void clicked(InputEvent event, float x, float y) {
-//					dialog.init(//KeySettingScreen.this, //sasha,
-//							//player, pcCount,
-//							gamepad,
-//							keyName,//player.getKey(),
-//							new SGAction<String,Integer,Object>() {
-//
-//								@Override
-//								public void go(String s, Integer integer, Object o) {
-//
-//									onGamepadKeySettingChange(player.getKey(),integer);
-//									if (SGTouchGamepad.class ==gamepad.getClass()) {
-//										((SGTouchGamepad) gamepad).remove();
-//										//((SGTouchGamepad) gamepad).setVisible(false);
-//										//if(!needAccessStageInput){needAccessStageInput=true;}
-//									}
-//								}
-//
-////								@Override
-////								public void go(Object t) {
-////////									playerlbl.setText("team" + player.getTeam() + ", " + player.getCharacter());
-//////									player.setValue((int)t);//这里用iter操作已经很有风险了
-//////									playerlbl.setText(XBoxKey.getTexts(player.getValue()));
-////									onKeyChange(player.getKey(),(int)t);
-////								}
-//							},
-//							SGTouchGamepad.class ==gamepad.getClass()?new SGAction<String,Integer,Object>() {
-//
-//								@Override
-//								public void go(String s, Integer integer, Object o) {
-//									if (SGTouchGamepad.class ==gamepad.getClass()) {
-//										((SGTouchGamepad) gamepad).remove();
-////										((SGTouchGamepad) gamepad).setVisible(false);
-////										//if(!needAccessStageInput){needAccessStageInput=true;}
-//									}
-//								}
-//
-////								@Override
-////								public void go(Object t) {
-////////									playerlbl.setText("team" + player.getTeam() + ", " + player.getCharacter());
-//////									player.setValue((int)t);//这里用iter操作已经很有风险了
-//////									playerlbl.setText(XBoxKey.getTexts(player.getValue()));
-////									onKeyChange(player.getKey(),(int)t);
-////								}
-//							}:null
-//					);
-//					dialog.show(stage);
-//
-//				}
-//			};
-//			playerlbl.addListener(listener);
-//			padNameBtn.addListener(listener);
 			playerRow2.add(padNameBtn).spaceBottom(20).spaceRight(10);
 			playerRow2.add(playerlbl).spaceBottom(20);
 			playerRow2.row();
@@ -1218,61 +1239,7 @@ public class SimulateScreen implements Screen {
 //				if(sgcontroller.isCROSS()){
 //				}
 				gameKey.update();
-//				if(gameKey.isAttack()){
-//					robot.keyPress(gameKey.getAttack());
-//				}
-//				else if(gameKey.isKick()){
-//					robot.keyPress(gameKey.getKick());
-//				}
-//				else if(gameKey.isJump()){
-//					robot.keyPress(gameKey.getJump());
-//				}
-//				else if(gameKey.isDodge()){
-//					robot.keyPress(gameKey.getDodge());
-//				}
-//				else if(gameKey.isDefend()){
-//					robot.keyPress(gameKey.getDefend());
-//				}
-//				else if(gameKey.isSkill()){
-//					robot.keyPress(gameKey.getSkill());
-//				}
 
-				//这里只press 没有release按键, 有问题
-//				if(Input.Keys.UNKNOWN!=gameKey.getAttack()&& gameKey.getGamepad().isSQUARE()){
-//					robot.keyPress(gdxKeyToSysKey( gameKey.getAttack()));
-//				}
-//				else if(Input.Keys.UNKNOWN!=gameKey.getKick()&&gameKey.getGamepad().isTRIANGLE()){
-//					robot.keyPress(gdxKeyToSysKey( gameKey.getKick()));
-//				}
-//				else if(Input.Keys.UNKNOWN!=gameKey.getJump()&&gameKey.getGamepad().isCROSS()){
-//					robot.keyPress(gdxKeyToSysKey( gameKey.getJump()));
-//				}else if(Input.Keys.UNKNOWN!=gameKey.getDodge()&&gameKey.getGamepad().isROUND()){
-//					robot.keyPress(gdxKeyToSysKey( gameKey.getDodge()));
-//				}else if(Input.Keys.UNKNOWN!=gameKey.getDefend()&&gameKey.getGamepad().isL1()){
-//					robot.keyPress(gdxKeyToSysKey( gameKey.getDefend()));
-//				}else if(Input.Keys.UNKNOWN!=gameKey.getSkill()&&gameKey.getGamepad().isR1()){
-//					robot.keyPress(gdxKeyToSysKey( gameKey.getSkill()));
-//				}else if(Input.Keys.UNKNOWN!=gameKey.getL2()&&0.1<gameKey.getGamepad().axisL2()){
-//					robot.keyPress(gdxKeyToSysKey( gameKey.getL2()));
-//				}else if(Input.Keys.UNKNOWN!=gameKey.getR2()&&0.1<gameKey.getGamepad().axisR2()){
-//					robot.keyPress(gdxKeyToSysKey( gameKey.getR2()));
-//				}else if(Input.Keys.UNKNOWN!=gameKey.getUp()&&gameKey.getGamepad().isUP()){
-//					robot.keyPress(gdxKeyToSysKey( gameKey.getUp()));
-//				}else if(Input.Keys.UNKNOWN!=gameKey.getDown()&&gameKey.getGamepad().isDOWN()){
-//					robot.keyPress(gdxKeyToSysKey( gameKey.getDown()));
-//				}else if(Input.Keys.UNKNOWN!=gameKey.getLeft()&&gameKey.getGamepad().isLEFT()){
-//					robot.keyPress(gdxKeyToSysKey( gameKey.getLeft()));
-//				}else if(Input.Keys.UNKNOWN!=gameKey.getRight()&&gameKey.getGamepad().isRIGHT()){
-//					robot.keyPress(gdxKeyToSysKey( gameKey.getRight()));
-//				}else if(Input.Keys.UNKNOWN!=gameKey.getL3()&&gameKey.getGamepad().isL3()){
-//					robot.keyPress(gdxKeyToSysKey( gameKey.getL3()));
-//				}else if(Input.Keys.UNKNOWN!=gameKey.getR3()&&gameKey.getGamepad().isR3()){
-//					robot.keyPress(gdxKeyToSysKey( gameKey.getR3()));
-//				}else if(Input.Keys.UNKNOWN!=gameKey.getBack()&&gameKey.getGamepad().isBACK()){
-//					robot.keyPress(gdxKeyToSysKey( gameKey.getBack()));
-//				}else if(Input.Keys.UNKNOWN!=gameKey.getStart()&&gameKey.getGamepad().isSTART()){
-//					robot.keyPress(gdxKeyToSysKey( gameKey.getStart()));
-//				}
 
 
 				//activeCombine激活的组合包含的单键不触发
@@ -1302,44 +1269,183 @@ public class SimulateScreen implements Screen {
 					}
 					historyId++;
 				}
-//				if(isPress==keyDowns[historyId]){
-//					return;
-//				}
-//				if(Input.Keys.UNKNOWN!=gdxKey){
-//					int sysKey=gdxKeyToSysKey( gdxKey);
-//					if(isPress) {
-//						robot.keyPress(sysKey);
-//					}else {
-//						robot.keyRelease(sysKey);
-//					}
-//					keyDowns[historyId]=isPress;
-//				}
 
-				//这里未完善,SGPS5Gamepad.getQuickBtnKey里面的组合不完整，比如没有l2 r2 --benjamin todo
-				keyPress(gameKey.getAttack(),gameKey.getGamepad().isSQUARE(),0+historyId,XBoxKey.SQUARE);
-				keyPress(gameKey.getKick(),gameKey.getGamepad().isTRIANGLE(),1+historyId,XBoxKey.TRIANGLE);
-				keyPress(gameKey.getJump(),gameKey.getGamepad().isCROSS(),2+historyId,XBoxKey.CROSS);
-				keyPress(gameKey.getDodge(),gameKey.getGamepad().isROUND(),3+historyId,XBoxKey.ROUND);
-				keyPress(gameKey.getDefend(),gameKey.getGamepad().isL1(),4+historyId,XBoxKey.L1);
-				keyPress(gameKey.getSkill(),gameKey.getGamepad().isR1(),5+historyId,XBoxKey.R1);
-				keyPress(gameKey.getL2(),0.1<gameKey.getGamepad().axisL2(),6+historyId,XBoxKey.L2);
-				keyPress(gameKey.getR2(),0.1<gameKey.getGamepad().axisR2(),7+historyId,XBoxKey.R2);
-				keyPress(gameKey.getUp(),gameKey.getGamepad().isUP(),8+historyId,XBoxKey.UP);
-				keyPress(gameKey.getDown(),gameKey.getGamepad().isDOWN(),9+historyId,XBoxKey.DOWN);
-				keyPress(gameKey.getLeft(),gameKey.getGamepad().isLEFT(),10+historyId,XBoxKey.LEFT);
-				keyPress(gameKey.getRight(),gameKey.getGamepad().isRIGHT(),11+historyId,XBoxKey.RIGHT);
-				keyPress(gameKey.getL3(),gameKey.getGamepad().isL3(),12+historyId,XBoxKey.L3);
-				keyPress(gameKey.getR3(),gameKey.getGamepad().isR3(),13+historyId,XBoxKey.R3);
-				keyPress(gameKey.getBack(),gameKey.getGamepad().isBACK(),14+historyId,XBoxKey.MENU);
-				keyPress(gameKey.getStart(),gameKey.getGamepad().isSTART(),15+historyId,XBoxKey.START);
-				keyPress(gameKey.getStick1Up(),-0.1>gameKey.getGamepad().axisLeftY(),16+historyId,null);
-				keyPress(gameKey.getStick1Down(),0.1<gameKey.getGamepad().axisLeftY(),17+historyId,null);
-				keyPress(gameKey.getStick1Left(),-0.1>gameKey.getGamepad().axisLeftX(),18+historyId,null);
-				keyPress(gameKey.getStick1Right(),0.1<gameKey.getGamepad().axisLeftX(),19+historyId,null);
-				keyPress(gameKey.getStick2Up(),-0.1>gameKey.getGamepad().axisRightY(),20+historyId,null);
-				keyPress(gameKey.getStick2Down(),0.1<gameKey.getGamepad().axisRightY(),21+historyId,null);
-				keyPress(gameKey.getStick2Left(),-0.1>gameKey.getGamepad().axisRightX(),22+historyId,null);
-				keyPress(gameKey.getStick2Right(),0.1<gameKey.getGamepad().axisRightX(),23+historyId,null);
+				//鼠标参数
+				float mouseX=0;
+				float mouseY=0;
+				////速度大概是5秒移动一个屏幕高度
+				//int speed= (int) (ScreenSetting.WORLD_HEIGHT/(5*ScreenSetting.FPS));
+
+				for(KeySimulateItem j:gameKeyMap2){
+					isPress=gameKey.isBtn(1<<j.getSrcKey());
+					//mouse移动不跳过
+//					if(isPress==keyDowns[historyId]){
+////						return;
+//						historyId++;
+//						continue;
+//					}
+					XBoxKey padKey=XBoxKey.values()[j.getSrcKey()];
+					//如果组合键中包含，就跳过
+					if(null!=padKey) {
+						boolean ok=false;
+						for (Integer i : activeCombine) {
+							String aa="aa";
+							if (//SGDataHelper.EnumHasFlag(i, padKey.ordinal())
+									SGDataHelper.EnumHasFlag(i, padKey.getBinary())
+							) {
+//									return;
+								ok=true;
+								break;
+							}
+						}
+						if(ok){
+							historyId++;
+							continue;
+						}
+					}
+					if(
+							KeySimulateItem.KeyType.KEYBOARD==j.getDstKeyType()
+					){
+						if(isPress==keyDowns[historyId]){
+//						return;
+							historyId++;
+							continue;
+						}
+						gdxKey=j.getDstKey();
+						if(Input.Keys.UNKNOWN!=gdxKey){
+							int sysKey=gdxKeyToSysKey( gdxKey);
+							if(isPress) {
+								robot.keyPress(sysKey);
+							}else {
+								robot.keyRelease(sysKey);
+							}
+							keyDowns[historyId]=isPress;
+						}
+					}else if(KeySimulateItem.KeyType.MOUSE==j.getDstKeyType()){
+						MouseKey dstKeyEnum=MouseKey.values()[j.getDstKey()];
+						if(isPress==keyDowns[historyId]
+						&&MouseKey.UP!=dstKeyEnum&&MouseKey.DOWN!=dstKeyEnum
+								&&MouseKey.LEFT!=dstKeyEnum&&MouseKey.RIGHT!=dstKeyEnum
+						){
+//						return;
+							historyId++;
+							continue;
+						}
+						if(MouseKey.NONE!=dstKeyEnum){
+//							int sysKey=gdxKeyToSysKey( gdxKey);
+							if(isPress) {
+//								robot.keyPress(sysKey);
+//								int x=0;
+//								int y=0;
+								//速度大概是5秒移动一个屏幕高度
+//								int speed= (int) (ScreenSetting.WORLD_HEIGHT/(5*ScreenSetting.FPS));
+//								int speed=100;
+
+								//当dstKey是mouseMove而且srcKey是轴时，要计算轴幅度
+								float percent=1;
+								if(MouseKey.UP==dstKeyEnum||MouseKey.DOWN==dstKeyEnum
+										||MouseKey.LEFT==dstKeyEnum||MouseKey.RIGHT==dstKeyEnum){
+
+									percent=GameKey.getAxisPercent(gameKey.getGamepad(),padKey);
+								}
+
+								switch (dstKeyEnum){
+									case UP:
+										mouseY-=speed*percent;
+										//robot.mouseMove(0, mouseY);
+										break;
+									case DOWN:
+										//y-=speed;
+										mouseY+=speed*percent;
+//										robot.mouseMove(0, mouseY);
+										break;
+									case LEFT:
+										//x-=speed;
+										mouseX-=speed*percent;
+//										robot.mouseMove( mouseX,0);
+										break;
+									case RIGHT:
+//										x+=speed;
+										mouseX+=speed*percent;
+//										if(0!=x||0!=y) {
+//											robot.mouseMove(x, y);
+//										}
+//										robot.mouseMove(mouseX,mouseY);
+										break;
+									case buttonLeft:
+										robot.mousePress(java.awt.event.InputEvent.BUTTON1_DOWN_MASK);
+										break;
+									case buttonRight:
+										robot.mousePress(java.awt.event.InputEvent.BUTTON2_DOWN_MASK);
+										break;
+									default:
+										break;
+								}
+							}else {
+////								robot.keyRelease(sysKey);
+//								int x=0;
+//								int y=0;
+//								//速度大概是5秒移动一个屏幕高度
+//								int speed= (int) (ScreenSetting.WORLD_HEIGHT/(5*ScreenSetting.FPS));
+								switch (dstKeyEnum){
+//									case UP:
+//										y+=speed;
+//									case DOWN:
+//										y-=speed;
+//									case LEFT:
+//										x-=speed;
+//									case RIGHT:
+//										x+=speed;
+//										robot.mouseMove(x,y);
+//										break;
+									case buttonLeft:
+										robot.mouseRelease(java.awt.event.InputEvent.BUTTON1_DOWN_MASK);
+										break;
+									case buttonRight:
+										robot.mouseRelease(java.awt.event.InputEvent.BUTTON2_DOWN_MASK);
+										break;
+									default:
+										break;
+								}
+							}
+							keyDowns[historyId]=isPress;
+						}
+					}
+					historyId++;
+				}
+				if(0!=mouseX||0!=mouseY){
+					Point mouseLocation = MouseInfo.getPointerInfo().getLocation();
+//					int mouseX=mouseLocation.x;
+//					int mouseY=mouseLocation.y;
+					robot.mouseMove(((Float)(mouseX+mouseLocation.x)).intValue(),
+							((Float)(mouseY+ mouseLocation.y)).intValue());
+				}
+
+//				//这里未完善,SGPS5Gamepad.getQuickBtnKey里面的组合不完整，比如没有l2 r2 --benjamin todo
+//				keyPress(gameKey.getAttack(),gameKey.getGamepad().isSQUARE(),0+historyId,XBoxKey.SQUARE);
+//				keyPress(gameKey.getKick(),gameKey.getGamepad().isTRIANGLE(),1+historyId,XBoxKey.TRIANGLE);
+//				keyPress(gameKey.getJump(),gameKey.getGamepad().isCROSS(),2+historyId,XBoxKey.CROSS);
+//				keyPress(gameKey.getDodge(),gameKey.getGamepad().isROUND(),3+historyId,XBoxKey.ROUND);
+//				keyPress(gameKey.getDefend(),gameKey.getGamepad().isL1(),4+historyId,XBoxKey.L1);
+//				keyPress(gameKey.getSkill(),gameKey.getGamepad().isR1(),5+historyId,XBoxKey.R1);
+//				keyPress(gameKey.getL2(),0.1<gameKey.getGamepad().axisL2(),6+historyId,XBoxKey.L2);
+//				keyPress(gameKey.getR2(),0.1<gameKey.getGamepad().axisR2(),7+historyId,XBoxKey.R2);
+//				keyPress(gameKey.getUp(),gameKey.getGamepad().isUP(),8+historyId,XBoxKey.UP);
+//				keyPress(gameKey.getDown(),gameKey.getGamepad().isDOWN(),9+historyId,XBoxKey.DOWN);
+//				keyPress(gameKey.getLeft(),gameKey.getGamepad().isLEFT(),10+historyId,XBoxKey.LEFT);
+//				keyPress(gameKey.getRight(),gameKey.getGamepad().isRIGHT(),11+historyId,XBoxKey.RIGHT);
+//				keyPress(gameKey.getL3(),gameKey.getGamepad().isL3(),12+historyId,XBoxKey.L3);
+//				keyPress(gameKey.getR3(),gameKey.getGamepad().isR3(),13+historyId,XBoxKey.R3);
+//				keyPress(gameKey.getBack(),gameKey.getGamepad().isBACK(),14+historyId,XBoxKey.MENU);
+//				keyPress(gameKey.getStart(),gameKey.getGamepad().isSTART(),15+historyId,XBoxKey.START);
+//				keyPress(gameKey.getStick1Up(),-0.1>gameKey.getGamepad().axisLeftY(),16+historyId,null);
+//				keyPress(gameKey.getStick1Down(),0.1<gameKey.getGamepad().axisLeftY(),17+historyId,null);
+//				keyPress(gameKey.getStick1Left(),-0.1>gameKey.getGamepad().axisLeftX(),18+historyId,null);
+//				keyPress(gameKey.getStick1Right(),0.1<gameKey.getGamepad().axisLeftX(),19+historyId,null);
+//				keyPress(gameKey.getStick2Up(),-0.1>gameKey.getGamepad().axisRightY(),20+historyId,null);
+//				keyPress(gameKey.getStick2Down(),0.1<gameKey.getGamepad().axisRightY(),21+historyId,null);
+//				keyPress(gameKey.getStick2Left(),-0.1>gameKey.getGamepad().axisRightX(),22+historyId,null);
+//				keyPress(gameKey.getStick2Right(),0.1<gameKey.getGamepad().axisRightX(),23+historyId,null);
 			}else{
 
 				if (null == dialog || (!dialog.isVisible()) || null == dialog.getStage()) {
@@ -1657,10 +1763,7 @@ public class SimulateScreen implements Screen {
 
 	@Override
 	public void dispose() {
-//		if(null!=lastScreen) {
-//			lastScreen.dispose();
-//			lastScreen=null;
-//		}
+
 		stage.dispose();
 		stage=null;
 		skin.dispose();
