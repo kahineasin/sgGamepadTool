@@ -45,6 +45,9 @@ import com.sellgirl.gamepadtool.screen.GamepadSettingScreen;
 import com.sellgirl.gamepadtool.screen.KeySettingScreen;
 import com.sellgirl.gamepadtool.screen.SimulateScreen;
 import com.sellgirl.sgGameHelper.SGGameHelper;
+import com.sellgirl.sgGameHelper.SGLibGdxHelper;
+import com.sellgirl.sgGameHelper.gamepad.ISGPS5Gamepad;
+import com.sellgirl.sgGameHelper.tabUi.TabUi;
 import com.sellgirl.sgJavaHelper.SGDate;
 import com.sellgirl.sgJavaHelper.antivirus.SGProcess;
 import com.sellgirl.sgJavaHelper.antivirus.SGProcessHelper;
@@ -108,7 +111,8 @@ public class MainMenuScreen implements Screen {
 			SGDataHelper.getLog().printException(e,tag+"testReadByLibGdx");
 		}
 	}
-
+ISGPS5Gamepad sgcontroller;
+	TabUi tabUi;
 	public MainMenuScreen(final GamepadTool game) {
 //		public MainMenuScreen( SashaGame game) {
 		this.game = game;
@@ -171,7 +175,7 @@ public class MainMenuScreen implements Screen {
 //
 //
 //		}
-
+		this.sgcontroller= SGLibGdxHelper.getSGGamepad();
 		// 使用伸展视口（StretchViewport）创建舞台
 		stage = new Stage(new StretchViewport(ScreenSetting.WORLD_WIDTH, ScreenSetting.WORLD_HEIGHT));
 
@@ -182,14 +186,15 @@ public class MainMenuScreen implements Screen {
 		Gdx.input.setInputProcessor(stage);
 
 
-		skin = MainMenuScreen.getSkin();
+//		skin = MainMenuScreen.getSkin();
+//		skin.add("default", MainMenuScreen.getButtonStyle(skin));
+//		skin.add("default", MainMenuScreen.getLabelStyle(skin));
+//		skin.add("default", MainMenuScreen.getTextFieldStyle(skin));
+//		skin.add("default", MainMenuScreen.getWindowStyle(skin));
+//		skin.add("default", MainMenuScreen.getCheckBoxStyle(skin));
+//		skin.add("default-horizontal", MainMenuScreen.getSliderStyle(skin));
 
-		skin.add("default", MainMenuScreen.getButtonStyle(skin));
-		skin.add("default", MainMenuScreen.getLabelStyle(skin));
-		skin.add("default", MainMenuScreen.getTextFieldStyle(skin));
-		skin.add("default", MainMenuScreen.getWindowStyle(skin));
-		skin.add("default", MainMenuScreen.getCheckBoxStyle(skin));
-		skin.add("default-horizontal", MainMenuScreen.getSliderStyle(skin));
+		skin=MainMenuScreen.getSkin2(game.font);
 
 		skinLibgdx=skin;
 		//skinLibgdx = new Skin(Gdx.files.internal(Constants.SKIN_LIBGDX_UI), new TextureAtlas(Constants.TEXTURE_ATLAS_LIBGDX_UI));
@@ -200,71 +205,6 @@ public class MainMenuScreen implements Screen {
 		table.setFillParent(true);
 
 
-//		TextButton button1 = new TextButton(TXT.g("edit userInfo, or press TRIANGLE"), skin);
-////		TextButton button1 = new TextButton("edit userInfo, or press △", skin);
-//		button1.addListener(new ClickListener() {
-//
-//			@Override
-//			public void clicked(InputEvent event, float x, float y) {
-//
-//				game.setScreen(new UserInfoScreen(game, sasha));
-//				dispose();
-//			}
-//		});
-
-////		enterGameBtn = new TextButton(TXT.g("enter the game, or press X"), skin);
-//		enterGameBtn = new TextButton("kill bad processes", skin);
-//		final TextButton mergeSettingBtn = new TextButton("merge good processes setting", skin);
-////		TextButton enterKofGameBtn = new TextButton(TXT.g("enter the KOF game, or press □"), skin);
-//////		TextButton enterD3GameBtn = new TextButton(TXT.g("enter the 3d game, or press L1"), skin);
-////		TextButton enterD3GameBtn = new TextButton(TXT.g("enter the 3d cooperative game, or press L1"), skin);
-////		TextButton enterRhythmGameBtn = new TextButton(TXT.g("enter the rhythm game, or press R1"), skin);
-////
-////		TextButton optionBtn = new TextButton(TXT.g("game setting"), skin);
-////		TextButton keySettingBtn = new TextButton(TXT.g("key setting"), skin);
-////		TextButton exitGameBtn = new TextButton(TXT.g("exit game"), skin);
-////		// button2.addListener(new MyClickListener());
-//		enterGameBtn.addListener(new ClickListener() {
-//
-//			@Override
-//			public void clicked(InputEvent event, float x, float y) {
-//
-//				goToKillBadPage();
-//			}
-//		});
-//		mergeSettingBtn.addListener(new ClickListener() {
-//
-//			@Override
-//			public void clicked(InputEvent event, float x, float y) {
-//				String filePath = Paths
-//						.get(SGDataHelper.GetBaseDirectoryAbsolutePath(), SGDataHelper.LocalDataType.System.toString() + "LocalData", "Txt", "goodProcess2.txt")
-//						.toString();
-//				java.util.List<String> lines=SGDataHelper.ReadFileToLines(filePath);
-//				if(null==lines||lines.isEmpty()){
-//					mergeSettingBtn.setText("merge good processes setting (goodProcess2.txt not exist)");
-//				}else {
-//					java.util.List<String> names = new java.util.ArrayList<String>();
-//					if (null != lines) {
-//						for (String line : lines) {
-//							names.add(line.split(",")[0]);
-//
-//							String[] parts = line.split(",");
-//							if (3 < parts.length) {
-//								SGProcess item = new SGProcess();
-//								item.setName(parts[0]);
-//								item.setId(parts[1]);
-//								item.setCpu(parts[2]);
-//								item.setMem(parts[3]);
-//								//processIDList.add(item);
-//								SGProcessHelper.getManger().tagGoodProcess(item);
-//							}
-//						}
-//					}
-//					System.out.println("merge finish");
-//					mergeSettingBtn.setText("merge good processes setting (succeed)");
-//				}
-//			}
-//		});
 		TextButton gamePadToKeyboardBtn = null;
 		TextButton gamePadToKeyboardSettingBtn=null;
 		TextButton gamePadDeadZoneSettingBtn=null;
@@ -353,6 +293,8 @@ public class MainMenuScreen implements Screen {
 		table.row();
 		table.add(gamePadDeadZoneSettingBtn).spaceBottom(buttonSpace);
 		table.row();
+		tabUi=new TabUi();
+		tabUi.setItem(table.getChildren());
 //		table.add(enterKofGameBtn).spaceBottom(buttonSpace);
 //		table.row();
 //		table.add(enterD3GameBtn).spaceBottom(buttonSpace);
@@ -401,6 +343,8 @@ public class MainMenuScreen implements Screen {
 
 	}
 
+	private final float  buttonWait=0.4f;
+	private float buttonWaitCount=1f;
 	@Override
 	public void render(float delta) {
 
@@ -421,8 +365,38 @@ public class MainMenuScreen implements Screen {
 //			goToRhythmPage();
 //		}
 
+		if(0>=buttonWaitCount) {
+			if (null != sgcontroller && sgcontroller.isUP()) {
+				tabUi.up();
+				buttonWaitCount = buttonWait;
+			} else if (null != sgcontroller && sgcontroller.isDOWN()) {
+				tabUi.down();
+				buttonWaitCount = buttonWait;
+			}
+			if (null != sgcontroller && sgcontroller.isLEFT()) {
+				tabUi.left();
+				buttonWaitCount = buttonWait;
+			} else if (null != sgcontroller && sgcontroller.isRIGHT()) {
+				tabUi.right();
+				buttonWaitCount = buttonWait;
+			} else if (null != sgcontroller && sgcontroller.isCROSS()) {
+				tabUi.select();
+				buttonWaitCount = buttonWait;
+			}
+//			else if (null != sgcontroller && sgcontroller.isROUND()) {
+//				//popups.hide();
+//				showOptionsWindow(false, true);
+//			}
+		}
+		if (buttonWaitCount > 0) {
 
-		ScreenUtils.clear(0, 0, 0.2f, 1);
+			buttonWaitCount -= delta;
+		} else if (buttonWaitCount < 0) {
+			buttonWaitCount = 0;
+		}
+
+//		ScreenUtils.clear(0, 0, 0.2f, 1);
+		ScreenUtils.clear(Color.PINK);
 //		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 //		stage.act(Gdx.graphics.getDeltaTime());
 		stage.act(delta);
@@ -951,6 +925,22 @@ public class MainMenuScreen implements Screen {
 		// Gdx.files.internal("sasha_font.png"), false));
 
 		skin.add("default", getFont2());
+		return skin;
+	}
+
+	/**
+	 * 一套的样式，原本没有中文字
+	 * @param font
+	 * @return
+	 */
+	public static Skin getSkin2(BitmapFont font) {
+		Skin skin = new Skin(Gdx.files.internal(com.sellgirl.gamepadtool.util.Constants.SKIN_LIBGDX_UI), new com.badlogic.gdx.graphics.g2d.TextureAtlas(com.sellgirl.gamepadtool.util.Constants.TEXTURE_ATLAS_LIBGDX_UI));
+		//为了中文字体
+		font.setColor(Color.BLACK);
+		//font.setColor(0,0,0,1);
+		skin.get(TextButton.TextButtonStyle.class).font=font;
+		skin.get(Label.LabelStyle.class).font=font;
+		skin.get(SelectBox.SelectBoxStyle.class).font=font;
 		return skin;
 	}
 

@@ -1,15 +1,21 @@
 package com.sellgirl.gamepadtool.screen;
 
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.alpha;
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.sequence;
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.touchable;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.TextInputListener;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.controllers.Controller;
 import com.badlogic.gdx.controllers.Controllers;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
@@ -353,13 +359,15 @@ public class KeySettingScreen implements Screen {
 
 		batch = new SpriteBatch();
 
-		skin = MainMenuScreen.getSkin();
-		skin.add("default", MainMenuScreen.getButtonStyle(skin));
-		skin.add("default", MainMenuScreen.getLabelStyle(skin));
-		skin.add("default", MainMenuScreen.getTextFieldStyle(skin));
-		skin.add("default", MainMenuScreen.getWindowStyle(skin));
-//		skin.add("default", MainMenuScreen.getListStyle(skin));
-		skin.add("default", MainMenuScreen.getSelectBoxStyle(skin));
+//		skin = MainMenuScreen.getSkin();
+//		skin.add("default", MainMenuScreen.getButtonStyle(skin));
+//		skin.add("default", MainMenuScreen.getLabelStyle(skin));
+//		skin.add("default", MainMenuScreen.getTextFieldStyle(skin));
+//		skin.add("default", MainMenuScreen.getWindowStyle(skin));
+////		skin.add("default", MainMenuScreen.getListStyle(skin));
+//		skin.add("default", MainMenuScreen.getSelectBoxStyle(skin));
+
+		skin=MainMenuScreen.getSkin2(game.font);
 
 //		for (Controller controller : Controllers.getControllers()) {
 //			if (SGControllerName.XInputController.equals(controller.getName())) {
@@ -465,8 +473,8 @@ public class KeySettingScreen implements Screen {
 //		SelectBox<String>
 				settingCombo = getSettingSelectBox();
 		final TextField settingTF=new TextField("",skin);
-		TextButton addSettingBtn=new TextButton("addSetting",skin);
-		TextButton delSettingBtn=new TextButton("delSetting",skin);
+		TextButton addSettingBtn=new TextButton(TXT.g("addSetting"),skin);
+		TextButton delSettingBtn=new TextButton(TXT.g("delSetting"),skin);
 		addSettingBtn.addListener(new ClickListener() {
 
 			@Override
@@ -751,7 +759,7 @@ public class KeySettingScreen implements Screen {
 //			tabUi.addItem(padNameBtn);
 //			//i++;
 //		}
-		playerRow.add(playerRow2).colspan(2);
+		playerRow.add(playerRow2).colspan(3);
 		ScrollPane scrollPane=new ScrollPane(playerRow);
 		scrollPane.setWidth(ScreenSetting.WORLD_WIDTH);
 
@@ -834,17 +842,24 @@ public class KeySettingScreen implements Screen {
 			}
 		});
 
-		table.add(combinKeyBtn).colspan(2).spaceBottom(20);
+		int spaceBottom=20;
+		int spaceRight=10;
+		table.add(saveResultLbl).colspan(4).spaceBottom(spaceBottom);
 		table.row();
-		table.add(saveResultLbl).colspan(2).spaceBottom(20);
+		table.add(combinKeyBtn).colspan(4).spaceBottom(spaceBottom);
 		table.row();
-		table.add(saveBtn).colspan(2).spaceBottom(20);
+//		table.add(saveResultLbl).colspan(4).spaceBottom(20);
+//		table.row();
+//		table.add(saveBtn).colspan(4).spaceBottom(20);
+		table.add(saveBtn).colspan(4).spaceBottom(spaceBottom)//.spaceRight(spaceRight)
+		;
+		//table.add(saveResultLbl).colspan(3).spaceBottom(spaceBottom);
 		table.row();
 //		table.add(restoreBtn).colspan(2).spaceBottom(20);
 //		table.row();
 //		table.add(simulateBtn).colspan(2).spaceBottom(20);
 //		table.row();
-		table.add(backBtn).colspan(2);
+		table.add(backBtn).colspan(4);
 
 //		if(SGCharacter.GODDESSPRINCESSSASHA==sasha.getCharacter()) {
 //			stage.addActor(sashaActor);// .colspan(2);
@@ -1261,6 +1276,8 @@ public class KeySettingScreen implements Screen {
 		saveResultLbl.setText(TXT.g("save success"));
 		settingDefault=false;
 		//settingTypeLbl.setText("当前为自定义配置");
+		this.msgWaitCount=this.msgWait;
+		showSaveResultLbl(true,false);
 	}
 	private void restoreKey(){
 		gameKey.init();
@@ -1645,6 +1662,17 @@ int keyValue
 	//private int jumpCount = 0;
 
 	private float backToMainTime=3;
+
+	private final float  msgWait=2f;
+	private float msgWaitCount=2f; //这个要设置为所有wait的max值
+	private void showSaveResultLbl(boolean visible, boolean animated) {
+		float alphaTo = visible ? 0.8f : 0.0f;
+		float duration = animated ? 1.0f : 0.0f;
+		Touchable touchEnabled = visible ? Touchable.enabled : Touchable.disabled;
+		saveResultLbl.addAction(sequence(
+				touchable(touchEnabled),
+				alpha(alphaTo, duration)));
+	}
 	@Override
 	public void render(float delta) {
 
@@ -1746,57 +1774,35 @@ int keyValue
 				}
 			//}
 		}
-//		if(squartWait<=0) {
-//			if (null != controller && sgcontroller.isSQUARE()) {
-//				squartWait=1;
-//				this.nextCharacter();
-//				//return;
-//			}
-//		}
-//		if(Gdx.input.isKeyPressed(Keys.LEFT)) {
-//			this.lastCharacter();
-//		}else if(Gdx.input.isKeyPressed(Keys.RIGHT)) {
-//			this.nextCharacter();
-//		}
 
-//		if(axisRightCalculating){
-//
-//			if(2>axisRightCalculatingTime){
-//				axisRightTmp.x1=Math.min(axisRightTmp.x1,gamepad.axisRightX());
-//				axisRightTmp.x2=Math.max(axisRightTmp.x2,gamepad.axisRightX());
-//				axisRightTmp.y1=Math.min(axisRightTmp.y1,gamepad.axisRightY());
-//				axisRightTmp.y2=Math.max(axisRightTmp.y2,gamepad.axisRightY());
-//				axisRightCalculatingTime+=delta;
-//			}else{
-//				updateUIAfterChangeGamepadSetting();
-//				axisRightCalculating=false;
-//				axisRightAutoBtn.setText(TXT.g("auto setting"));
-//				axisRightAutoBtn.setDisabled(false);
-//			}
-//		}
-//
-//		if(axisLeftCalculating){
-//
-//			if(2>axisLeftCalculatingTime){
-//				axisLeftTmp.x1=Math.min(axisLeftTmp.x1,gamepad.axisLeftX());
-//				axisLeftTmp.x2=Math.max(axisLeftTmp.x2,gamepad.axisLeftX());
-//				axisLeftTmp.y1=Math.min(axisLeftTmp.y1,gamepad.axisLeftY());
-//				axisLeftTmp.y2=Math.max(axisLeftTmp.y2,gamepad.axisLeftY());
-//				axisLeftCalculatingTime+=delta;
-//			}else{
-//				updateUIAfterChangeGamepadSetting();
-//				axisLeftCalculating=false;
-//				axisLeftAutoBtn.setText(TXT.g("auto setting"));
-//				axisLeftAutoBtn.setDisabled(false);
-//			}
-//		}
+		if(0>=msgWaitCount){
+//			boolean visible=false;
+//			boolean animated=true;
+//			float alphaTo = visible ? 0.8f : 0.0f;
+//			float duration = animated ? 1.0f : 0.0f;
+//			Touchable touchEnabled = visible ? Touchable.enabled : Touchable.disabled;
+//			saveResultLbl.addAction(sequence(
+//					touchable(touchEnabled),
+//					alpha(alphaTo, duration)));
+			if(Touchable.disabled!=saveResultLbl.getTouchable()) {
+				showSaveResultLbl(false, true);
+			}
+		}
 
-		ScreenUtils.clear(0, 0, 0.2f, 1);
+//		ScreenUtils.clear(0, 0, 0.2f, 1);
+		ScreenUtils.clear(Color.PINK);
 		if (buttonWaitCount > 0) {
 
 			buttonWaitCount -= delta;
 		} else if (buttonWaitCount < 0) {
 			buttonWaitCount = 0;
+		}
+
+		if (msgWaitCount > 0) {
+
+			msgWaitCount -= delta;
+		} else if (msgWaitCount < 0) {
+			msgWaitCount = 0;
 		}
 		if (xWait > 0) {
 

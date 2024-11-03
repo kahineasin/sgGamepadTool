@@ -14,6 +14,8 @@ public class CN {
 		r.put("add combin key","添加组合键");
 		//设置鼠标映射胡弹窗
 		r.put("don't simulate","不映射");
+		r.put("addSetting","新增配置");
+		r.put("delSetting","删除配置");
 		//模拟页面
 		r.put("stop simulate (simulating...)","停止模拟(模拟中...)");
 		r.put("start simulate","开始模拟");

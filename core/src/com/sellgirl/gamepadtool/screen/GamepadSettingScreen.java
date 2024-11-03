@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input.TextInputListener;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.controllers.Controller;
 import com.badlogic.gdx.controllers.Controllers;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -232,13 +233,15 @@ public class GamepadSettingScreen implements Screen {
 
 		batch = new SpriteBatch();
 
-		skin = MainMenuScreen.getSkin();
-		skin.add("default", MainMenuScreen.getButtonStyle(skin));
-		skin.add("default", MainMenuScreen.getLabelStyle(skin));
-		skin.add("default", MainMenuScreen.getTextFieldStyle(skin));
-		skin.add("default", MainMenuScreen.getWindowStyle(skin));
-//		skin.add("default", MainMenuScreen.getListStyle(skin));
-		skin.add("default", MainMenuScreen.getSelectBoxStyle(skin));
+//		skin = MainMenuScreen.getSkin();
+//		skin.add("default", MainMenuScreen.getButtonStyle(skin));
+//		skin.add("default", MainMenuScreen.getLabelStyle(skin));
+//		skin.add("default", MainMenuScreen.getTextFieldStyle(skin));
+//		skin.add("default", MainMenuScreen.getWindowStyle(skin));
+////		skin.add("default", MainMenuScreen.getListStyle(skin));
+//		skin.add("default", MainMenuScreen.getSelectBoxStyle(skin));
+
+		skin=MainMenuScreen.getSkin2(game.font);
 
 //		for (Controller controller : Controllers.getControllers()) {
 //			if (SGControllerName.XInputController.equals(controller.getName())) {
@@ -1080,7 +1083,8 @@ public class GamepadSettingScreen implements Screen {
 			}
 		}
 
-		ScreenUtils.clear(0, 0, 0.2f, 1);
+//		ScreenUtils.clear(0, 0, 0.2f, 1);
+		ScreenUtils.clear(Color.PINK);
 		if (buttonWaitCount > 0) {
 
 			buttonWaitCount -= delta;

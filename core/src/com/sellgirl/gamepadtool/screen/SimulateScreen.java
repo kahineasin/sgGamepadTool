@@ -6,11 +6,13 @@ import com.badlogic.gdx.Input.TextInputListener;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.controllers.Controller;
 import com.badlogic.gdx.controllers.Controllers;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
@@ -138,7 +140,8 @@ public class SimulateScreen implements Screen {
 	//HashMap<Integer,TextButton> keyBtns=null;
 	HashMap<String,Label> combinKeyLbls = null;
 	HashMap<Integer,Label> combinKeySettingLbls = null;
-	HashMap<Integer,TextButton> combinKeyBtns=null;
+//	HashMap<Integer,TextButton> combinKeyBtns=null;
+	HashMap<Integer,Label> combinKeyBtns=null;
 //	Label settingTypeLbl=null;
 	IKnightSashaGameKey gameKey=null;
 	@Deprecated
@@ -333,13 +336,26 @@ public class SimulateScreen implements Screen {
 
 		batch = new SpriteBatch();
 
-		skin = MainMenuScreen.getSkin();
-		skin.add("default", MainMenuScreen.getButtonStyle(skin));
-		skin.add("default", MainMenuScreen.getLabelStyle(skin));
-		skin.add("default", MainMenuScreen.getTextFieldStyle(skin));
-		skin.add("default", MainMenuScreen.getWindowStyle(skin));
-//		skin.add("default", MainMenuScreen.getListStyle(skin));
-		skin.add("default", MainMenuScreen.getSelectBoxStyle(skin));
+//		skin = MainMenuScreen.getSkin();
+//		skin.add("default", MainMenuScreen.getButtonStyle(skin));
+//		skin.add("default", MainMenuScreen.getLabelStyle(skin));
+//		skin.add("default", MainMenuScreen.getTextFieldStyle(skin));
+//		skin.add("default", MainMenuScreen.getWindowStyle(skin));
+////		skin.add("default", MainMenuScreen.getListStyle(skin));
+//		skin.add("default", MainMenuScreen.getSelectBoxStyle(skin));
+
+//		//这个字体没有中文
+//		skin = new Skin(Gdx.files.internal(com.sellgirl.gamepadtool.util.Constants.SKIN_LIBGDX_UI), new com.badlogic.gdx.graphics.g2d.TextureAtlas(com.sellgirl.gamepadtool.util.Constants.TEXTURE_ATLAS_LIBGDX_UI));
+//////		skin.add("default-font", MainMenuScreen.getFont2());//default
+////		TextButton.TextButtonStyle style=skin.get(TextButton.TextButtonStyle.class);
+////		style.font=MainMenuScreen.getFont2();
+//		skin.get(TextButton.TextButtonStyle.class).font=game.font;
+//		skin.get(Label.LabelStyle.class).font=game.font;
+//		skin.get(SelectBox.SelectBoxStyle.class).font=game.font;
+		skin=MainMenuScreen.getSkin2(game.font);
+
+
+		//skinLibgdx = new Skin(Gdx.files.internal("skin/uiskin.json"), new TextureAtlas("skin/uiskin.atlas"));
 
 //		for (Controller controller : Controllers.getControllers()) {
 //			if (SGControllerName.XInputController.equals(controller.getName())) {
@@ -479,9 +495,9 @@ public class SimulateScreen implements Screen {
 		settingCombo = getSettingSelectBox();
 
 //		settingTypeLbl=new Label( settingDefault?"当前为默认配置":"当前为自定义配置",skin);
-		table.add(gamepadCombo).colspan(valueCol+1).spaceBottom(20);
+		table.add(gamepadCombo).colspan(2).spaceBottom(20);
 		table.row();
-		table.add(settingCombo).spaceRight(20).spaceBottom(20);
+		table.add(settingCombo).colspan(2).spaceRight(20).spaceBottom(20);
 //		table.add(settingTF).spaceRight(20).spaceBottom(20);
 //		table.add(addSettingBtn).spaceRight(20).spaceBottom(20);
 
@@ -602,183 +618,10 @@ public class SimulateScreen implements Screen {
 		scrollPane.setWidth(ScreenSetting.WORLD_WIDTH);
 
 		table.setFillParent(true);
-		table.add(scrollPane).colspan(valueCol+1).spaceBottom(40);
+		table.add(scrollPane).colspan(2).spaceBottom(40);
 		table.row();
 
-//		axisLeftLbl=new Label("左摇杆偏移:",skin);
-//		axisLeftX1TF=new TextField("-0.1",skin);
-//		axisLeftX2TF=new TextField("0.1",skin);
-//		axisLeftY1TF=new TextField("-0.1",skin);
-//		axisLeftY2TF=new TextField("0.1",skin);
 
-//		if(SGPS5Gamepad.class==gamepad.getClass()){
-//			SGPS5Gamepad tmp=(SGPS5Gamepad) gamepad;
-////			axisLeftTmp.x1=tmp.getAxisLeftSpace().x1;
-////			axisLeftTmp.x2=tmp.getAxisLeftSpace().x2;
-////			axisLeftTmp.y1=tmp.getAxisLeftSpace().y1;
-////			axisLeftTmp.y2=tmp.getAxisLeftSpace().y2;
-//			axisLeftX1TF=new TextField(String.valueOf(SGDataHelper.getFloatPrecision(tmp.getAxisLeftSpace().x1,3)),skin);
-//			axisLeftX2TF=new TextField(String.valueOf(SGDataHelper.getFloatPrecision(tmp.getAxisLeftSpace().x2,3)),skin);
-//			axisLeftY1TF=new TextField(String.valueOf(SGDataHelper.getFloatPrecision(tmp.getAxisLeftSpace().y1,3)),skin);
-//			axisLeftY2TF=new TextField(String.valueOf(SGDataHelper.getFloatPrecision(tmp.getAxisLeftSpace().y2,3)),skin);
-//		}else{
-//			axisLeftX1TF=new TextField("-0.1",skin);
-//			axisLeftX2TF=new TextField("0.1",skin);
-//			axisLeftY1TF=new TextField("-0.1",skin);
-//			axisLeftY2TF=new TextField("0.1",skin);
-//		}
-//		HorizontalGroup axisLeftGroup = new HorizontalGroup();
-//		axisLeftGroup.space(20);
-//		axisLeftGroup.addActor(axisLeftX1TF);
-//		axisLeftGroup.addActor(axisLeftX2TF);
-//		axisLeftGroup.addActor(axisLeftY1TF);
-//		axisLeftGroup.addActor(axisLeftY2TF);
-
-//		axisLeftX1TF.addListener(new ChangeListener() {
-//			@Override
-//			public void changed(ChangeEvent event, Actor actor) {
-//				Float tmp=SGDataHelper.stringToFloat(((TextField)actor).getText());
-//				if(null!=tmp){
-//					axisLeftTmp.x1=tmp;
-//				}
-////				if(0.1<tmp){
-////					axisLeftTmp.x1=tmp;
-////				}
-//			}
-//		});
-//		axisLeftX2TF.addListener(new ChangeListener() {
-//			@Override
-//			public void changed(ChangeEvent event, Actor actor) {
-//				Float tmp=SGDataHelper.stringToFloat(((TextField)actor).getText());
-//				if(null!=tmp){
-//					axisLeftTmp.x2=tmp;
-//				}
-//			}
-//		});
-//		axisLeftY1TF.addListener(new ChangeListener() {
-//			@Override
-//			public void changed(ChangeEvent event, Actor actor) {
-//				Float tmp=SGDataHelper.stringToFloat(((TextField)actor).getText());
-//				if(null!=tmp){
-//					axisLeftTmp.y1=tmp;
-//				}
-//			}
-//		});
-//		axisLeftY2TF.addListener(new ChangeListener() {
-//			@Override
-//			public void changed(ChangeEvent event, Actor actor) {
-//				Float tmp=SGDataHelper.stringToFloat(((TextField)actor).getText());
-//				if(null!=tmp){
-//					axisLeftTmp.y2=tmp;
-//				}
-//			}
-//		});
-//		axisLeftAutoBtn=new TextButton(TXT.g("auto setting"),skin);
-//		axisLeftAutoBtn.addListener(new ClickListener() {
-//
-//			@Override
-//			public void clicked(InputEvent event, float x, float y) {
-//				if(!axisLeftCalculating) {
-//					axisLeftCalculating = true;
-//					axisLeftCalculatingTime=0;
-//					//axisLeftTmp.init();
-//					axisLeftAutoBtn.setText(TXT.g("caculating")+"...");
-//					axisLeftAutoBtn.setDisabled(true);
-//				}
-//			}
-//		});
-//		tabUi.addItem(axisLeftAutoBtn);
-//
-//		axisRightLbl=new Label("右摇杆偏移:",skin);
-//		if(SGPS5Gamepad.class==gamepad.getClass()){
-//			SGPS5Gamepad tmp=(SGPS5Gamepad) gamepad;
-////			axisRightTmp.x1=tmp.getAxisRightSpace().x1;
-////			axisRightTmp.x2=tmp.getAxisRightSpace().x2;
-////			axisRightTmp.y1=tmp.getAxisRightSpace().y1;
-////			axisRightTmp.y2=tmp.getAxisRightSpace().y2;
-//			axisRightX1TF=new TextField(String.valueOf(SGDataHelper.getFloatPrecision(tmp.getAxisRightSpace().x1,3)),skin);
-//			axisRightX2TF=new TextField(String.valueOf(SGDataHelper.getFloatPrecision(tmp.getAxisRightSpace().x2,3)),skin);
-//			axisRightY1TF=new TextField(String.valueOf(SGDataHelper.getFloatPrecision(tmp.getAxisRightSpace().y1,3)),skin);
-//			axisRightY2TF=new TextField(String.valueOf(SGDataHelper.getFloatPrecision(tmp.getAxisRightSpace().y2,3)),skin);
-//		}else{
-//			axisRightX1TF=new TextField("-0.1",skin);
-//			axisRightX2TF=new TextField("0.1",skin);
-//			axisRightY1TF=new TextField("-0.1",skin);
-//			axisRightY2TF=new TextField("0.1",skin);
-//		}
-//		HorizontalGroup axisRightGroup = new HorizontalGroup();
-//		axisRightGroup.space(20);
-//		axisRightGroup.addActor(axisRightX1TF);
-//		axisRightGroup.addActor(axisRightX2TF);
-//		axisRightGroup.addActor(axisRightY1TF);
-//		axisRightGroup.addActor(axisRightY2TF);
-//
-//		axisRightX1TF.addListener(new ChangeListener() {
-//			@Override
-//			public void changed(ChangeEvent event, Actor actor) {
-//				Float tmp=SGDataHelper.stringToFloat(((TextField)actor).getText());
-//				if(null!=tmp){
-//					axisRightTmp.x1=tmp;
-//				}
-////				if(0.1<tmp){
-////					axisRightTmp.x1=tmp;
-////				}
-//			}
-//		});
-//		axisRightX2TF.addListener(new ChangeListener() {
-//			@Override
-//			public void changed(ChangeEvent event, Actor actor) {
-////				axisRightTmp.x2=Float.valueOf(((TextField)actor).getText());
-//				Float tmp=SGDataHelper.stringToFloat(((TextField)actor).getText());
-//				if(null!=tmp){
-//					axisRightTmp.x2=tmp;
-//				}
-////				if(0.1<tmp){
-////					axisRightTmp.x2=tmp;
-////				}
-//			}
-//		});
-//		axisRightY1TF.addListener(new ChangeListener() {
-//			@Override
-//			public void changed(ChangeEvent event, Actor actor) {
-////				axisRightTmp.y1=Float.valueOf(((TextField)actor).getText());
-//				Float tmp=SGDataHelper.stringToFloat(((TextField)actor).getText());
-//				if(null!=tmp){
-//					axisRightTmp.y1=tmp;
-//				}
-////				if(0.1<tmp){
-////					axisRightTmp.y1=tmp;
-////				}
-//			}
-//		});
-//		axisRightY2TF.addListener(new ChangeListener() {
-//			@Override
-//			public void changed(ChangeEvent event, Actor actor) {
-////				axisRightTmp.y2=Float.valueOf(((TextField)actor).getText());
-//				Float tmp=SGDataHelper.stringToFloat(((TextField)actor).getText());
-//				if(null!=tmp){
-//					axisRightTmp.y2=tmp;
-//				}
-////				if(0.1<tmp){
-////					axisRightTmp.x1=tmp;
-////				}
-//			}
-//		});
-//		axisRightAutoBtn=new TextButton(TXT.g("auto setting"),skin);
-//		axisRightAutoBtn.addListener(new ClickListener() {
-//
-//			@Override
-//			public void clicked(InputEvent event, float x, float y) {
-//				if(!axisRightCalculating) {
-//					axisRightCalculating = true;
-//					axisRightCalculatingTime=0;
-//					//axisRightTmp.init();
-//					axisRightAutoBtn.setText(TXT.g("caculating")+"...");
-//					axisRightAutoBtn.setDisabled(true);
-//				}
-//			}
-//		});
-//		tabUi.addItem(axisRightAutoBtn);
 
 //		saveResultLbl=new Label("",skin);
 //		TextButton saveBtn = new TextButton(TXT.g("save setting, press □"), skin);
@@ -938,7 +781,8 @@ public class SimulateScreen implements Screen {
 			final String keyName=XBoxKey.values()[ player.getSrcKey()].toString();
 			keySettingLbls.put(keyName,playerlbl);
 
-			TextButton padNameBtn = new TextButton(keyName + "->", skin);
+//			TextButton padNameBtn = new TextButton(keyName + "->", skin);
+			Label padNameBtn = new Label(keyName + "->", skin);
 			playerRow1.add(padNameBtn).spaceBottom(20).spaceRight(10);
 			playerRow1.add(playerlbl).spaceBottom(20);
 			playerRow1.row();
@@ -968,7 +812,8 @@ public class SimulateScreen implements Screen {
 			this.combinKeySettingLbls.put(player.getSrcKey(),playerlbl);
 			final String srcKeyName=XBoxKey.getTexts( player.getSrcKey());
 //			final String srcKeyName=XBoxKey.values()[ player.getSrcKey()].toString();
-			TextButton padNameBtn = new TextButton( srcKeyName+ "->", skin);
+//			TextButton padNameBtn = new TextButton( srcKeyName+ "->", skin);
+			Label padNameBtn = new Label( srcKeyName+ "->", skin);
 			this.combinKeyBtns.put(player.getSrcKey(),padNameBtn);
 			playerRow2.add(padNameBtn).spaceBottom(20).spaceRight(10);
 			playerRow2.add(playerlbl).spaceBottom(20);
@@ -1312,167 +1157,168 @@ public class SimulateScreen implements Screen {
 				////速度大概是5秒移动一个屏幕高度
 				//int speed= (int) (ScreenSetting.WORLD_HEIGHT/(5*ScreenSetting.FPS));
 
-				for(KeySimulateItem j:gameKeyMap2){
-					isPress=gameKey.isBtn(1<<j.getSrcKey());
-					//mouse移动不跳过
-//					if(isPress==keyDowns[historyId]){
-////						return;
-//						historyId++;
-//						continue;
+				historyId =simulateByMap(false,gameKeyMap2,historyId);
+//				for(KeySimulateItem j:gameKeyMap2){
+//					isPress=gameKey.isBtn(1<<j.getSrcKey());
+//					//mouse移动不跳过
+////					if(isPress==keyDowns[historyId]){
+//////						return;
+////						historyId++;
+////						continue;
+////					}
+//					XBoxKey padKey=XBoxKey.values()[j.getSrcKey()];
+//					//如果组合键中包含，就跳过
+//					if(null!=padKey) {
+//						boolean ok=false;
+//						for (Integer i : activeCombine) {
+//							String aa="aa";
+//							if (//SGDataHelper.EnumHasFlag(i, padKey.ordinal())
+//									SGDataHelper.EnumHasFlag(i, padKey.getBinary())
+//							) {
+////									return;
+//								ok=true;
+//								break;
+//							}
+//						}
+//						if(ok){
+//							historyId++;
+//							continue;
+//						}
 //					}
-					XBoxKey padKey=XBoxKey.values()[j.getSrcKey()];
-					//如果组合键中包含，就跳过
-					if(null!=padKey) {
-						boolean ok=false;
-						for (Integer i : activeCombine) {
-							String aa="aa";
-							if (//SGDataHelper.EnumHasFlag(i, padKey.ordinal())
-									SGDataHelper.EnumHasFlag(i, padKey.getBinary())
-							) {
-//									return;
-								ok=true;
-								break;
-							}
-						}
-						if(ok){
-							historyId++;
-							continue;
-						}
-					}
-					if(
-							KeySimulateItem.KeyType.KEYBOARD==j.getDstKeyType()
-					){
-						if(isPress==keyDowns[historyId]){
-//						return;
-							historyId++;
-							continue;
-						}
-						gdxKey=j.getDstKey();
-						if(Input.Keys.UNKNOWN!=gdxKey){
-							int sysKey=gdxKeyToSysKey( gdxKey);
-							if(isPress) {
-								robot.keyPress(sysKey);
-							}else {
-								robot.keyRelease(sysKey);
-							}
-							keyDowns[historyId]=isPress;
-						}
-					}else if(KeySimulateItem.KeyType.MOUSE==j.getDstKeyType()){
-						MouseKey dstKeyEnum=MouseKey.values()[j.getDstKey()];
-						boolean isAxis=MouseKey.UP==dstKeyEnum||MouseKey.DOWN==dstKeyEnum
-								||MouseKey.LEFT==dstKeyEnum||MouseKey.RIGHT==dstKeyEnum
-								||MouseKey.scrollUp==dstKeyEnum||MouseKey.scrollDown==dstKeyEnum;
-						if(isPress==keyDowns[historyId]
-						&&!isAxis
-						){
-//						return;
-							historyId++;
-							continue;
-						}
-						if(MouseKey.NONE!=dstKeyEnum){
+//					if(
+//							KeySimulateItem.KeyType.KEYBOARD==j.getDstKeyType()
+//					){
+//						if(isPress==keyDowns[historyId]){
+////						return;
+//							historyId++;
+//							continue;
+//						}
+//						gdxKey=j.getDstKey();
+//						if(Input.Keys.UNKNOWN!=gdxKey){
 //							int sysKey=gdxKeyToSysKey( gdxKey);
-							if(isPress) {
+//							if(isPress) {
 //								robot.keyPress(sysKey);
-//								int x=0;
-//								int y=0;
-								//速度大概是5秒移动一个屏幕高度
-//								int speed= (int) (ScreenSetting.WORLD_HEIGHT/(5*ScreenSetting.FPS));
-//								int speed=100;
-
-								//当dstKey是mouseMove而且srcKey是轴时，要计算轴幅度
-								float percent=1;
-								if(isAxis){
-
-									percent=GameKey.getAxisPercent(gameKey.getGamepad(),padKey);
-								}
-
-								switch (dstKeyEnum){
-									case UP:
-										mouseY-=speed*percent;
-										//robot.mouseMove(0, mouseY);
-										break;
-									case DOWN:
-										//y-=speed;
-										mouseY+=speed*percent;
-//										robot.mouseMove(0, mouseY);
-										break;
-									case LEFT:
-										//x-=speed;
-										mouseX-=speed*percent;
-//										robot.mouseMove( mouseX,0);
-										break;
-									case RIGHT:
-//										x+=speed;
-										mouseX+=speed*percent;
-//										if(0!=x||0!=y) {
-//											robot.mouseMove(x, y);
-//										}
-//										robot.mouseMove(mouseX,mouseY);
-										break;
-									case scrollUp:
-										scrollY-=scrollSpeed*percent;
-										break;
-									case scrollDown:
-										scrollY+=scrollSpeed*percent;
-										break;
-									case buttonLeft:
-										robot.mousePress(java.awt.event.InputEvent.BUTTON1_DOWN_MASK);
-										break;
-									case buttonRight:
-										robot.mousePress(java.awt.event.InputEvent.BUTTON2_DOWN_MASK);
-										break;
-									case buttonScroll:
-										robot.mousePress(java.awt.event.InputEvent.BUTTON3_DOWN_MASK);
-										break;
-									default:
-										break;
-								}
-							}else {
-////								robot.keyRelease(sysKey);
-//								int x=0;
-//								int y=0;
+//							}else {
+//								robot.keyRelease(sysKey);
+//							}
+//							keyDowns[historyId]=isPress;
+//						}
+//					}else if(KeySimulateItem.KeyType.MOUSE==j.getDstKeyType()){
+//						MouseKey dstKeyEnum=MouseKey.values()[j.getDstKey()];
+//						boolean isAxis=MouseKey.UP==dstKeyEnum||MouseKey.DOWN==dstKeyEnum
+//								||MouseKey.LEFT==dstKeyEnum||MouseKey.RIGHT==dstKeyEnum
+//								||MouseKey.scrollUp==dstKeyEnum||MouseKey.scrollDown==dstKeyEnum;
+//						if(isPress==keyDowns[historyId]
+//						&&!isAxis
+//						){
+////						return;
+//							historyId++;
+//							continue;
+//						}
+//						if(MouseKey.NONE!=dstKeyEnum){
+////							int sysKey=gdxKeyToSysKey( gdxKey);
+//							if(isPress) {
+////								robot.keyPress(sysKey);
+////								int x=0;
+////								int y=0;
 //								//速度大概是5秒移动一个屏幕高度
-//								int speed= (int) (ScreenSetting.WORLD_HEIGHT/(5*ScreenSetting.FPS));
-								switch (dstKeyEnum){
+////								int speed= (int) (ScreenSetting.WORLD_HEIGHT/(5*ScreenSetting.FPS));
+////								int speed=100;
+//
+//								//当dstKey是mouseMove而且srcKey是轴时，要计算轴幅度
+//								float percent=1;
+//								if(isAxis){
+//
+//									percent=GameKey.getAxisPercent(gameKey.getGamepad(),padKey);
+//								}
+//
+//								switch (dstKeyEnum){
 //									case UP:
-//										y+=speed;
-//									case DOWN:
-//										y-=speed;
-//									case LEFT:
-//										x-=speed;
-//									case RIGHT:
-//										x+=speed;
-//										robot.mouseMove(x,y);
+//										mouseY-=speed*percent;
+//										//robot.mouseMove(0, mouseY);
 //										break;
-									case buttonLeft:
-										robot.mouseRelease(java.awt.event.InputEvent.BUTTON1_DOWN_MASK);
-										break;
-									case buttonRight:
-										robot.mouseRelease(java.awt.event.InputEvent.BUTTON2_DOWN_MASK);
-										break;
-									case buttonScroll:
-										robot.mouseRelease(java.awt.event.InputEvent.BUTTON3_DOWN_MASK);
-										break;
-									default:
-										break;
-								}
-							}
-							keyDowns[historyId]=isPress;
-						}
-					}
-					historyId++;
-				}
-				if(0!=mouseX||0!=mouseY){
-					Point mouseLocation = MouseInfo.getPointerInfo().getLocation();
-//					int mouseX=mouseLocation.x;
-//					int mouseY=mouseLocation.y;
-					robot.mouseMove(((Float)(mouseX+mouseLocation.x)).intValue(),
-							((Float)(mouseY+ mouseLocation.y)).intValue());
-				}
-				if(0!=scrollY){
+//									case DOWN:
+//										//y-=speed;
+//										mouseY+=speed*percent;
+////										robot.mouseMove(0, mouseY);
+//										break;
+//									case LEFT:
+//										//x-=speed;
+//										mouseX-=speed*percent;
+////										robot.mouseMove( mouseX,0);
+//										break;
+//									case RIGHT:
+////										x+=speed;
+//										mouseX+=speed*percent;
+////										if(0!=x||0!=y) {
+////											robot.mouseMove(x, y);
+////										}
+////										robot.mouseMove(mouseX,mouseY);
+//										break;
+//									case scrollUp:
+//										scrollY-=scrollSpeed*percent;
+//										break;
+//									case scrollDown:
+//										scrollY+=scrollSpeed*percent;
+//										break;
+//									case buttonLeft:
+//										robot.mousePress(java.awt.event.InputEvent.BUTTON1_DOWN_MASK);
+//										break;
+//									case buttonRight:
+//										robot.mousePress(java.awt.event.InputEvent.BUTTON2_DOWN_MASK);
+//										break;
+//									case buttonScroll:
+//										robot.mousePress(java.awt.event.InputEvent.BUTTON3_DOWN_MASK);
+//										break;
+//									default:
+//										break;
+//								}
+//							}else {
+//////								robot.keyRelease(sysKey);
+////								int x=0;
+////								int y=0;
+////								//速度大概是5秒移动一个屏幕高度
+////								int speed= (int) (ScreenSetting.WORLD_HEIGHT/(5*ScreenSetting.FPS));
+//								switch (dstKeyEnum){
+////									case UP:
+////										y+=speed;
+////									case DOWN:
+////										y-=speed;
+////									case LEFT:
+////										x-=speed;
+////									case RIGHT:
+////										x+=speed;
+////										robot.mouseMove(x,y);
+////										break;
+//									case buttonLeft:
+//										robot.mouseRelease(java.awt.event.InputEvent.BUTTON1_DOWN_MASK);
+//										break;
+//									case buttonRight:
+//										robot.mouseRelease(java.awt.event.InputEvent.BUTTON2_DOWN_MASK);
+//										break;
+//									case buttonScroll:
+//										robot.mouseRelease(java.awt.event.InputEvent.BUTTON3_DOWN_MASK);
+//										break;
+//									default:
+//										break;
+//								}
+//							}
+//							keyDowns[historyId]=isPress;
+//						}
+//					}
+//					historyId++;
+//				}
+//				if(0!=mouseX||0!=mouseY){
 //					Point mouseLocation = MouseInfo.getPointerInfo().getLocation();
-					robot.mouseWheel(((Float)scrollY).intValue());
-				}
+////					int mouseX=mouseLocation.x;
+////					int mouseY=mouseLocation.y;
+//					robot.mouseMove(((Float)(mouseX+mouseLocation.x)).intValue(),
+//							((Float)(mouseY+ mouseLocation.y)).intValue());
+//				}
+//				if(0!=scrollY){
+////					Point mouseLocation = MouseInfo.getPointerInfo().getLocation();
+//					robot.mouseWheel(((Float)scrollY).intValue());
+//				}
 
 //				//这里未完善,SGPS5Gamepad.getQuickBtnKey里面的组合不完整，比如没有l2 r2 --benjamin todo
 //				keyPress(gameKey.getAttack(),gameKey.getGamepad().isSQUARE(),0+historyId,XBoxKey.SQUARE);
@@ -1603,7 +1449,8 @@ public class SimulateScreen implements Screen {
 //			}
 //		}
 
-		ScreenUtils.clear(0, 0, 0.2f, 1);
+//		ScreenUtils.clear(0, 0, 0.2f, 1);
+		ScreenUtils.clear(Color.PINK);
 		if (buttonWaitCount > 0) {
 
 			buttonWaitCount -= delta;
