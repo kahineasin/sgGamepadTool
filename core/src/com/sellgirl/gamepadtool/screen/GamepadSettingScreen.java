@@ -503,7 +503,7 @@ public class GamepadSettingScreen implements Screen {
 //			i++;
 //		}
 
-		axisLeftLbl=new Label("左摇杆偏移:",skin);
+		axisLeftLbl=new Label("左摇杆偏移(左右上下):",skin);
 //		axisLeftX1TF=new TextField("-0.1",skin);
 //		axisLeftX2TF=new TextField("0.1",skin);
 //		axisLeftY1TF=new TextField("-0.1",skin);
@@ -591,7 +591,7 @@ public class GamepadSettingScreen implements Screen {
 		});
 		tabUi.addItem(axisLeftAutoBtn);
 
-		axisRightLbl=new Label("右摇杆偏移:",skin);
+		axisRightLbl=new Label("右摇杆偏移(左右上下):",skin);
 		if(SGPS5Gamepad.class==gamepad.getClass()){
 			SGPS5Gamepad tmp=(SGPS5Gamepad) gamepad;
 //			axisRightTmp.x1=tmp.getAxisRightSpace().x1;

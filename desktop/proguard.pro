@@ -36,4 +36,4 @@
 -keep enum com.badlogic.** { *; }
 # -keep class com.studiohartman.** { *; }
 
--keep class !com.sellgirl.gamepadtool.**,!com.sellgirl.sgJavaHelper.**,** {*;}
+-keep class !com.sellgirl.gamepadtool.**,!com.sellgirl.sgJavaHelper.**,!com.sellgirl.sgGameHelper.**,** {*;}
