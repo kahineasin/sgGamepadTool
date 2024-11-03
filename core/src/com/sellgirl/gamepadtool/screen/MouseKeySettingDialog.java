@@ -52,12 +52,13 @@ private static  final String tag= MouseKeySettingDialog.class.getName();
 //     TextButton[] characterBtns=new TextButton[3];
      TextButton[] characterBtns=null;
 
+	private Integer keyValue=null;
 	private String keyName=null;
 	private int keyMask=0;
 	private boolean done=false;
 	private boolean start=false;
 	ISGPS5Gamepad gamepad;
-	SGAction<String,Integer,Object> action;
+	SGAction<String,Integer,Integer> action;
 	SGAction<String,Integer,Object> onPopupClose=null;
 
 	public MouseKeySettingDialog(final KeySettingScreen app//,//final PurchaseManager purchaseManager,
@@ -75,13 +76,15 @@ private static  final String tag= MouseKeySettingDialog.class.getName();
 							//final SashaData sasha,
 							//KofPlayer player, final int playerId,
 							ISGPS5Gamepad gamepad,
+					 Integer keyValue,
 							String keyName,
-							final SGAction<String,Integer,Object> action,
+							final SGAction<String,Integer,Integer> action,
 					 final SGAction<String,Integer,Object> onPopupClose) {
 
 
 		this.gamepad=gamepad;
 		this.useKeyMask= SGKeyboardGamepad.class!=gamepad.getClass();
+		this.keyValue=keyValue;
 		this.keyName=keyName;
 		this.action=action;
 		this.onPopupClose=onPopupClose;
@@ -148,7 +151,7 @@ private static  final String tag= MouseKeySettingDialog.class.getName();
 
 	private void selectBtn(MouseKey key){
 		try {
-			MouseKeySettingDialog.this.action.go(MouseKeySettingDialog.this.keyName, key.ordinal(),null);
+			MouseKeySettingDialog.this.action.go(MouseKeySettingDialog.this.keyName, key.ordinal(),this.keyValue);
 		} catch (Exception e) {
 			SGDataHelper.getLog().printException(e,tag);
 		}

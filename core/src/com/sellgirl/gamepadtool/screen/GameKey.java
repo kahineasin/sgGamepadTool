@@ -485,6 +485,7 @@ public class GameKey implements IKnightSashaGameKey//extends GameKeyBase
         gameKey.setStick2Right(map.get("stick2Right"));
 
     }
+    @Deprecated
     private Map<Integer, Integer> combineMap=null;
     public void applyCombinedMap(Map<Integer, Integer> map){
         combineMap=map;
@@ -493,6 +494,13 @@ public class GameKey implements IKnightSashaGameKey//extends GameKeyBase
         return combineMap;
     }
 
+    private List< KeySimulateItem> combineMap2=null;
+    public void setCombinedMap2(List< KeySimulateItem> map){
+        combineMap2=map;
+    }
+    public List<KeySimulateItem> getCombinedMap2(){
+        return combineMap2;
+    }
     private List< KeySimulateItem> keyMap=null;
     public void setKeyMap(List< KeySimulateItem> map){
         keyMap=map;
@@ -578,5 +586,32 @@ public class GameKey implements IKnightSashaGameKey//extends GameKeyBase
                 break;
         }
         return 0;
+    }
+
+    public static float getAxisPercent2(ISGPS5Gamepad gamepad,int keyMask){
+        if(0==keyMask){
+            return 1;
+        }
+        for (XBoxKey key:XBoxKey.values()
+             ) {
+            if(SGDataHelper.EnumHasFlag(keyMask,key.getBinary())){
+                switch (key){
+                    case L2:
+                    case R2:
+                    case stick1Up:
+                    case stick1Down:
+                    case stick1Left:
+                    case stick1Right:
+                    case stick2Up:
+                    case stick2Down:
+                    case stick2Left:
+                    case stick2Right:
+                        return getAxisPercent(gamepad,key);
+                    default:
+                        break;
+                }
+            }
+        }
+        return 1;
     }
 }

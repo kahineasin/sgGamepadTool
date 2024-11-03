@@ -100,8 +100,13 @@ public interface IKnightSashaGameKey {
     //-------------Map转换-----------
     HashMap<String,Integer> toMap(HashMap<String, Integer> r);
     void applyMap(HashMap<String, Integer> map);
+    @Deprecated
     void applyCombinedMap(Map<Integer, Integer> map);
+    @Deprecated
     Map<Integer, Integer> getCombinedMap();
+
+    void setCombinedMap2(List< KeySimulateItem> map);
+    List< KeySimulateItem> getCombinedMap2();
      void setKeyMap(List<KeySimulateItem> map);
      List< KeySimulateItem> getKeyMap();
 

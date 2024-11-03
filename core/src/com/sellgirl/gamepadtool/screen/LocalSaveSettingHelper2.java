@@ -92,7 +92,8 @@ public class LocalSaveSettingHelper2 extends LocalSaveSettingHelperBase<IKnightS
 
     protected String getCombineMapEncodeStrByGameKey(IKnightSashaGameKey sasha) {
 
-        String str = JSONObject.toJSONString(sasha.getCombinedMap());
+//        String str = JSONObject.toJSONString(sasha.getCombinedMap());
+        String str = JSONObject.toJSONString(sasha.getCombinedMap2());
         try {
             return AES.AESEncryptDemo(str, SGDataHelper.decodeBase64(key));
         } catch (Exception e) {
@@ -105,10 +106,13 @@ public class LocalSaveSettingHelper2 extends LocalSaveSettingHelperBase<IKnightS
     protected  IKnightSashaGameKey initCombineMapGameKeyByEncodeStr(String s,IKnightSashaGameKey sasha) throws Exception {
 
         //String[] s2 = AES.AESDecryptDemo(s, SGDataHelper.decodeBase64(key)).split("[|]");
-        Map<Integer,Integer> map=JSONObject.parseObject(AES.AESDecryptDemo(s, SGDataHelper.decodeBase64(key)),
-                new TypeReference<Map<Integer,Integer>>(){});
+//        Map<Integer,Integer> map=JSONObject.parseObject(AES.AESDecryptDemo(s, SGDataHelper.decodeBase64(key)),
+//                new TypeReference<Map<Integer,Integer>>(){});
+        List<KeySimulateItem> map=JSONObject.parseObject(AES.AESDecryptDemo(s, SGDataHelper.decodeBase64(key)),
+                new TypeReference<List<KeySimulateItem>>(){});
         //IKnightSas
-        sasha.applyCombinedMap(map);
+//        sasha.applyCombinedMap(map);
+        sasha.setCombinedMap2(map);
         return sasha;
     }
     public List<String> getSettings(String gamepadName){
