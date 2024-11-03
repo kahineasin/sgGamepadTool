@@ -631,7 +631,7 @@ public class KeySettingScreen implements Screen {
 
 								@Override
 								public void go(String s, Integer integer, Integer o) {
-									onMouseKeyChange(s,integer);
+									onMouseKeyChange(s,integer,o);
 									if (SGTouchGamepad.class ==gamepad.getClass()) {
 										((SGTouchGamepad) gamepad).remove();
 										//((SGTouchGamepad) gamepad).setVisible(false);
@@ -1115,7 +1115,8 @@ public class KeySettingScreen implements Screen {
 
 								@Override
 								public void go(String s, Integer integer, Integer o) {
-									onMouseKeyChange(s,integer);
+//									onMouseKeyChange(s,integer,o);
+									onCombineMouseKeyChange(s,integer,o);
 									if (SGTouchGamepad.class ==gamepad.getClass()) {
 										((SGTouchGamepad) gamepad).remove();
 										//((SGTouchGamepad) gamepad).setVisible(false);
@@ -1310,18 +1311,20 @@ public class KeySettingScreen implements Screen {
 //		mouseKeySettingLbls.get(key).setText("设置鼠标键位");
 		mouseKeySettingLbls.get(key).setText("映射鼠标");//按键");
 	}
-	private void onMouseKeyChange(String key,int keyMask){
+	private void onMouseKeyChange(String key,int keyMask,int keyValue){
 		//gameKeyMap.put(key,keyMask);//这里用iter操作已经很有风险了
 		boolean exist=false;
 		for(KeySimulateItem i:gameKeyMap2){
-			if(i.getSrcKey()==XBoxKey.valueOf(key).ordinal()){
+			if(//i.getSrcKey()==XBoxKey.valueOf(key).ordinal()
+					i.getSrcKey()==keyValue
+			){
 				i.setDstKeyType(KeySimulateItem.KeyType.MOUSE);
 				i.setDstKey(keyMask);
 				exist=true;
 			}
 		}
 		if(!exist){
-			KeySimulateItem i=new KeySimulateItem();
+			KeySimulateItem i=new KeySimulateItem(keyValue);
 			i.setDstKeyType(KeySimulateItem.KeyType.MOUSE);
 			i.setDstKey(keyMask);
 			gameKeyMap2.add(i);
@@ -1498,7 +1501,7 @@ int keyValue
 			}
 		}
 		if(!exist){
-			KeySimulateItem i=new KeySimulateItem();
+			KeySimulateItem i=new KeySimulateItem(keyValue);
 			i.setDstKeyType(KeySimulateItem.KeyType.MOUSE);
 			i.setDstKey(keyMask);
 			gameKeyCombinMap2.add(i);
@@ -1776,14 +1779,6 @@ int keyValue
 		}
 
 		if(0>=msgWaitCount){
-//			boolean visible=false;
-//			boolean animated=true;
-//			float alphaTo = visible ? 0.8f : 0.0f;
-//			float duration = animated ? 1.0f : 0.0f;
-//			Touchable touchEnabled = visible ? Touchable.enabled : Touchable.disabled;
-//			saveResultLbl.addAction(sequence(
-//					touchable(touchEnabled),
-//					alpha(alphaTo, duration)));
 			if(Touchable.disabled!=saveResultLbl.getTouchable()) {
 				showSaveResultLbl(false, true);
 			}

@@ -1,5 +1,9 @@
 package com.sellgirl.gamepadtool.screen;
 
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.alpha;
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.sequence;
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.touchable;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.TextInputListener;
 import com.badlogic.gdx.Screen;
@@ -11,6 +15,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.HorizontalGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
@@ -761,6 +766,8 @@ public class GamepadSettingScreen implements Screen {
 		saveResultLbl.setText(TXT.g("save success"));
 		settingDefault=false;
 		settingTypeLbl.setText("当前为自定义配置");
+		this.msgWaitCount=this.msgWait;
+		showSaveResultLbl(true,false);
 	}
 	private void restoreKey(){
 //		gameKey.init();
@@ -953,6 +960,16 @@ public class GamepadSettingScreen implements Screen {
 
 	//private int jumpCount = 0;
 	private float backToMainTime=3;
+	private final float  msgWait=2f;
+	private float msgWaitCount=2f; //这个要设置为所有wait的max值
+	private void showSaveResultLbl(boolean visible, boolean animated) {
+		float alphaTo = visible ? 0.8f : 0.0f;
+		float duration = animated ? 1.0f : 0.0f;
+		Touchable touchEnabled = visible ? Touchable.enabled : Touchable.disabled;
+		saveResultLbl.addAction(sequence(
+				touchable(touchEnabled),
+				alpha(alphaTo, duration)));
+	}
 	@Override
 	public void render(float delta) {
 
@@ -1083,6 +1100,12 @@ public class GamepadSettingScreen implements Screen {
 			}
 		}
 
+		if(0>=msgWaitCount){
+			if(Touchable.disabled!=saveResultLbl.getTouchable()) {
+				showSaveResultLbl(false, true);
+			}
+		}
+
 //		ScreenUtils.clear(0, 0, 0.2f, 1);
 		ScreenUtils.clear(Color.PINK);
 		if (buttonWaitCount > 0) {
@@ -1091,6 +1114,13 @@ public class GamepadSettingScreen implements Screen {
 		} else if (buttonWaitCount < 0) {
 			buttonWaitCount = 0;
 		}
+
+		if (msgWaitCount > 0) {
+			msgWaitCount -= delta;
+		} else if (msgWaitCount < 0) {
+			msgWaitCount = 0;
+		}
+
 		if (xWait > 0) {
 
 			xWait -= delta;

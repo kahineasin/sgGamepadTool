@@ -26,6 +26,7 @@
 #}
 
 # knightsasha
+-keep class com.sellgirl.sgGameHelper.** implements com.sellgirl.sgJavaHelper.ISGUnProGuard{*;}
 -keep class com.sellgirl.gamepadtool.** implements com.sellgirl.sgJavaHelper.ISGUnProGuard{*;}
 -keep public class com.sellgirl.gamepadtool.DesktopLauncher {
     public protected *;
