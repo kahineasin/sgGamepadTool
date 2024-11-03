@@ -43,6 +43,19 @@ tasks.register('dist', Jar) {
     with jar
 }
 
+tasks.register('proguardx', proguard.gradle.ProGuardTask) {
+    configuration file('proguard.pro')
+
+    dependsOn("dist")
+
+    injars(layout.buildDirectory.file("libs/desktop-1.0.jar"))
+
+    verbose
+
+    outjars(layout.buildDirectory.file("libs/sgGamepadTool-fusion.jar"))
+
+
+}
 
 dist.dependsOn classes
 

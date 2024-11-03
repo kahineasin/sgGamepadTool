@@ -1,9 +1,10 @@
 package com.sellgirl.gamepadtool.model;
 
 import com.sellgirl.sgGameHelper.gamepad.XBoxKey;
+import com.sellgirl.sgJavaHelper.ISGUnProGuard;
 
-public class KeySimulateItem {
-    public enum KeyType{
+public class KeySimulateItem implements ISGUnProGuard {
+    public enum KeyType implements ISGUnProGuard {
         NONE,
         KEYBOARD,MOUSE
     }

@@ -1,6 +1,8 @@
 package com.sellgirl.gamepadtool.model;
 
-public enum MouseKey {
+import com.sellgirl.sgJavaHelper.ISGUnProGuard;
+
+public enum MouseKey  implements ISGUnProGuard {
     NONE,
     UP,
     DOWN,
