@@ -557,7 +557,7 @@ public class GameKey implements IKnightSashaGameKey//extends GameKeyBase
             case L2:
                 return gamepad.axisL2();
             case R2:
-                return -gamepad.axisR2();
+                return gamepad.axisR2();
             case stick1Up:
                 return -gamepad.axisLeftY();
             case stick1Down:

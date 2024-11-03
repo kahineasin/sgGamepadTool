@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input.TextInputListener;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.controllers.Controller;
 import com.badlogic.gdx.controllers.Controllers;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -270,6 +271,11 @@ public class GamepadSettingScreen implements Screen {
 //			pads.add(new SGTouchGamepad());
 //			i++;
 //		}
+		if(0<i){
+			ok=true;
+		}else{
+			return;
+		}
 		gamepad=pads.get(0);
 //		this.sgcontroller = pads.get(0);//主控
 		this.sgcontroller = SGLibGdxHelper.getSGGamepad();
@@ -733,6 +739,7 @@ public class GamepadSettingScreen implements Screen {
 //			stage.addActor(aliceActor);// .colspan(2);
 //		}
 	}
+	private boolean ok=false;
 	private void saveKey(){
 //		gameKey.applyMap(gameKeyMap);
 ////				LocalSaveSettingHelper.saveKnightGameKeyData(gamepad.getPadUniqueName(),gameKey);
@@ -942,22 +949,27 @@ public class GamepadSettingScreen implements Screen {
 	}
 
 	//private int jumpCount = 0;
-
+	private float backToMainTime=3;
 	@Override
 	public void render(float delta) {
 
-//		if (xWait <= 0) {
-//			if (null != sgcontroller && sgcontroller.isCROSS()) {
-//				goToKofGameD3Page();
-//				return;
-//			}
-////			else
-////			if (null != sgcontroller && sgcontroller.isSQUARE()) {
-////				goToKofGamePage();
-////				return;
-////			}
-//		}
+		if(!ok){
 
+			if(0>=backToMainTime){
+				this.goToMainPage();
+				return;
+			}else{
+				ScreenUtils.clear(0, 0, 0.2f, 1);
+				Gdx.gl.glClearColor(0.3f, 0.3f, 0.3f, 1.f);
+				Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+
+				batch.begin();
+				game.font.draw(batch,String.format(TXT.g("no gamepad. back to main screen(%.1f seconds)"),backToMainTime),100,ScreenSetting.WORLD_HEIGHT-100);
+				batch.end();
+				backToMainTime-=delta;
+				return;
+			}
+		}
 		if(0>=buttonWaitCount) {
 //			if (
 //				true//	null == dialog || (!dialog.isVisible()) || null == dialog.getStage()
@@ -1252,12 +1264,18 @@ public class GamepadSettingScreen implements Screen {
 //			lastScreen.dispose();
 //			lastScreen=null;
 //		}
-		stage.dispose();
-		stage=null;
-		skin.dispose();
-		skin=null;
-		batch.dispose();
-		batch=null;
+		if(null!=stage) {
+			stage.dispose();
+			stage=null;
+		}
+		if(null!=skin) {
+			skin.dispose();
+			skin=null;
+		}
+		if(null!=batch) {
+			batch.dispose();
+			batch=null;
+		}
 		//System.out.println(this.getClass().getSimpleName()+" dispose");
 	}
 

@@ -240,6 +240,10 @@ public class SimulateScreen implements Screen {
 //			axisRightTmp.y1=0;
 //			axisRightTmp.y2=0;
 //		}
+		int currentSize=gameKeyMap2.size+gameKeyCombinMap.size();
+		if(null==keyDowns|| keyDowns.length<currentSize){
+			keyDowns=new boolean[currentSize];
+		}
 	}
 	public void updateUIAfterChangeGamepadSetting(){
 
@@ -883,17 +887,19 @@ public class SimulateScreen implements Screen {
 			gdxToSysKeyMap.put(Input.Keys.BACKSPACE,KeyEvent.VK_BACK_SPACE);
 
 //			keyDowns=new boolean[24];
-			keyDowns=new boolean[24+gameKey.getCombinedMap().size()];
+//			keyDowns=new boolean[24+gameKey.getCombinedMap().size()];
 
 			//鼠标速度大概是5秒移动一个屏幕高度
 //			speed= (ScreenSetting.WORLD_HEIGHT/(5*ScreenSetting.FPS));
 			speed= (ScreenSetting.WORLD_HEIGHT/(ScreenSetting.FPS));
+			scrollSpeed=speed;
 
 		} catch (AWTException e) {
 			throw new RuntimeException(e);
 		}
 	}
 	private float speed;
+	private float scrollSpeed;
 	private void generateKeyLbls(){
 
 		//for (final Map.Entry<String, Integer> player : gameKeyMap.entrySet()) {
@@ -1206,30 +1212,26 @@ public class SimulateScreen implements Screen {
 	//private int jumpCount = 0;
 
 	Array2<Integer> activeCombine=new Array2<>();
+	private float backToMainTime=3;
 	@Override
 	public void render(float delta) {
 
-//		if (xWait <= 0) {
-//			if (null != sgcontroller && sgcontroller.isCROSS()) {
-//				goToKofGameD3Page();
-//				return;
-//			}
-////			else
-////			if (null != sgcontroller && sgcontroller.isSQUARE()) {
-////				goToKofGamePage();
-////				return;
-////			}
-//		}
 		if(!ok){
 
-			ScreenUtils.clear(0, 0, 0.2f, 1);
-			Gdx.gl.glClearColor(0.3f, 0.3f, 0.3f, 1.f);
-			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+			if(0>=backToMainTime){
+				this.goToMainPage();
+				return;
+			}else{
+				ScreenUtils.clear(0, 0, 0.2f, 1);
+				Gdx.gl.glClearColor(0.3f, 0.3f, 0.3f, 1.f);
+				Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
-			batch.begin();
-			game.font.draw(batch,"no gamepad",100,ScreenSetting.WORLD_HEIGHT-100);
-			batch.end();
-			return;
+				batch.begin();
+				game.font.draw(batch,String.format(TXT.g("no gamepad. back to main screen(%.1f seconds)"),backToMainTime),100,ScreenSetting.WORLD_HEIGHT-100);
+				batch.end();
+				backToMainTime-=delta;
+				return;
+			}
 		}
 
 		if(0>=buttonWaitCount) {
@@ -1273,6 +1275,8 @@ public class SimulateScreen implements Screen {
 				//鼠标参数
 				float mouseX=0;
 				float mouseY=0;
+				//鼠标滚轮
+				float scrollY=0;
 				////速度大概是5秒移动一个屏幕高度
 				//int speed= (int) (ScreenSetting.WORLD_HEIGHT/(5*ScreenSetting.FPS));
 
@@ -1323,9 +1327,11 @@ public class SimulateScreen implements Screen {
 						}
 					}else if(KeySimulateItem.KeyType.MOUSE==j.getDstKeyType()){
 						MouseKey dstKeyEnum=MouseKey.values()[j.getDstKey()];
+						boolean isAxis=MouseKey.UP==dstKeyEnum||MouseKey.DOWN==dstKeyEnum
+								||MouseKey.LEFT==dstKeyEnum||MouseKey.RIGHT==dstKeyEnum
+								||MouseKey.scrollUp==dstKeyEnum||MouseKey.scrollDown==dstKeyEnum;
 						if(isPress==keyDowns[historyId]
-						&&MouseKey.UP!=dstKeyEnum&&MouseKey.DOWN!=dstKeyEnum
-								&&MouseKey.LEFT!=dstKeyEnum&&MouseKey.RIGHT!=dstKeyEnum
+						&&!isAxis
 						){
 //						return;
 							historyId++;
@@ -1343,8 +1349,7 @@ public class SimulateScreen implements Screen {
 
 								//当dstKey是mouseMove而且srcKey是轴时，要计算轴幅度
 								float percent=1;
-								if(MouseKey.UP==dstKeyEnum||MouseKey.DOWN==dstKeyEnum
-										||MouseKey.LEFT==dstKeyEnum||MouseKey.RIGHT==dstKeyEnum){
+								if(isAxis){
 
 									percent=GameKey.getAxisPercent(gameKey.getGamepad(),padKey);
 								}
@@ -1372,11 +1377,20 @@ public class SimulateScreen implements Screen {
 //										}
 //										robot.mouseMove(mouseX,mouseY);
 										break;
+									case scrollUp:
+										scrollY-=scrollSpeed*percent;
+										break;
+									case scrollDown:
+										scrollY+=scrollSpeed*percent;
+										break;
 									case buttonLeft:
 										robot.mousePress(java.awt.event.InputEvent.BUTTON1_DOWN_MASK);
 										break;
 									case buttonRight:
 										robot.mousePress(java.awt.event.InputEvent.BUTTON2_DOWN_MASK);
+										break;
+									case buttonScroll:
+										robot.mousePress(java.awt.event.InputEvent.BUTTON3_DOWN_MASK);
 										break;
 									default:
 										break;
@@ -1404,6 +1418,9 @@ public class SimulateScreen implements Screen {
 									case buttonRight:
 										robot.mouseRelease(java.awt.event.InputEvent.BUTTON2_DOWN_MASK);
 										break;
+									case buttonScroll:
+										robot.mouseRelease(java.awt.event.InputEvent.BUTTON3_DOWN_MASK);
+										break;
 									default:
 										break;
 								}
@@ -1419,6 +1436,10 @@ public class SimulateScreen implements Screen {
 //					int mouseY=mouseLocation.y;
 					robot.mouseMove(((Float)(mouseX+mouseLocation.x)).intValue(),
 							((Float)(mouseY+ mouseLocation.y)).intValue());
+				}
+				if(0!=scrollY){
+//					Point mouseLocation = MouseInfo.getPointerInfo().getLocation();
+					robot.mouseWheel(((Float)scrollY).intValue());
 				}
 
 //				//这里未完善,SGPS5Gamepad.getQuickBtnKey里面的组合不完整，比如没有l2 r2 --benjamin todo
@@ -1764,13 +1785,18 @@ public class SimulateScreen implements Screen {
 	@Override
 	public void dispose() {
 
-		stage.dispose();
-		stage=null;
-		skin.dispose();
-		skin=null;
-		batch.dispose();
-		batch=null;
-		//System.out.println(this.getClass().getSimpleName()+" dispose");
+		if(null!=stage) {
+			stage.dispose();
+			stage=null;
+		}
+		if(null!=skin) {
+			skin.dispose();
+			skin=null;
+		}
+		if(null!=batch) {
+			batch.dispose();
+			batch=null;
+		}
 	}
 
 //	public void onSelectCharacterDialogConfirm(int playerId) {

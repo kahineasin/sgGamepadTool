@@ -263,14 +263,18 @@ public class KeySettingScreen implements Screen {
 //					default:
 //						break;
 //				}
-				if(m1.getDstKeyType()== KeySimulateItem.KeyType.KEYBOARD){
+				if(m1.getDstKeyType()== KeySimulateItem.KeyType.KEYBOARD
+				&&0!=m1.getDstKey()
+				){
 					keySettingLbls.get(XBoxKey.values()[ m1.getSrcKey()].toString())
-							.setText(gameKey.getKeyNamesByMask(m1.getDstKey()) );
+							.setText( gameKey.getKeyNamesByMask(m1.getDstKey()) );
 				}else{
 					keySettingLbls.get(XBoxKey.values()[ m1.getSrcKey()].toString())
 							.setText("映射键盘");
 				}
-				if(m1.getDstKeyType()== KeySimulateItem.KeyType.MOUSE){
+				if(m1.getDstKeyType()== KeySimulateItem.KeyType.MOUSE
+						&&0!=m1.getDstKey()
+				){
 					mouseKeySettingLbls.get(XBoxKey.values()[ m1.getSrcKey()].toString())
 							.setText(MouseKey.values()[m1.getDstKey()].toString() );
 				}else{
@@ -542,8 +546,11 @@ public class KeySettingScreen implements Screen {
 //		for (final Map.Entry<String, Integer> player : gameKeyMap.entrySet()) {
 		for (final KeySimulateItem player : gameKeyMap2) {
 //			final Label playerlbl = new Label(gameKey.getKeyNamesByMask(player.getValue()), skin);
-			final Label playerlbl = new Label(KeySimulateItem.KeyType.KEYBOARD==player.getDstKeyType()? gameKey.getKeyNamesByMask(player.getDstKey()):"映射键盘", skin);
-			final Label mouselbl = new Label(KeySimulateItem.KeyType.MOUSE==player.getDstKeyType()?MouseKey.values()[player.getDstKey()].toString():"映射鼠标"  , skin);
+//			if(XBoxKey.stick1Up.ordinal()== player.getSrcKey()){
+//				String aa="aa";
+//			}
+			final Label playerlbl = new Label(KeySimulateItem.KeyType.KEYBOARD==player.getDstKeyType()&&0!=player.getDstKey()? gameKey.getKeyNamesByMask(player.getDstKey()):"映射键盘", skin);
+			final Label mouselbl = new Label(KeySimulateItem.KeyType.MOUSE==player.getDstKeyType()&&0!=player.getDstKey()?MouseKey.values()[player.getDstKey()].toString():"映射鼠标"  , skin);
 			//playerlbls.add(playerlbl);
 
 			final String srcKeyName=XBoxKey.values()[player.getSrcKey()].toString();
@@ -1031,6 +1038,16 @@ public class KeySettingScreen implements Screen {
 			tmpMap.add(i);
 		}
 		gameKey.setKeyMap(tmpMap);
+
+		ArrayList<Integer> delList=new ArrayList<>();
+		for (Map.Entry<Integer, Integer> m1 : gameKeyCombinMap.entrySet()) {
+			if(0==m1.getValue()){
+				delList.add(m1.getKey());
+			}
+		}
+		for(Integer i:delList){
+			gameKeyCombinMap.remove(i);
+		}
 		gameKey.applyCombinedMap(gameKeyCombinMap);
 //				LocalSaveSettingHelper.saveKnightGameKeyData(gamepad.getPadUniqueName(),gameKey);
 //		localSaveSettingHelper2.saveGameKey(gamepad.getPadUniqueName(),gameKey);
@@ -1075,7 +1092,7 @@ public class KeySettingScreen implements Screen {
 			i.setDstKey(keyMask);
 			gameKeyMap2.add(i);
 		}
-		keySettingLbls.get(key).setText(gameKey.getKeyNamesByMask(keyMask));
+		keySettingLbls.get(key).setText(0==keyMask?"映射键盘":gameKey.getKeyNamesByMask(keyMask));
 //		mouseKeySettingLbls.get(key).setText("设置鼠标键位");
 		mouseKeySettingLbls.get(key).setText("映射鼠标");//按键");
 	}
@@ -1097,7 +1114,7 @@ public class KeySettingScreen implements Screen {
 		}
 //		keySettingLbls.get(key).setText("设置键盘键位");
 		keySettingLbls.get(key).setText("映射键盘");//按键");
-		mouseKeySettingLbls.get(key).setText(MouseKey.values()[keyMask].toString());
+		mouseKeySettingLbls.get(key).setText(0==keyMask?"映射鼠标":MouseKey.values()[keyMask].toString());
 	}
 	private void onGamepadKeyChange(String key, final int keyMask){
 		if(gameKeyCombinMap.containsKey(keyMask)){
@@ -1329,30 +1346,26 @@ public class KeySettingScreen implements Screen {
 
 	//private int jumpCount = 0;
 
+	private float backToMainTime=3;
 	@Override
 	public void render(float delta) {
 
-//		if (xWait <= 0) {
-//			if (null != sgcontroller && sgcontroller.isCROSS()) {
-//				goToKofGameD3Page();
-//				return;
-//			}
-////			else
-////			if (null != sgcontroller && sgcontroller.isSQUARE()) {
-////				goToKofGamePage();
-////				return;
-////			}
-//		}
 		if(!ok){
 
-			ScreenUtils.clear(0, 0, 0.2f, 1);
-			Gdx.gl.glClearColor(0.3f, 0.3f, 0.3f, 1.f);
-			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+			if(0>=backToMainTime){
+				this.goToMainPage();
+				return;
+			}else{
+				ScreenUtils.clear(0, 0, 0.2f, 1);
+				Gdx.gl.glClearColor(0.3f, 0.3f, 0.3f, 1.f);
+				Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
-			batch.begin();
-			game.font.draw(batch,"no gamepad",100,ScreenSetting.WORLD_HEIGHT-100);
-			batch.end();
-			return;
+				batch.begin();
+				game.font.draw(batch,String.format(TXT.g("no gamepad. back to main screen(%.1f seconds)"),backToMainTime),100,ScreenSetting.WORLD_HEIGHT-100);
+				batch.end();
+				backToMainTime-=delta;
+				return;
+			}
 		}
 
 		if(0>=buttonWaitCount) {
@@ -1664,12 +1677,18 @@ public class KeySettingScreen implements Screen {
 //			lastScreen.dispose();
 //			lastScreen=null;
 //		}
-		stage.dispose();
-		stage=null;
-		skin.dispose();
-		skin=null;
-		batch.dispose();
-		batch=null;
+		if(null!=stage) {
+			stage.dispose();
+			stage=null;
+		}
+		if(null!=skin) {
+			skin.dispose();
+			skin=null;
+		}
+		if(null!=batch) {
+			batch.dispose();
+			batch=null;
+		}
 		//System.out.println(this.getClass().getSimpleName()+" dispose");
 	}
 

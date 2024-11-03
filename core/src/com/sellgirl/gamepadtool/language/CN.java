@@ -12,11 +12,15 @@ public class CN {
 		Map<String,String> r=new HashMap<String,String>();
 		//设置映射的页面
 		r.put("add combin key","添加组合键");
+		//设置鼠标映射胡弹窗
+		r.put("don't simulate","不映射");
 		//模拟页面
 		r.put("stop simulate (simulating...)","停止模拟(模拟中...)");
 		r.put("start simulate","开始模拟");
 		//手柄相应区设置
 		r.put("dead zone of joystick","摇杆死区设置");
+		//所有页面
+		r.put("no gamepad. back to main screen(%.1f seconds)","没有识别到手柄，返回主菜单(%.1f 秒)");
 
 		r.put("edit userInfo, or press TRIANGLE", "编辑用户信息,或者点 △");
 		r.put("enter the game, or press X", "进入游戏,或者点 X");

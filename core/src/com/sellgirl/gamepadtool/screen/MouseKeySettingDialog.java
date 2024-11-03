@@ -22,7 +22,7 @@ import com.sellgirl.sgJavaHelper.SGAction;
 import com.sellgirl.sgJavaHelper.config.SGDataHelper;
 
 /**
- * Created by Benjamin Schulte on 26.11.2018.
+ * 映射鼠标的设置弹窗
  */
 
 public class MouseKeySettingDialog extends Dialog {
@@ -109,25 +109,17 @@ private static  final String tag= MouseKeySettingDialog.class.getName();
 		});
 		button(closeButton);
 
-//		restoreButton = new TextButton(TXT.g("confirm"), app.skin);
-//		//restoreButton.setDisabled(true);
-//		restoreButton.addListener(new ChangeListener() {
-//			@Override
-//			public void changed(ChangeEvent event, Actor actor) {
-//				//if(null!=action) {
-//				try {
-//					MouseKeySettingDialog.this.action.go(MouseKeySettingDialog.this.keyName, MouseKeySettingDialog.this.keyMask,null);
-//				} catch (Exception e) {
-//					SGDataHelper.getLog().printException(e,tag);
-//				}
-////				}else {
-////                    app.onSelectCharacterDialogConfirm(playerId);
-////                }
-//				MouseKeySettingDialog.this.hide();
-//			}
-//		});
+		restoreButton = new TextButton(TXT.g("don't simulate"), app.skin);
+		//restoreButton.setDisabled(true);
+		restoreButton.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+//				MouseKeySettingDialog.this.selectBtn(MouseKey.NONE);
+				MouseKeySettingDialog.this.selectBtn(MouseKey.NONE);
+			}
+		});
 //
-//		getButtonTable().add(restoreButton);
+		getButtonTable().add(restoreButton);
 
 
 //		AssetManager manager = new AssetManager();
@@ -199,31 +191,43 @@ private static  final String tag= MouseKeySettingDialog.class.getName();
 		Label rightLbl = new Label("右移",app.skin);
 		Label buttonLeftLbl = new Label("鼠标左键",app.skin);
 		Label buttonRightLbl = new Label("鼠标右键",app.skin);
+		Label buttonScrollLbl = new Label("鼠标滚轮",app.skin);
+		Label scrollUpLbl = new Label("鼠标滚轮(上)",app.skin);
+		Label scrollDownLbl = new Label("鼠标滚轮(下)",app.skin);
 
-		upLbl.addListener(new ClickListener() {
-			@Override
-			public void clicked(InputEvent event, float x, float y) {
-				MouseKeySettingDialog.this.selectBtn(MouseKey.UP);
-			}
-		});
+//		upLbl.addListener(new ClickListener() {
+//			@Override
+//			public void clicked(InputEvent event, float x, float y) {
+//				MouseKeySettingDialog.this.selectBtn(MouseKey.UP);
+//			}
+//		});
 		addBtnListener(upLbl,MouseKey.UP);
 		addBtnListener(downLbl,MouseKey.DOWN);
 		addBtnListener(leftLbl,MouseKey.LEFT);
 		addBtnListener(rightLbl,MouseKey.RIGHT);
 		addBtnListener(buttonLeftLbl,MouseKey.buttonLeft);
 		addBtnListener(buttonRightLbl,MouseKey.buttonRight);
+		addBtnListener(buttonScrollLbl,MouseKey.buttonScroll);
+		addBtnListener(scrollUpLbl,MouseKey.scrollUp);
+		addBtnListener(scrollDownLbl,MouseKey.scrollDown);
 
-
-		iapTable.add(keyTipLbl);
+		int spaceRight=20;
+		int spaceBottom=20;
+		iapTable.add(keyTipLbl).colspan(4)//.spaceRight(spaceRight)
+				.spaceBottom(spaceBottom);
 		iapTable.row();
 //		iapTable.add(keyMaskLbl);
-		iapTable.add(upLbl);
-		iapTable.add(downLbl);
-		iapTable.add(leftLbl);
-		iapTable.add(rightLbl);
+		iapTable.add(upLbl).spaceRight(spaceRight).spaceBottom(spaceBottom);
+		iapTable.add(downLbl).spaceRight(spaceRight).spaceBottom(spaceBottom);
+		iapTable.add(leftLbl).spaceRight(spaceRight).spaceBottom(spaceBottom);
+		iapTable.add(rightLbl).spaceBottom(spaceBottom);
 		iapTable.row();
-		iapTable.add(buttonLeftLbl);
-		iapTable.add(buttonRightLbl);
+		iapTable.add(buttonLeftLbl).spaceRight(spaceRight).spaceBottom(spaceBottom);
+		iapTable.add(buttonRightLbl).colspan(3).spaceBottom(spaceBottom);
+		iapTable.row();
+		iapTable.add(buttonScrollLbl).spaceRight(spaceRight).spaceBottom(spaceBottom);
+		iapTable.add(scrollUpLbl).spaceRight(spaceRight).spaceBottom(spaceBottom);
+		iapTable.add(scrollDownLbl).colspan(2).spaceBottom(spaceBottom);
 		iapTable.row();
 //		//skillLbl = new Label("", skin);
 //		 //sashaBtn = new TextButton(SGCharacter.SASHA.name()+" 当前选择", skin);
