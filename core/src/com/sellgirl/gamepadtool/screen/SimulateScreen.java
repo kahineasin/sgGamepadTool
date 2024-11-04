@@ -1123,6 +1123,12 @@ public class SimulateScreen implements Screen {
 				//activeCombine激活的组合包含的单键不触发
 				activeCombine.clear();
 
+				//不用清0，上一帧留到下一帧计算
+//				 mouseX=0;
+//				 mouseY=0;
+//				//鼠标滚轮
+//				 scrollY=0;
+
 				int historyId=0;
 				boolean isPress=false;
 				int gdxKey=0;
@@ -1149,15 +1155,39 @@ public class SimulateScreen implements Screen {
 //					historyId++;
 //				}
 
-				//鼠标参数
-				float mouseX=0;
-				float mouseY=0;
-				//鼠标滚轮
-				float scrollY=0;
+//				//鼠标参数
+//				float mouseX=0;
+//				float mouseY=0;
+//				//鼠标滚轮
+//				float scrollY=0;
 				////速度大概是5秒移动一个屏幕高度
 				//int speed= (int) (ScreenSetting.WORLD_HEIGHT/(5*ScreenSetting.FPS));
 
 				historyId =simulateByMap(false,gameKeyMap2,historyId);
+				if(0!=mouseX||0!=mouseY){
+					Point mouseLocation = MouseInfo.getPointerInfo().getLocation();
+
+					//此版本的舍一法有问题，设想 272-0.13=271.8的情况，对结果271.8舍一的话，
+					// 变化值会从-0.13变成了-1，反而相差更多了
+					//改进的办法是对变化值-0.13舍1法,把不足1的变动累加到下一帧处理
+//					robot.mouseMove(((Float)(mouseX+mouseLocation.x)).intValue(),
+//							((Float)(mouseY+ mouseLocation.y)).intValue());
+
+					int doX=((Float)(mouseX)).intValue();
+					int doY=((Float)(mouseY)).intValue();
+					robot.mouseMove(doX+mouseLocation.x,
+							doY+ mouseLocation.y);
+					mouseX-=doX;
+					mouseY-=doY;
+				}
+				if(0!=scrollY){
+//					robot.mouseWheel(((Float)scrollY).intValue());
+
+					int doY=((Float)(scrollY)).intValue();
+					robot.mouseWheel(doY);
+					scrollY-=doY;
+				}
+
 //				for(KeySimulateItem j:gameKeyMap2){
 //					isPress=gameKey.isBtn(1<<j.getSrcKey());
 //					//mouse移动不跳过
@@ -1622,15 +1652,19 @@ public class SimulateScreen implements Screen {
 			keyDowns[historyId]=isPress;
 		}
 	}
+	private float mouseX=0;
+	private float mouseY=0;
+	//鼠标滚轮
+	private float scrollY=0;
 	private int simulateByMap(boolean isCombine,
 							   ISGList<KeySimulateItem> gameKeyMap2,
 							   int historyId){
 
-		//鼠标参数
-		float mouseX=0;
-		float mouseY=0;
-		//鼠标滚轮
-		float scrollY=0;
+//		//鼠标参数
+//		float mouseX=0;
+//		float mouseY=0;
+//		//鼠标滚轮
+//		float scrollY=0;
 		////速度大概是5秒移动一个屏幕高度
 		//int speed= (int) (ScreenSetting.WORLD_HEIGHT/(5*ScreenSetting.FPS));
 		boolean isPress;
@@ -1713,7 +1747,7 @@ public class SimulateScreen implements Screen {
 					if(isPress) {
 
 						//当dstKey是mouseMove而且srcKey是轴时，要计算轴幅度
-						float percent=1;
+						float percent=1f;
 						if(isAxis){
 
 							if(isCombine){
@@ -1790,17 +1824,15 @@ public class SimulateScreen implements Screen {
 			}
 			historyId++;
 		}
-		if(0!=mouseX||0!=mouseY){
-			Point mouseLocation = MouseInfo.getPointerInfo().getLocation();
-//					int mouseX=mouseLocation.x;
-//					int mouseY=mouseLocation.y;
-			robot.mouseMove(((Float)(mouseX+mouseLocation.x)).intValue(),
-					((Float)(mouseY+ mouseLocation.y)).intValue());
-		}
-		if(0!=scrollY){
-//					Point mouseLocation = MouseInfo.getPointerInfo().getLocation();
-			robot.mouseWheel(((Float)scrollY).intValue());
-		}
+//		if(0!=mouseX||0!=mouseY){
+//			Point mouseLocation = MouseInfo.getPointerInfo().getLocation();
+//			robot.mouseMove(((Float)(mouseX+mouseLocation.x)).intValue(),
+//					((Float)(mouseY+ mouseLocation.y)).intValue());
+//		}
+//		if(0!=scrollY){
+////					Point mouseLocation = MouseInfo.getPointerInfo().getLocation();
+//			robot.mouseWheel(((Float)scrollY).intValue());
+//		}
 		return historyId;
 	}
 //	private void gotoGamePage() {
