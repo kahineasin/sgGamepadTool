@@ -157,6 +157,17 @@ public class KeySettingScreen implements Screen {
 
 	LocalSaveSettingHelper2 localSaveSettingHelper2=null;
 	//LocalSaveSettingHelper3 localSaveSettingHelper3=null;
+
+	/**
+	 * 使b处于a c之间
+	 * @param a
+	 * @param b
+	 * @param c
+	 * @return
+	 */
+	private float min(float a,float b,float c){
+		return Math.min( Math.max(a,b),c);
+	}
 	public void loadGamepadSetting(ISGPS5Gamepad gamepad){
 
 //		gameKey=localSaveSettingHelper2.readGameKey(gamepad.getPadUniqueName(),gamepad.getClass());
@@ -227,7 +238,16 @@ public class KeySettingScreen implements Screen {
 //		gameKeyCombinMap=gameKey.getCombinedMap();
 
 		this.gamepad=gamepad;
-
+		if(SGPS5Gamepad.class==gamepad.getClass()){
+			SGPS5Gamepad tmpGamepad=(SGPS5Gamepad) this.gamepad;
+			SGPS5Gamepad.AxisSpace tmpAL= tmpGamepad.getAxisLeftSpace();
+			SGPS5Gamepad.AxisSpace tmpAR= tmpGamepad.getAxisRightSpace();
+			tmpGamepad.setAxisLeftSpace(min(-0.9f,tmpAL.x1,-0.5f),min(0.5f,tmpAL.x2,0.9f),min(-0.9f,tmpAL.y1,-0.5f),min(0.5f,tmpAL.y2,0.9f));
+//			tmpGamepad.setAxisRightSpace(Math.min(-0.5f,tmpAR.x1),Math.max(0.5f,tmpAR.x2),Math.min(-0.5f,tmpAR.y1),Math.max(0.5f,tmpAR.y2));
+			tmpGamepad.setAxisRightSpace(min(-0.9f,tmpAR.x1,-0.5f),min(0.5f,tmpAR.x2,0.9f),min(-0.9f,tmpAR.y1,-0.5f),min(0.5f,tmpAR.y2,0.9f));
+			tmpGamepad.setL2Space(min(0.5f,tmpGamepad.getL2Space(),0.9f));
+			tmpGamepad.setR2Space(min(0.5f,tmpGamepad.getR2Space(),0.9f));
+		}
 //		if(SGPS5Gamepad.class==gamepad.getClass()){
 //			SGPS5Gamepad tmp=(SGPS5Gamepad) gamepad;
 //			axisLeftTmp.x1=tmp.getAxisLeftSpace().x1;

@@ -1791,10 +1791,10 @@ public class SimulateScreen implements Screen {
 								robot.mousePress(java.awt.event.InputEvent.BUTTON1_DOWN_MASK);
 								break;
 							case buttonRight:
-								robot.mousePress(java.awt.event.InputEvent.BUTTON2_DOWN_MASK);
+								robot.mousePress(java.awt.event.InputEvent.BUTTON3_DOWN_MASK);
 								break;
 							case buttonScroll:
-								robot.mousePress(java.awt.event.InputEvent.BUTTON3_DOWN_MASK);
+								robot.mousePress(java.awt.event.InputEvent.BUTTON2_DOWN_MASK);
 								break;
 							default:
 								break;
@@ -1810,10 +1810,10 @@ public class SimulateScreen implements Screen {
 								robot.mouseRelease(java.awt.event.InputEvent.BUTTON1_DOWN_MASK);
 								break;
 							case buttonRight:
-								robot.mouseRelease(java.awt.event.InputEvent.BUTTON2_DOWN_MASK);
+								robot.mouseRelease(java.awt.event.InputEvent.BUTTON3_DOWN_MASK);
 								break;
 							case buttonScroll:
-								robot.mouseRelease(java.awt.event.InputEvent.BUTTON3_DOWN_MASK);
+								robot.mouseRelease(java.awt.event.InputEvent.BUTTON2_DOWN_MASK);
 								break;
 							default:
 								break;
