@@ -213,6 +213,8 @@ ISGPS5Gamepad sgcontroller;
 			gamePadToKeyboardBtn=new TextButton(TXT.g("gamepad to keyboard input"), skin);
 			gamePadToKeyboardSettingBtn = new TextButton(TXT.g("setting"), skin);
 			gamePadDeadZoneSettingBtn = new TextButton(TXT.g("dead zone of joystick"), skin);
+		TextButton exitGameBtn = new TextButton(TXT.g("exit app"), skin);
+
 			gamePadToKeyboardBtn.addListener(new ClickListener() {
 
 				@Override
@@ -272,13 +274,13 @@ ISGPS5Gamepad sgcontroller;
 //				goToKeySettingPage();
 //			}
 //		});
-//		exitGameBtn.addListener(new ClickListener() {
-//
-//			@Override
-//			public void clicked(InputEvent event, float x, float y) {
-//				exitGame();
-//			}
-//		});
+		exitGameBtn.addListener(new ClickListener() {
+
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				exitGame();
+			}
+		});
 
 		int buttonSpace=20;
 //		table.add(button1).spaceBottom(buttonSpace);
@@ -293,8 +295,6 @@ ISGPS5Gamepad sgcontroller;
 		table.row();
 		table.add(gamePadDeadZoneSettingBtn).spaceBottom(buttonSpace);
 		table.row();
-		tabUi=new TabUi();
-		tabUi.setItem(table.getChildren());
 //		table.add(enterKofGameBtn).spaceBottom(buttonSpace);
 //		table.row();
 //		table.add(enterD3GameBtn).spaceBottom(buttonSpace);
@@ -305,7 +305,10 @@ ISGPS5Gamepad sgcontroller;
 //		table.row();
 //		table.add(keySettingBtn).spaceBottom(buttonSpace);
 //		table.row();
-//		table.add(exitGameBtn);
+		table.add(exitGameBtn);
+
+		tabUi=new TabUi();
+		tabUi.setItem(table.getChildren());
 
 		stage.addActor(table);
 

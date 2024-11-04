@@ -10,6 +10,8 @@ import java.util.Map;
 public class CN {
 	public static Map<String,String> get(){
 		Map<String,String> r=new HashMap<String,String>();
+		//主菜单
+		r.put("exit app","退出程序");
 		//设置映射的页面
 		r.put("add combin key","添加组合键");
 		//设置鼠标映射胡弹窗

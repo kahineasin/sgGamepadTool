@@ -698,7 +698,8 @@ public class SimulateScreen implements Screen {
 		table.add(simulateBtn).colspan(2).spaceBottom(20);
 		table.row();
 		table.add(backBtn).colspan(2);
-
+		tabUi.addItem(simulateBtn);
+		tabUi.addItem(backBtn);
 //		if(SGCharacter.GODDESSPRINCESSSASHA==sasha.getCharacter()) {
 //			stage.addActor(sashaActor);// .colspan(2);
 //		}else {
@@ -787,7 +788,7 @@ public class SimulateScreen implements Screen {
 			playerRow1.add(playerlbl).spaceBottom(20);
 			playerRow1.row();
 
-			tabUi.addItem(padNameBtn);
+//			tabUi.addItem(padNameBtn);
 //			i++;
 		}
 	}
@@ -819,7 +820,7 @@ public class SimulateScreen implements Screen {
 			playerRow2.add(playerlbl).spaceBottom(20);
 			playerRow2.row();
 
-			tabUi.addItem(padNameBtn);
+			//tabUi.addItem(padNameBtn);
 			//i++;
 		}
 		//String aa="aa";
@@ -1434,50 +1435,10 @@ public class SimulateScreen implements Screen {
 				}
 			}
 		}
-//		if(squartWait<=0) {
-//			if (null != controller && sgcontroller.isSQUARE()) {
-//				squartWait=1;
-//				this.nextCharacter();
-//				//return;
-//			}
-//		}
-//		if(Gdx.input.isKeyPressed(Keys.LEFT)) {
-//			this.lastCharacter();
-//		}else if(Gdx.input.isKeyPressed(Keys.RIGHT)) {
-//			this.nextCharacter();
-//		}
 
-//		if(axisRightCalculating){
-//
-//			if(2>axisRightCalculatingTime){
-//				axisRightTmp.x1=Math.min(axisRightTmp.x1,gamepad.axisRightX());
-//				axisRightTmp.x2=Math.max(axisRightTmp.x2,gamepad.axisRightX());
-//				axisRightTmp.y1=Math.min(axisRightTmp.y1,gamepad.axisRightY());
-//				axisRightTmp.y2=Math.max(axisRightTmp.y2,gamepad.axisRightY());
-//				axisRightCalculatingTime+=delta;
-//			}else{
-//				updateUIAfterChangeGamepadSetting();
-//				axisRightCalculating=false;
-//				axisRightAutoBtn.setText(TXT.g("auto setting"));
-//				axisRightAutoBtn.setDisabled(false);
-//			}
-//		}
-//
-//		if(axisLeftCalculating){
-//
-//			if(2>axisLeftCalculatingTime){
-//				axisLeftTmp.x1=Math.min(axisLeftTmp.x1,gamepad.axisLeftX());
-//				axisLeftTmp.x2=Math.max(axisLeftTmp.x2,gamepad.axisLeftX());
-//				axisLeftTmp.y1=Math.min(axisLeftTmp.y1,gamepad.axisLeftY());
-//				axisLeftTmp.y2=Math.max(axisLeftTmp.y2,gamepad.axisLeftY());
-//				axisLeftCalculatingTime+=delta;
-//			}else{
-//				updateUIAfterChangeGamepadSetting();
-//				axisLeftCalculating=false;
-//				axisLeftAutoBtn.setText(TXT.g("auto setting"));
-//				axisLeftAutoBtn.setDisabled(false);
-//			}
-//		}
+		if(null==stage){//tabUi触发页面跳转
+			return;
+		}
 
 //		ScreenUtils.clear(0, 0, 0.2f, 1);
 		ScreenUtils.clear(Color.PINK);
@@ -1520,94 +1481,7 @@ public class SimulateScreen implements Screen {
 //		dataLbl.setText("当前选择 "+currentCharacter+": agi("+com.sellgirl.sgJavaHelper.config.SGDataHelper.ScientificNotation(previewSasha.getAgi())
 //		+") str("+com.sellgirl.sgJavaHelper.config.SGDataHelper.ScientificNotation(previewSasha.getStr())+")");
 
-//		// if(nextWait<=0) {
-//		if (SGCharacter.SASHA == sasha.getCharacter()) {
-//			if (1 == step) {
-//				if (nextWait <= 0) {
-//					actor.dodge();
-//					skillLbl.setText("○ 躲闪");
-//				}
-//				nextWait += delta;
-//				if (nextWait > 2) {
-//
-//					nextWait = 0;
-//					step++;
-//					actor.setX(actorBeginX);
-//				}
-//			} else if (2 == step) {
-//				actor.defence();
-//				;
-//				skillLbl.setText("L1 防御");
-//				nextWait += delta;
-//				if (nextWait > 2) {
-//
-//					nextWait = 0;
-//					step++;
-//				}
-//			} else if (3 == step) {
-//				if (nextWait <= 0) {
-//					actor.jump();
-//					skillLbl.setText("X 跳");
-//				}else if(nextWait>0.5&&jumpCount==0) {
-//					actor.jump();
-//					jumpCount++;
-//				}
-//				nextWait += delta;
-//				if (nextWait > 2) {
-//
-//					nextWait = 0;
-//					step++;
-//					jumpCount=0;
-//				}
-//			}  else if (4== step) {
-//				if (nextWait <= 0) {
-//					actor.doSkill1(stage);
-//					skillLbl.setText("↓↘→□ 气功");
-//				}
-//				nextWait += delta;
-//				if (nextWait > 2) {
-//
-//					nextWait = 0;
-//					step++;
-//				}
-//			} else if (5 == step) {
-//				if (nextWait <= 0) {
-//					actor.doSkill2(stage);
-//					skillLbl.setText("→↘↓↘→□ 天翔龙闪");
-//				}
-//				nextWait += delta;
-//				if (nextWait > 2) {
-//
-//					nextWait = 0;
-//					step = 1;
-//					actor.setX(actorBeginX);
-//				}
-//			}
-////				step++;
-////				if(step>4) {step=1;}
-//		}
 
-		// }
-//		nextWait-=delta;
-//		if(nextWait<0) {nextWait=0;}
-
-//		int paycodeW = 220;
-//		int paycodeH = 300;
-//		batch.begin();
-//		batch.draw(paycode, Gdx.graphics.getWidth() / 2 - (paycodeW / 2), Gdx.graphics.getHeight() - paycodeH - 20,
-//				paycodeW, paycodeH);
-//
-//		game.font.draw(batch,
-//				TXT.g("This is a free game developed by BENJAMIN, and VIP will have a better experience in the game. You may pay 1 yuan or more to permanently activate VIP. The developer promises to permanently update and maintain this game. You can scan the QR code above to make payment, I will active your VIP in one day, thanks."),
-//				10, Gdx.graphics.getHeight() - paycodeH - 40, Gdx.graphics.getWidth() - 20,
-//				Gdx.graphics.getHeight() - paycodeH - 20, true);
-//		
-//
-////		game.font.draw(batch,
-////				TXT.g("pay description"),
-////				10, Gdx.graphics.getHeight() - paycodeH - 40, Gdx.graphics.getWidth() - 20,
-////				Gdx.graphics.getHeight() - paycodeH - 20, true);
-//		batch.end();
 
 //		// 更新舞台逻辑
 		stage.act();

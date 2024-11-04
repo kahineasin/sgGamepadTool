@@ -839,19 +839,6 @@ public class KeySettingScreen implements Screen {
 
 
 
-//		final TextButton simulateBtn = new TextButton(TXT.g("start simulate"), skin);
-//		simulateBtn.addListener(new ClickListener() {
-//
-//			@Override
-//			public void clicked(InputEvent event, float x, float y) {
-//				simulating=!simulating;
-//				if(simulating){
-//					simulateBtn.setText(TXT.g("stop simulate"));
-//				}else{
-//					simulateBtn.setText(TXT.g("start simulate"));
-//				}
-//			}
-//		});
 
 		TextButton backBtn = new TextButton(TXT.g("return, press ○"), skin);
 		backBtn.addListener(new ClickListener() {
@@ -868,18 +855,16 @@ public class KeySettingScreen implements Screen {
 		table.row();
 		table.add(combinKeyBtn).colspan(4).spaceBottom(spaceBottom);
 		table.row();
-//		table.add(saveResultLbl).colspan(4).spaceBottom(20);
-//		table.row();
-//		table.add(saveBtn).colspan(4).spaceBottom(20);
 		table.add(saveBtn).colspan(4).spaceBottom(spaceBottom)//.spaceRight(spaceRight)
 		;
 		//table.add(saveResultLbl).colspan(3).spaceBottom(spaceBottom);
 		table.row();
-//		table.add(restoreBtn).colspan(2).spaceBottom(20);
-//		table.row();
-//		table.add(simulateBtn).colspan(2).spaceBottom(20);
-//		table.row();
+
 		table.add(backBtn).colspan(4);
+
+		tabUi.addItem(combinKeyBtn);
+		tabUi.addItem(saveBtn);
+		tabUi.addItem(backBtn);
 
 //		if(SGCharacter.GODDESSPRINCESSSASHA==sasha.getCharacter()) {
 //			stage.addActor(sashaActor);// .colspan(2);
@@ -1796,6 +1781,10 @@ int keyValue
 					}
 				}
 			//}
+		}
+
+		if(null==stage){//tabUi触发页面跳转
+			return;
 		}
 
 		if(0>=msgWaitCount){

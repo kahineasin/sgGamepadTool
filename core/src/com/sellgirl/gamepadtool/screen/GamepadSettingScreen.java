@@ -853,6 +853,10 @@ public class GamepadSettingScreen implements Screen {
 		table.row();
 		table.add(backBtn).colspan(totalCol);
 
+		tabUi.addItem(saveBtn);
+		tabUi.addItem(restoreBtn);
+		tabUi.addItem(backBtn);
+
 	}
 	private boolean ok=false;
 	private void saveKey(){
@@ -1156,6 +1160,9 @@ public class GamepadSettingScreen implements Screen {
 		}
 
 
+		if(null==stage){//tabUi触发页面跳转
+			return;
+		}
 
 		if(axisRightCalculating){
 
