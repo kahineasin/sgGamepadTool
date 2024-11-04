@@ -45,8 +45,10 @@ import com.sellgirl.sgGameHelper.gamepad.SGTouchGamepad;
 import com.sellgirl.sgGameHelper.gamepad.XBoxKey;
 import com.sellgirl.sgGameHelper.list.Array2;
 import com.sellgirl.sgGameHelper.list.ISGList;
+import com.sellgirl.sgGameHelper.tabUi.SGTabUpDownMap;
 import com.sellgirl.sgGameHelper.tabUi.TabUi;
 import com.sellgirl.sgJavaHelper.SGAction;
+import com.sellgirl.sgJavaHelper.SGRef;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -96,6 +98,7 @@ public class KeySettingScreen implements Screen {
 	float axisRightCalculatingTime=0;
 	private SGPS5Gamepad.AxisSpace axisRightTmp=new SGPS5Gamepad.AxisSpace();
 	Label saveResultLbl;
+	Color successMsgColor;
 	String tmpEmail;
 	// TextureRegion paycode;
 
@@ -104,7 +107,7 @@ public class KeySettingScreen implements Screen {
 	float oWait = 1;
 	float squartWait = 1;
 
-	private float buttonWait=0.4f;
+	private final float buttonWait=0.4f;
 	private float buttonWaitCount=0.4f;
 //	private KofGameScreen screen = null;
 //	private SGCharacter currentCharacter = SGCharacter.GODDESSPRINCESSSASHA;
@@ -151,6 +154,8 @@ public class KeySettingScreen implements Screen {
 	MouseKeySettingDialog mouseKeyDialog;
 	GamepadKeySettingDialog gamepadKeyDialog;
 	TabUi tabUi;
+	SGTabUpDownMap tabMap;
+	Array<Actor> tabMapItem;
 //
 //	public SelectCharacterScreen(final SashaGame game, final SashaData sasha
 //			) {
@@ -344,9 +349,17 @@ public class KeySettingScreen implements Screen {
 ////			combinKeySettingLbls.get(i).remove();
 //////			combinKeySettingLbls.remove(i);
 ////		}
+		int oldCombineNum=combinKeySettingLbls.size();
 		combinKeySettingLbls.clear();
 		combinKeyBtns.clear();
 		playerRow2.clear();
+//		for(int i=tabMapItem.size-4;i>=tabMapItem.size-4-oldCombineNum+1;i--){
+//			tabMapItem.removeIndex(i);//这样删除，索引报错，原因未明
+//		}
+		if(0<oldCombineNum) {
+			tabMapItem.removeRange(tabMapItem.size - 4 - oldCombineNum + 1, tabMapItem.size - 4);
+			tabMap.setItem(tabMapItem);
+		}
 
 		generateCombineLbls();
 
@@ -379,6 +392,8 @@ public class KeySettingScreen implements Screen {
 
 		batch = new SpriteBatch();
 
+		toScrollWait=ScreenSetting.SPF;
+		toScrollWaitCount=toScrollWait;
 //		skin = MainMenuScreen.getSkin();
 //		skin.add("default", MainMenuScreen.getButtonStyle(skin));
 //		skin.add("default", MainMenuScreen.getLabelStyle(skin));
@@ -467,6 +482,7 @@ public class KeySettingScreen implements Screen {
 	private Array<String> settingComboItem=null;
 	private Table playerRow;
 	private Table playerRow2;
+	ScrollPane scrollPane;
 	private void prepareUI() {
 
 
@@ -474,6 +490,8 @@ public class KeySettingScreen implements Screen {
 		// table.
 		table = new Table();
 		tabUi=new TabUi();
+		tabMap=new SGTabUpDownMap();
+		tabMapItem=new Array2<>();
 		// table.setFillParent(true);
 		// table.defaults().pad(5);
 		int valueCol=5;
@@ -547,8 +565,12 @@ public class KeySettingScreen implements Screen {
 
 		loadGamepadSetting(pads.get(0));
 
-		tabUi.addItem(gamepadCombo);
-		tabUi.addItem(settingCombo);
+//		tabUi.addItem(gamepadCombo);
+//		tabUi.addItem(settingCombo);
+//		tabMap.addItem(gamepadCombo);
+//		tabMap.addItem(settingCombo);
+		tabMapItem.add(gamepadCombo);
+		tabMapItem.add(settingCombo);
 
 
 //		table.add(playerRow).colspan(valueCol+1).spaceBottom(40);
@@ -699,7 +721,10 @@ public class KeySettingScreen implements Screen {
 			playerRow.add(mouselbl).spaceBottom(20);
 			playerRow.row();
 
-			tabUi.addItem(padNameBtn);
+//			tabUi.addItem(padNameBtn);
+//			tabMap.addItem(padNameBtn);
+			tabMapItem.add(padNameBtn);
+
 			i++;
 		}
 
@@ -780,7 +805,7 @@ public class KeySettingScreen implements Screen {
 //			//i++;
 //		}
 		playerRow.add(playerRow2).colspan(3);
-		ScrollPane scrollPane=new ScrollPane(playerRow);
+		scrollPane=new ScrollPane(playerRow);
 		scrollPane.setWidth(ScreenSetting.WORLD_WIDTH);
 
 		table.setFillParent(true);
@@ -827,13 +852,17 @@ public class KeySettingScreen implements Screen {
 		});
 
 		saveResultLbl=new Label("",skin);
+		successMsgColor=new Color(saveResultLbl.getColor());
 		TextButton saveBtn = new TextButton(TXT.g("save setting, press □"), skin);
 		saveBtn.addListener(new ClickListener() {
 
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
 
-				saveKey();
+				if (0 >= buttonWaitCount) {
+					saveKey();
+					buttonWaitCount=buttonWait;
+				}
 			}
 		});
 
@@ -862,10 +891,18 @@ public class KeySettingScreen implements Screen {
 
 		table.add(backBtn).colspan(4);
 
-		tabUi.addItem(combinKeyBtn);
-		tabUi.addItem(saveBtn);
-		tabUi.addItem(backBtn);
-
+//		tabUi.addItem(combinKeyBtn);
+//		tabUi.addItem(saveBtn);
+//		tabUi.addItem(backBtn);
+//		tabMap.addItem(combinKeyBtn);
+//		tabMap.addItem(saveBtn);
+//		tabMap.addItem(backBtn);
+		tabMapItem.add(combinKeyBtn);
+		tabMapItem.add(saveBtn);
+		tabMapItem.add(backBtn);
+		tabMap.setItem(tabMapItem);
+		tabUi.setTabMap(tabMap);
+		isSaveBtnAdded=true;
 //		if(SGCharacter.GODDESSPRINCESSSASHA==sasha.getCharacter()) {
 //			stage.addActor(sashaActor);// .colspan(2);
 //		}else {
@@ -1020,6 +1057,7 @@ public class KeySettingScreen implements Screen {
 //		}
 //
 	//}
+	private boolean isSaveBtnAdded=false;
 	private void generateCombineLbls(){
 
 //		for (final Map.Entry<Integer, Integer> player : gameKeyCombinMap.entrySet()) {
@@ -1157,7 +1195,14 @@ public class KeySettingScreen implements Screen {
 			playerRow2.add(mouselbl).spaceBottom(spaceBottom);
 			playerRow2.row();
 
-			tabUi.addItem(padNameBtn);
+//			tabUi.addItem(padNameBtn);
+//			tabMap.addItem(padNameBtn);
+			if(isSaveBtnAdded) {
+				tabMapItem.insert(tabMapItem.size-3,padNameBtn);
+				tabMap.setItem(tabMapItem);
+			}else {
+				tabMapItem.add(padNameBtn);
+			}
 			//i++;
 		}
 //		String aa="aa";
@@ -1279,11 +1324,14 @@ public class KeySettingScreen implements Screen {
 ////					LocalSaveSettingHelper.saveGamepadSettingData(gamepad.getPadUniqueName(),tmp);
 //			localSaveSettingHelper3.saveGameKey(gamepad.getPadUniqueName(),tmp);
 //		}
-		saveResultLbl.setText(TXT.g("save success"));
+
+//		saveResultLbl.setText(TXT.g("save success"));
+//		settingDefault=false;
+//		//settingTypeLbl.setText("当前为自定义配置");
+//		this.msgWaitCount=this.msgWait;
+//		showSaveResultLbl(true,false);
 		settingDefault=false;
-		//settingTypeLbl.setText("当前为自定义配置");
-		this.msgWaitCount=this.msgWait;
-		showSaveResultLbl(true,false);
+		showSuccessText(TXT.g("save success"));
 	}
 	private void restoreKey(){
 		gameKey.init();
@@ -1311,10 +1359,24 @@ public class KeySettingScreen implements Screen {
 			i.setDstKeyType(KeySimulateItem.KeyType.KEYBOARD);
 			i.setDstKey(keyMask);
 			gameKeyMap2.add(i);
+		}else{
+//			showErrorText(TXT.g("combine key exist"));
 		}
 		keySettingLbls.get(key).setText(0==keyMask?"映射键盘":gameKey.getKeyNamesByMask(keyMask));
 //		mouseKeySettingLbls.get(key).setText("设置鼠标键位");
 		mouseKeySettingLbls.get(key).setText("映射鼠标");//按键");
+	}
+	private void showErrorText(String err){
+		saveResultLbl.setText(err);
+		saveResultLbl.setColor(Color.RED);
+		this.msgWaitCount=this.msgWait;
+		showSaveResultLbl(true,false,saveResultLbl);
+	}
+	private void showSuccessText(String msg){
+		saveResultLbl.setText(msg);
+		saveResultLbl.setColor(successMsgColor);
+		this.msgWaitCount=this.msgWait;
+		showSaveResultLbl(true,false,saveResultLbl);
 	}
 	private void onMouseKeyChange(String key,int keyMask,int keyValue){
 		//gameKeyMap.put(key,keyMask);//这里用iter操作已经很有风险了
@@ -1350,6 +1412,8 @@ public class KeySettingScreen implements Screen {
 //		}
 		for(KeySimulateItem i:gameKeyCombinMap2){
 			if(keyMask==i.getSrcKey()){
+
+				showErrorText(TXT.g("combine key exist"));
 				return;
 			}
 		}
@@ -1460,8 +1524,21 @@ public class KeySettingScreen implements Screen {
 		playerRow2.add(mouselbl).spaceBottom(20);
 				playerRow2.row();
 
-//		keySettingLbls.get(key).setText(gameKey.getKeyNamesByMask(keyMask));
+//				tabMap.addItem(padNameBtn);
+		tabMapItem.insert(tabMapItem.size-3,padNameBtn);//
+		tabMap.setItem(tabMapItem);//当前这个api勉强可以用来当作insert
+
+//		ensureCurrentInView2(padNameBtn);
+//		scrollPane.setScrollY(needHeight-(scrollPane.getHeight()/2f));
+		//刚刚添加的项本帧不会撑开，所以只能add 1计算
+		toScrollEnd=true;
 	}
+	private boolean toScrollEnd=false;
+	/**
+	 * 刚添加进scroll的元素，要等待1帧才能刷新
+	 */
+	private  float  toScrollWait=0.1f;
+	private float toScrollWaitCount=0.1f;
 
 	private void onGamepadKeySettingChange(//String key,
 										   int key,
@@ -1673,13 +1750,82 @@ int keyValue
 
 	private final float  msgWait=2f;
 	private float msgWaitCount=2f; //这个要设置为所有wait的max值
-	private void showSaveResultLbl(boolean visible, boolean animated) {
+	public static void showSaveResultLbl(boolean visible, boolean animated,Label saveResultLbl) {
 		float alphaTo = visible ? 0.8f : 0.0f;
 		float duration = animated ? 1.0f : 0.0f;
 		Touchable touchEnabled = visible ? Touchable.enabled : Touchable.disabled;
+		if(saveResultLbl.hasActions()){
+			saveResultLbl.clearActions();
+		}
 		saveResultLbl.addAction(sequence(
 				touchable(touchEnabled),
 				alpha(alphaTo, duration)));
+	}
+	private ScrollPane isInScrollPanel(Actor actor, SGRef<Actor> outActor){
+//		return Label.class==actor.getClass();
+		if( null!=actor.getParent()
+				&&null!=actor.getParent().getParent()
+				&&ScrollPane.class==actor.getParent().getParent().getClass()){
+			outActor.SetValue(actor);
+			return (ScrollPane) actor.getParent().getParent();
+		}
+		//combine的嵌套多了一层
+		if( null!=actor.getParent()
+				&&null!=actor.getParent().getParent()
+				&&null!=actor.getParent().getParent().getParent()
+				&&ScrollPane.class==actor.getParent().getParent().getParent().getClass()){
+			outActor.SetValue(actor.getParent());
+			return (ScrollPane) actor.getParent().getParent().getParent();
+		}
+		return null;
+	}
+
+	SGRef<Actor> actorRef=null;
+//	private void ensureCurrentInView2(Actor actor2){
+//
+//		if(null==actorRef){actorRef=new SGRef<>();}
+//		ScrollPane scrollPane = this.isInScrollPanel(actor2,actorRef);
+//		Actor actor=actorRef.GetValue();
+//		if (null != scrollPane ) {
+//
+//			float panMaxHeight=scrollPane.getActor().getHeight();//pan.getMaxHeight()永远是0，gdx旧版本就有值
+//
+//
+//			float needHeight=0f;
+//			boolean isInView=false;
+//			needHeight=panMaxHeight-actor.getY();
+//			isInView=needHeight-scrollPane.getScrollY()>0
+//					&&needHeight-scrollPane.getScrollY()<scrollPane.getHeight();
+//			if(!isInView){
+//				scrollPane.setScrollY(needHeight-(scrollPane.getHeight()/2f));
+//			}
+//
+//		}
+//	}
+	private void ensureCurrentInView(){
+		if(null!=tabMap.getCurrent()) {
+			Actor actor2=(Actor) tabMap.getCurrent();
+			//ensureCurrentInView2(actor2);
+
+			if(null==actorRef){actorRef=new SGRef<>();}
+			ScrollPane scrollPane = this.isInScrollPanel(actor2,actorRef);
+			Actor actor=actorRef.GetValue();
+			if (null != scrollPane ) {
+
+				float panMaxHeight=scrollPane.getActor().getHeight();//pan.getMaxHeight()永远是0，gdx旧版本就有值
+
+
+				float needHeight=0f;
+				boolean isInView=false;
+				needHeight=panMaxHeight-actor.getY();
+				isInView=needHeight-scrollPane.getScrollY()>0
+						&&needHeight-scrollPane.getScrollY()<scrollPane.getHeight();
+				if(!isInView){
+					scrollPane.setScrollY(needHeight-(scrollPane.getHeight()/2f));
+				}
+
+			}
+		}
 	}
 	@Override
 	public void render(float delta) {
@@ -1702,6 +1848,17 @@ int keyValue
 			}
 		}
 
+		if(toScrollEnd){
+
+			if(0>=toScrollWaitCount) {
+//			scrollPane.setScrollY(scrollPane.getActor().getHeight()*(1f+tabMapItem.size)/(tabMapItem.size));
+				scrollPane.setScrollY(scrollPane.getActor().getHeight() + 100);
+				toScrollEnd = false;
+				toScrollWaitCount = toScrollWait;
+			}else{
+				toScrollWaitCount -= delta;
+			}
+		}
 		if(0>=buttonWaitCount) {
 
 //			if(simulating){
@@ -1710,11 +1867,11 @@ int keyValue
 //					robot.keyPress(KeyEvent.VK_Z);
 //				}
 //			}else{
-				boolean isDialogOpen=(null == dialog || (!dialog.isVisible()) || null == dialog.getStage());
-			boolean isGamepadKeyDialogOpen=(null == gamepadKeyDialog || (!gamepadKeyDialog.isVisible()) || null == gamepadKeyDialog.getStage());
+				boolean isDialogOpen=!(null == dialog || (!dialog.isVisible()) || null == dialog.getStage());
+			boolean isGamepadKeyDialogOpen=!(null == gamepadKeyDialog || (!gamepadKeyDialog.isVisible()) || null == gamepadKeyDialog.getStage());
 				if (
-						isDialogOpen
-				&&isGamepadKeyDialogOpen
+						!isDialogOpen
+				&&!isGamepadKeyDialogOpen
 				) {
 					if (tabUi.isEditing()) {
 
@@ -1741,9 +1898,11 @@ int keyValue
 						if (0 >= buttonWaitCount) {
 							if (null != sgcontroller && sgcontroller.isUP()) {
 								tabUi.up();
+								ensureCurrentInView();
 								buttonWaitCount = buttonWait;
 							} else if (null != sgcontroller && sgcontroller.isDOWN()) {
 								tabUi.down();
+								ensureCurrentInView();
 								buttonWaitCount = buttonWait;
 							} else if (null != sgcontroller && sgcontroller.isCROSS()) {
 								//				((ClickListener)((TextButton)tabUi.getCurrentActor()).getListeners().get(((TextButton)tabUi.getCurrentActor()).getListeners().size-1)).clicked(null,0,0);
@@ -1753,8 +1912,10 @@ int keyValue
 							}
 							else if(null != sgcontroller && sgcontroller.isSQUARE()){
 								saveKey();
+								buttonWaitCount = buttonWait;
 							}else if(null != sgcontroller && sgcontroller.isTRIANGLE()){
 								restoreKey();
+								buttonWaitCount = buttonWait;
 							}
 						}
 					}
@@ -1789,7 +1950,7 @@ int keyValue
 
 		if(0>=msgWaitCount){
 			if(Touchable.disabled!=saveResultLbl.getTouchable()) {
-				showSaveResultLbl(false, true);
+				showSaveResultLbl(false, true,saveResultLbl);
 			}
 		}
 

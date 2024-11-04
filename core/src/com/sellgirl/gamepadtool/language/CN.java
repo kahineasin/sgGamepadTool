@@ -14,6 +14,7 @@ public class CN {
 		r.put("exit app","退出程序");
 		//设置映射的页面
 		r.put("add combin key","添加组合键");
+		r.put("combine key exist","组合键已存在");
 		//设置鼠标映射胡弹窗
 		r.put("don't simulate","不映射");
 		r.put("addSetting","新增配置");

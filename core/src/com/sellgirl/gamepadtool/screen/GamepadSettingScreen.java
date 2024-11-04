@@ -103,6 +103,7 @@ public class GamepadSettingScreen implements Screen {
 	private float axisR2Tmp=0.1f;
 
 	Label saveResultLbl;
+	Color successMsgColor;
 	String tmpEmail;
 	// TextureRegion paycode;
 
@@ -111,7 +112,7 @@ public class GamepadSettingScreen implements Screen {
 	float oWait = 1;
 	float squartWait = 1;
 
-	private float buttonWait=0.4f;
+	private final float buttonWait=0.4f;
 	private float buttonWaitCount=0.4f;
 //	private KofGameScreen screen = null;
 //	private SGCharacter currentCharacter = SGCharacter.GODDESSPRINCESSSASHA;
@@ -792,13 +793,17 @@ public class GamepadSettingScreen implements Screen {
 		//-------------------------
 
 		saveResultLbl=new Label("",skin);
+		successMsgColor=new Color(saveResultLbl.getColor());
 		TextButton saveBtn = new TextButton(TXT.g("save setting, press □"), skin);
 		saveBtn.addListener(new ClickListener() {
 
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
 
-				saveKey();
+				if (0 >= buttonWaitCount) {
+					saveKey();
+					buttonWaitCount=buttonWait;
+				}
 			}
 		});
 
@@ -808,7 +813,10 @@ public class GamepadSettingScreen implements Screen {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
 
-				restoreKey();
+				if (0 >= buttonWaitCount) {
+					restoreKey();
+					buttonWaitCount=buttonWait;
+				}
 			}
 		});
 
@@ -872,11 +880,12 @@ public class GamepadSettingScreen implements Screen {
 			localSaveSettingHelper3.saveGameKey(gamepad.getPadUniqueName(),tmp);
 		}
 
-		saveResultLbl.setText(TXT.g("save success"));
 		settingDefault=false;
 		settingTypeLbl.setText("当前为自定义配置");
-		this.msgWaitCount=this.msgWait;
-		showSaveResultLbl(true,false);
+		showSuccessText(TXT.g("save success"));
+//		saveResultLbl.setText(TXT.g("save success"));
+//		this.msgWaitCount=this.msgWait;
+//		KeySettingScreen.showSaveResultLbl(true,false,saveResultLbl);
 	}
 	private void restoreKey(){
 
@@ -1065,14 +1074,26 @@ public class GamepadSettingScreen implements Screen {
 	private float backToMainTime=3;
 	private final float  msgWait=2f;
 	private float msgWaitCount=2f; //这个要设置为所有wait的max值
-	private void showSaveResultLbl(boolean visible, boolean animated) {
-		float alphaTo = visible ? 0.8f : 0.0f;
-		float duration = animated ? 1.0f : 0.0f;
-		Touchable touchEnabled = visible ? Touchable.enabled : Touchable.disabled;
-		saveResultLbl.addAction(sequence(
-				touchable(touchEnabled),
-				alpha(alphaTo, duration)));
+	private void showErrorText(String err){
+		saveResultLbl.setText(err);
+		saveResultLbl.setColor(Color.RED);
+		this.msgWaitCount=this.msgWait;
+		KeySettingScreen.showSaveResultLbl(true,false,saveResultLbl);
 	}
+	private void showSuccessText(String msg){
+		saveResultLbl.setText(msg);
+		saveResultLbl.setColor(successMsgColor);
+		this.msgWaitCount=this.msgWait;
+		KeySettingScreen.showSaveResultLbl(true,false,saveResultLbl);
+	}
+//	private void showSaveResultLbl(boolean visible, boolean animated) {
+//		float alphaTo = visible ? 0.8f : 0.0f;
+//		float duration = animated ? 1.0f : 0.0f;
+//		Touchable touchEnabled = visible ? Touchable.enabled : Touchable.disabled;
+//		saveResultLbl.addAction(sequence(
+//				touchable(touchEnabled),
+//				alpha(alphaTo, duration)));
+//	}
 	@Override
 	public void render(float delta) {
 
@@ -1114,11 +1135,6 @@ public class GamepadSettingScreen implements Screen {
 					//无编辑时的主要操作
 					if (oWait <= 0) {
 						if (null != sgcontroller && sgcontroller.isROUND()) {
-							//
-							//				game.setScreen(new MainMenuScreen(game));
-							//				// game.setScreen(new UserInfoScreen(game,sasha));
-							//				dispose();
-
 							goToMainPage();
 							return;
 						}
@@ -1132,15 +1148,16 @@ public class GamepadSettingScreen implements Screen {
 							tabUi.down();
 							buttonWaitCount = buttonWait;
 						} else if (null != sgcontroller && sgcontroller.isCROSS()) {
-							//				((ClickListener)((TextButton)tabUi.getCurrentActor()).getListeners().get(((TextButton)tabUi.getCurrentActor()).getListeners().size-1)).clicked(null,0,0);
-							//				((TextButton)tabUi.getCurrentActor()).getClickListener().clicked(new InputEvent(),0,0);
+
 							tabUi.select();
 							buttonWaitCount = buttonWait;
 						}
 						else if(null != sgcontroller && sgcontroller.isSQUARE()){
 							saveKey();
+							buttonWaitCount = buttonWait;
 						}else if(null != sgcontroller && sgcontroller.isTRIANGLE()){
 							restoreKey();
+							buttonWaitCount = buttonWait;
 						}
 					}
 				}
@@ -1222,7 +1239,7 @@ public class GamepadSettingScreen implements Screen {
 
 		if(0>=msgWaitCount){
 			if(Touchable.disabled!=saveResultLbl.getTouchable()) {
-				showSaveResultLbl(false, true);
+			   KeySettingScreen.showSaveResultLbl(false, true,saveResultLbl);
 			}
 		}
 
