@@ -88,6 +88,20 @@ public class GamepadSettingScreen implements Screen {
 	boolean axisRightCalculating=false;
 	float axisRightCalculatingTime=0;
 	private SGPS5Gamepad.AxisSpace axisRightTmp=new SGPS5Gamepad.AxisSpace();
+
+	private Label axisL2Lbl;
+	private Label axisR2Lbl;
+	TextField axisL2TF;
+	TextField axisR2TF;
+	TextButton axisL2AutoBtn;
+	TextButton axisR2AutoBtn;
+	boolean axisL2Calculating=false;
+	boolean axisR2Calculating=false;
+	float axisL2CalculatingTime=0;
+	float axisR2CalculatingTime=0;
+	private float axisL2Tmp=0.1f;
+	private float axisR2Tmp=0.1f;
+
 	Label saveResultLbl;
 	String tmpEmail;
 	// TextureRegion paycode;
@@ -178,6 +192,8 @@ public class GamepadSettingScreen implements Screen {
 			axisRightTmp.x2=tmp.getAxisRightSpace().x2;
 			axisRightTmp.y1=tmp.getAxisRightSpace().y1;
 			axisRightTmp.y2=tmp.getAxisRightSpace().y2;
+			axisL2Tmp=tmp.getL2Space();
+			axisR2Tmp=tmp.getR2Space();
 		}else{
 
 			axisLeftTmp.x1=0;
@@ -188,6 +204,8 @@ public class GamepadSettingScreen implements Screen {
 			axisRightTmp.x2=0;
 			axisRightTmp.y1=0;
 			axisRightTmp.y2=0;
+			axisL2Tmp=0f;
+			axisR2Tmp=0f;
 		}
 
 //		if(SGPS5Gamepad.class==gamepad.getClass()){
@@ -210,6 +228,8 @@ public class GamepadSettingScreen implements Screen {
 //				keySettingLbls.get(m1.getKey()).setText(gameKey.getKeyNamesByMask(m1.getValue()) );
 //			}
 //		}
+
+		int pow=3;
 		axisLeftX1TF.setText(String.valueOf(SGDataHelper.getFloatPrecision(axisLeftTmp.x1,3)));
 		axisLeftX2TF.setText(String.valueOf(SGDataHelper.getFloatPrecision(axisLeftTmp.x2,3)));
 		axisLeftY1TF.setText(String.valueOf(SGDataHelper.getFloatPrecision(axisLeftTmp.y1,3)));
@@ -218,6 +238,9 @@ public class GamepadSettingScreen implements Screen {
 		axisRightX2TF.setText(String.valueOf(SGDataHelper.getFloatPrecision(axisRightTmp.x2,3)));
 		axisRightY1TF.setText(String.valueOf(SGDataHelper.getFloatPrecision(axisRightTmp.y1,3)));
 		axisRightY2TF.setText(String.valueOf(SGDataHelper.getFloatPrecision(axisRightTmp.y2,3)));
+
+		axisL2TF.setText(String.valueOf(SGDataHelper.getFloatPrecision(axisL2Tmp,pow)));
+		axisR2TF.setText(String.valueOf(SGDataHelper.getFloatPrecision(axisR2Tmp,pow)));
 		if(null!=settingTypeLbl){
 			if(settingDefault){
 				settingTypeLbl.setText("当前为默认配置");
@@ -356,6 +379,7 @@ public class GamepadSettingScreen implements Screen {
 		// table.setFillParent(true);
 		// table.defaults().pad(5);
 		int valueCol=5;
+		int totalCol=6;
 		table.setX(ScreenSetting.WORLD_WIDTH*0.5f );//300);
 //		table.setY(ScreenSetting.WORLD_HEIGHT - 200);
 		table.setY(ScreenSetting.WORLD_HEIGHT*0.5f);
@@ -391,9 +415,9 @@ public class GamepadSettingScreen implements Screen {
 		});
 
 		settingTypeLbl=new Label( settingDefault?"当前为默认配置":"当前为自定义配置",skin);
-		table.add(gamepadCombo).colspan(valueCol+1).spaceBottom(20);
+		table.add(gamepadCombo).colspan(totalCol).spaceBottom(20);
 		table.row();
-		table.add(settingTypeLbl).colspan(valueCol+1).spaceBottom(20);
+		table.add(settingTypeLbl).colspan(totalCol).spaceBottom(20);
 		table.row();
 
 		tabUi.addItem(gamepadCombo);
@@ -690,6 +714,83 @@ public class GamepadSettingScreen implements Screen {
 		});
 		tabUi.addItem(axisRightAutoBtn);
 
+		//-------------------------
+		int pow=3;
+		axisL2Lbl=new Label("L2偏移:",skin);
+
+		if(SGPS5Gamepad.class==gamepad.getClass()){
+			SGPS5Gamepad tmp=(SGPS5Gamepad) gamepad;
+			axisL2TF=new TextField(String.valueOf(SGDataHelper.getFloatPrecision(tmp.getL2Space(),pow)),skin);
+		}else{
+			axisL2TF=new TextField("0.1",skin);
+		}
+		HorizontalGroup axisL2Group = new HorizontalGroup();
+		axisL2Group.space(20);
+		axisL2Group.addActor(axisL2TF);
+
+		axisL2TF.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				Float tmp=SGDataHelper.stringToFloat(((TextField)actor).getText());
+				if(null!=tmp){
+					axisL2Tmp=tmp;
+				}
+			}
+		});
+		axisL2AutoBtn=new TextButton(TXT.g("auto setting"),skin);
+		axisL2AutoBtn.addListener(new ClickListener() {
+
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				if(!axisL2Calculating) {
+					axisL2Calculating = true;
+					axisL2CalculatingTime=0;
+					axisL2AutoBtn.setText(TXT.g("calculating")+"...");
+					axisL2AutoBtn.setDisabled(true);
+				}
+			}
+		});
+		tabUi.addItem(axisL2AutoBtn);
+		//R2
+
+		axisR2Lbl=new Label("R2偏移:",skin);
+
+		if(SGPS5Gamepad.class==gamepad.getClass()){
+			SGPS5Gamepad tmp=(SGPS5Gamepad) gamepad;
+			axisR2TF=new TextField(String.valueOf(SGDataHelper.getFloatPrecision(tmp.getR2Space(),pow)),skin);
+		}else{
+			axisR2TF=new TextField("0.1",skin);
+		}
+		HorizontalGroup axisR2Group = new HorizontalGroup();
+		axisR2Group.space(20);
+		axisR2Group.addActor(axisR2TF);
+
+		axisR2TF.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				Float tmp=SGDataHelper.stringToFloat(((TextField)actor).getText());
+				if(null!=tmp){
+					axisR2Tmp=tmp;
+				}
+			}
+		});
+		axisR2AutoBtn=new TextButton(TXT.g("auto setting"),skin);
+		axisR2AutoBtn.addListener(new ClickListener() {
+
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				if(!axisR2Calculating) {
+					axisR2Calculating = true;
+					axisR2CalculatingTime=0;
+					axisR2AutoBtn.setText(TXT.g("calculating")+"...");
+					axisR2AutoBtn.setDisabled(true);
+				}
+			}
+		});
+		tabUi.addItem(axisR2AutoBtn);
+		
+		//-------------------------
+
 		saveResultLbl=new Label("",skin);
 		TextButton saveBtn = new TextButton(TXT.g("save setting, press □"), skin);
 		saveBtn.addListener(new ClickListener() {
@@ -721,31 +822,37 @@ public class GamepadSettingScreen implements Screen {
 		});
 
 		table.add(axisLeftLbl).spaceRight(20).spaceBottom(20);
-		table.add(axisLeftGroup).spaceRight(20).spaceBottom(20);
+		table.add(axisLeftGroup).colspan(4).spaceRight(20).spaceBottom(20);
 		table.add(axisLeftAutoBtn).spaceBottom(20);
 		table.row();
 
 		table.add(axisRightLbl).spaceRight(20).spaceBottom(20);
-//		table.add(axisRightX1TF).spaceBottom(20);
-//		table.add(axisRightX2TF).spaceBottom(20);
-//		table.add(axisRightY1TF).spaceBottom(20);
-//		table.add(axisRightY2TF).spaceBottom(20);
-		table.add(axisRightGroup).spaceRight(20).spaceBottom(20);
+		table.add(axisRightGroup).colspan(4).spaceRight(20).spaceBottom(20);
 		table.add(axisRightAutoBtn).spaceBottom(20);
 		table.row();
-		table.add(saveResultLbl).colspan(2).spaceBottom(20);
-		table.row();
-		table.add(saveBtn).colspan(2).spaceBottom(20);
-		table.row();
-		table.add(restoreBtn).colspan(2).spaceBottom(20);
-		table.row();
-		table.add(backBtn).colspan(2);
 
-//		if(SGCharacter.GODDESSPRINCESSSASHA==sasha.getCharacter()) {
-//			stage.addActor(sashaActor);// .colspan(2);
-//		}else {
-//			stage.addActor(aliceActor);// .colspan(2);
-//		}
+		int spaceRight=20;
+		int spaceBottom=20;
+		table.add(axisL2Lbl).spaceRight(spaceRight).spaceBottom(spaceBottom);
+		table.add(axisL2Group).spaceRight(spaceRight).spaceBottom(spaceBottom);
+		table.add(axisL2AutoBtn)//.colspan(4)
+				.spaceRight(spaceRight)
+				.spaceBottom(spaceBottom);
+//		table.row();
+		table.add(axisR2Lbl).spaceRight(spaceRight).spaceBottom(spaceBottom);
+		table.add(axisR2Group).spaceRight(spaceRight).spaceBottom(spaceBottom);
+		table.add(axisR2AutoBtn)//.colspan(4)
+				.spaceBottom(spaceBottom);
+		table.row();
+		
+		table.add(saveResultLbl).colspan(totalCol).spaceBottom(20);
+		table.row();
+		table.add(saveBtn).colspan(totalCol).spaceBottom(20);
+		table.row();
+		table.add(restoreBtn).colspan(totalCol).spaceBottom(20);
+		table.row();
+		table.add(backBtn).colspan(totalCol);
+
 	}
 	private boolean ok=false;
 	private void saveKey(){
@@ -756,13 +863,11 @@ public class GamepadSettingScreen implements Screen {
 			SGPS5GamepadSetting tmp=new SGPS5GamepadSetting();
 			tmp.setAxisLeftSpace(axisLeftTmp.x1,axisLeftTmp.x2,axisLeftTmp.y1,axisLeftTmp.y2);
 			tmp.setAxisRightSpace(axisRightTmp.x1,axisRightTmp.x2,axisRightTmp.y1,axisRightTmp.y2);
-//					LocalSaveSettingHelper.saveGamepadSettingData(gamepad.getPadUniqueName(),tmp);
+			tmp.setL2Space(axisL2Tmp);
+			tmp.setR2Space(axisR2Tmp);
 			localSaveSettingHelper3.saveGameKey(gamepad.getPadUniqueName(),tmp);
 		}
-//				if(null==game.knightGameKey){
-//					game.knightGameKey=new HashMap<>();
-//				}
-//				game.knightGameKey.put(gamepad.getPadUniqueName(),gameKey);
+
 		saveResultLbl.setText(TXT.g("save success"));
 		settingDefault=false;
 		settingTypeLbl.setText("当前为自定义配置");
@@ -770,13 +875,7 @@ public class GamepadSettingScreen implements Screen {
 		showSaveResultLbl(true,false);
 	}
 	private void restoreKey(){
-//		gameKey.init();
-////				LocalSaveSettingHelper.saveKnightGameKeyData(gamepad.getPadUniqueName(),null);
-//		localSaveSettingHelper2.saveGameKey(gamepad.getPadUniqueName(),null);
-////				if(null!=game.knightGameKey){
-////					game.knightGameKey.remove(gamepad.getPadUniqueName());
-////				}
-//		gameKeyMap=gameKey.toMap(gameKeyMap);
+
 		if(SGPS5Gamepad.class==gamepad.getClass()){
 ////					LocalSaveSettingHelper.saveGamepadSettingData(gamepad.getPadUniqueName(),tmp);
 			localSaveSettingHelper3.saveGameKey(gamepad.getPadUniqueName(),null);
@@ -1055,18 +1154,8 @@ public class GamepadSettingScreen implements Screen {
 //				}
 //			}
 		}
-//		if(squartWait<=0) {
-//			if (null != controller && sgcontroller.isSQUARE()) {
-//				squartWait=1;
-//				this.nextCharacter();
-//				//return;
-//			}
-//		}
-//		if(Gdx.input.isKeyPressed(Keys.LEFT)) {
-//			this.lastCharacter();
-//		}else if(Gdx.input.isKeyPressed(Keys.RIGHT)) {
-//			this.nextCharacter();
-//		}
+
+
 
 		if(axisRightCalculating){
 
@@ -1097,6 +1186,30 @@ public class GamepadSettingScreen implements Screen {
 				axisLeftCalculating=false;
 				axisLeftAutoBtn.setText(TXT.g("auto setting"));
 				axisLeftAutoBtn.setDisabled(false);
+			}
+		}
+
+		if(axisL2Calculating){
+			if(2>axisL2CalculatingTime){
+				axisL2Tmp=Math.max(axisL2Tmp,gamepad.axisL2());
+				axisL2CalculatingTime+=delta;
+			}else{
+				updateUIAfterChangeGamepadSetting();
+				axisL2Calculating=false;
+				axisL2AutoBtn.setText(TXT.g("auto setting"));
+				axisL2AutoBtn.setDisabled(false);
+			}
+		}
+
+		if(axisR2Calculating){
+			if(2>axisR2CalculatingTime){
+				axisR2Tmp=Math.max(axisR2Tmp,gamepad.axisR2());
+				axisR2CalculatingTime+=delta;
+			}else{
+				updateUIAfterChangeGamepadSetting();
+				axisR2Calculating=false;
+				axisR2AutoBtn.setText(TXT.g("auto setting"));
+				axisR2AutoBtn.setDisabled(false);
 			}
 		}
 
@@ -1142,17 +1255,8 @@ public class GamepadSettingScreen implements Screen {
 			squartWait = 0;
 		}
 
-//		if (xWait <= 0) {
-//
-//			goToGameBtn.setText(TXT.g("enter the 2d game, or press □"));
-//			goToGameD3Btn.setText(TXT.g("enter the 3d game, or press X"));
-//		} else {
-//			goToGameBtn.setText(TXT.g("enter the 2d game, or press □") + "(等" + ((Float) xWait).intValue() + "秒)");
-//			goToGameD3Btn.setText(TXT.g("enter the 3d game, or press X") + "(等" + ((Float) xWait).intValue() + "秒)");
-//		}
 
-//		dataLbl.setText("当前选择 "+currentCharacter+": agi("+com.sellgirl.sgJavaHelper.config.SGDataHelper.ScientificNotation(previewSasha.getAgi())
-//		+") str("+com.sellgirl.sgJavaHelper.config.SGDataHelper.ScientificNotation(previewSasha.getStr())+")");
+
 
 //		// if(nextWait<=0) {
 //		if (SGCharacter.SASHA == sasha.getCharacter()) {
@@ -1382,16 +1486,16 @@ public class GamepadSettingScreen implements Screen {
 //	}
 
 
-	public class MyTextInputListener implements TextInputListener {
-		@Override
-		public void input(String text) {
-			System.out.println(text);
-		}
-
-		@Override
-		public void canceled() {
-		}
-	}
+//	public class MyTextInputListener implements TextInputListener {
+//		@Override
+//		public void input(String text) {
+//			System.out.println(text);
+//		}
+//
+//		@Override
+//		public void canceled() {
+//		}
+//	}
 
 
 }

@@ -82,6 +82,7 @@ public class CN {
 
 		r.put("auto setting","自动设置");
 		r.put("caculating","计算中");
+		r.put("calculating","计算中");
 
 //		r.put("pay description",
 //				"这是一款由BENJAMIN开发的免费游戏，VIP将在游戏中获得更好的体验。您可以支付1元或更多的费用永久激活VIP。开发商承诺将永久更新和维护这款游戏。你可以扫描上面的二维码付款，我会在一天内激活你的VIP，谢谢。"
