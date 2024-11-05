@@ -232,11 +232,26 @@ public class KeySettingScreen implements Screen {
 			}
 			//gameKeyMap2=gameKey.getKeyMap();
 		}
-		if(gameKeyMap2.isEmpty()){
-			for(KeySimulateItem i:GameKey.intDefaultKeyMap(new ArrayList<KeySimulateItem>())){
-				gameKeyMap2.add(i);
+//		if(gameKeyMap2.isEmpty()){
+//			for(KeySimulateItem i:GameKey.intDefaultKeyMap(new ArrayList<KeySimulateItem>())){
+//				gameKeyMap2.add(i);
+//			}
+//			//gameKeyMap2=GameKey.intDefaultKeyMap(gameKeyMap2);
+//		}
+		//当前版本的gameKeyMap2是固定显示24项，否则后面会报错
+		HashMap<Integer,KeySimulateItem> tmpMap=new HashMap<>();
+		for(KeySimulateItem i:gameKeyMap2){
+			tmpMap.put(i.getSrcKey(),i);
+		}
+		gameKeyMap2.clear();
+		for(KeySimulateItem i:GameKey.intDefaultKeyMap(new ArrayList<KeySimulateItem>())){
+			if(tmpMap.containsKey(i.getSrcKey())){
+				KeySimulateItem o=tmpMap.get(i.getSrcKey());
+				i.setSrcKey(o.getSrcKey());
+				i.setDstKey(o.getDstKey());
+				i.setDstKeyType(o.getDstKeyType());
 			}
-			//gameKeyMap2=GameKey.intDefaultKeyMap(gameKeyMap2);
+			gameKeyMap2.add(i);
 		}
 
 //		if(null==gameKey.getCombinedMap()){
@@ -369,7 +384,11 @@ public class KeySettingScreen implements Screen {
 
 		if(null!=tabMap2LastNode.getDown()) {
 			tabMap2LastNode.getDown().setUp(null);
+			tabMap2LastNode.getDown().getRight().setUp(null);
+			tabMap2LastNode.getDown().getRight().getRight().setUp(null);
 			tabMap2LastNode.setDown(null);
+			tabMap2LastNode.getRight().setDown(null);
+			tabMap2LastNode.getRight().getRight().setDown(null);
 //			tabMap2LastXNode=null;
 			tabMap2.setEndNode(tabMap2LastNode);
 		}
@@ -773,6 +792,7 @@ public class KeySettingScreen implements Screen {
 			i++;
 		}
 		this.tabMap2LastNode=tmpLastNode;
+		this.tabMap2.setEndNode(tabMap2LastNode);
 
 		combinKeySettingLbls=new HashMap<>();
 		combineMouseKeySettingLbls=new HashMap<>();

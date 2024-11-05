@@ -220,7 +220,7 @@ public class LocalSaveSettingHelper2 extends LocalSaveSettingHelperBase<IKnightS
                 gameKey= initGameKeyByEncodeStr(s, gameKey);
                 //return initGameKeyByEncodeStr(s, gameKey);
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             SGDataHelper.getLog().printException(e,tag);
         }
         try {
@@ -233,7 +233,7 @@ public class LocalSaveSettingHelper2 extends LocalSaveSettingHelperBase<IKnightS
                 //return initGameKeyByEncodeStr(s, gameKey);
             }
         }catch (Throwable e2){
-
+            SGDataHelper.getLog().printException(e2,tag);
         }
         return gameKey;
     }
