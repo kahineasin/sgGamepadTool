@@ -263,9 +263,10 @@ public class SimulateScreen implements Screen {
 //		}
 //		int currentSize=gameKeyMap2.size+gameKeyCombinMap.size();
 		int currentSize=gameKeyMap2.size+gameKeyCombinMap2.size();
-		if(null==keyDowns|| keyDowns.length<currentSize){
-			keyDowns=new boolean[currentSize];
-		}
+		keyDowns=new boolean[currentSize];
+//		if(null==keyDowns|| keyDowns.length<currentSize){
+//			keyDowns=new boolean[currentSize];
+//		}
 	}
 	public void updateUIAfterChangeGamepadSetting(){
 
@@ -1499,37 +1500,38 @@ public class SimulateScreen implements Screen {
 //			return KeyEvent.VK_Z;
 //		}else
 	}
-	private void keyPress(int gdxKey,boolean isPress,int historyId,XBoxKey padKey){
-		if(isPress==keyDowns[historyId]){
-			return;
-		}
-//		if(Input.Keys.UNKNOWN!=gameKey.getAttack()&& gameKey.getGamepad().isSQUARE()){
-//			robot.keyPress(gdxKeyToSysKey( gameKey.getAttack()));
+//	private void keyPress(int gdxKey,boolean isPress,int historyId,XBoxKey padKey){
+//		if(isPress==keyDowns[historyId]){
+//			return;
 //		}
-		if(null!=padKey) {
-			for (Integer i : activeCombine) {
-				String aa="aa";
-				if (//SGDataHelper.EnumHasFlag(i, padKey.ordinal())
-						SGDataHelper.EnumHasFlag(i, padKey.getBinary())
-				) {
-					return;
-				}
-			}
-		}
-		if(Input.Keys.UNKNOWN!=gdxKey){
-			int sysKey=gdxKeyToSysKey( gdxKey);
-			if(isPress) {
-				robot.keyPress(sysKey);
-			}else {
-				robot.keyRelease(sysKey);
-			}
-			keyDowns[historyId]=isPress;
-		}
-	}
+////		if(Input.Keys.UNKNOWN!=gameKey.getAttack()&& gameKey.getGamepad().isSQUARE()){
+////			robot.keyPress(gdxKeyToSysKey( gameKey.getAttack()));
+////		}
+//		if(null!=padKey) {
+//			for (Integer i : activeCombine) {
+//				String aa="aa";
+//				if (//SGDataHelper.EnumHasFlag(i, padKey.ordinal())
+//						SGDataHelper.EnumHasFlag(i, padKey.getBinary())
+//				) {
+//					return;
+//				}
+//			}
+//		}
+//		if(Input.Keys.UNKNOWN!=gdxKey){
+//			int sysKey=gdxKeyToSysKey( gdxKey);
+//			if(isPress) {
+//				robot.keyPress(sysKey);
+//			}else {
+//				robot.keyRelease(sysKey);
+//			}
+//			keyDowns[historyId]=isPress;
+//		}
+//	}
 	private float mouseX=0;
 	private float mouseY=0;
 	//鼠标滚轮
 	private float scrollY=0;
+//	private boolean test=true;
 	private int simulateByMap(boolean isCombine,
 							   ISGList<KeySimulateItem> gameKeyMap2,
 							   int historyId){
@@ -1543,11 +1545,13 @@ public class SimulateScreen implements Screen {
 		//int speed= (int) (ScreenSetting.WORLD_HEIGHT/(5*ScreenSetting.FPS));
 		boolean isPress;
 		int gdxKey=0;
+//		float testNum=0f;
 		for(KeySimulateItem j:gameKeyMap2){
 			if(isCombine){
 				isPress = gameKey.isBtn(j.getSrcKey());
 			}else {
 				isPress = gameKey.isBtn(1 << j.getSrcKey());
+//				testNum=((SGPS5Gamepad) gamepad).getController().getAxis(2);
 			}
 
 
@@ -1599,8 +1603,14 @@ public class SimulateScreen implements Screen {
 					int sysKey=gdxKeyToSysKey( gdxKey);
 					if(isPress) {
 						robot.keyPress(sysKey);
+//						if(test){
+//							System.out.println("press"+sysKey+" axis:"+testNum);
+//						}
 					}else {
 						robot.keyRelease(sysKey);
+//						if(test){
+//							System.out.println("release"+sysKey+" axis:"+testNum);
+//						}
 					}
 					keyDowns[historyId]=isPress;
 				}

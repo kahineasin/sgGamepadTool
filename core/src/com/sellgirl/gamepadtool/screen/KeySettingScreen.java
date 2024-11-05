@@ -1391,7 +1391,9 @@ public class KeySettingScreen implements Screen {
 		gameKey.applyMap(gameKeyMap);
 		ArrayList<KeySimulateItem> tmpMap=new ArrayList<KeySimulateItem>() ;
 		for(KeySimulateItem i:gameKeyMap2){
-			tmpMap.add(i);
+			if(0!=i.getDstKey()) {
+				tmpMap.add(i);
+			}
 		}
 		gameKey.setKeyMap(tmpMap);
 
