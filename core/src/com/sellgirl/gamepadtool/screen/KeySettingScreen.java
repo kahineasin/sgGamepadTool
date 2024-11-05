@@ -16,6 +16,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
@@ -45,6 +46,9 @@ import com.sellgirl.sgGameHelper.gamepad.SGTouchGamepad;
 import com.sellgirl.sgGameHelper.gamepad.XBoxKey;
 import com.sellgirl.sgGameHelper.list.Array2;
 import com.sellgirl.sgGameHelper.list.ISGList;
+import com.sellgirl.sgGameHelper.tabUi.ISGTabNode;
+import com.sellgirl.sgGameHelper.tabUi.SGTabUDLRHierarchicalMap2;
+import com.sellgirl.sgGameHelper.tabUi.SGTabUDLRMap;
 import com.sellgirl.sgGameHelper.tabUi.SGTabUpDownMap;
 import com.sellgirl.sgGameHelper.tabUi.TabUi;
 import com.sellgirl.sgJavaHelper.SGAction;
@@ -104,7 +108,10 @@ public class KeySettingScreen implements Screen {
 
 	// public PurchaseManager wechatPurchaseManager;
 	float xWait = 4;
-	float oWait = 1;
+	//主要用于防止关闭弹窗时没松键连续返回了
+	private final float oWait = 1f;
+	private float oWaitCount = 1;
+	private boolean oKeyDown=false;
 	float squartWait = 1;
 
 	private final float buttonWait=0.4f;
@@ -154,8 +161,18 @@ public class KeySettingScreen implements Screen {
 	MouseKeySettingDialog mouseKeyDialog;
 	GamepadKeySettingDialog gamepadKeyDialog;
 	TabUi tabUi;
-	SGTabUpDownMap tabMap;
-	Array<Actor> tabMapItem;
+//	SGTabUpDownMap tabMap;
+	SGTabUDLRHierarchicalMap2 tabMap;
+	SGTabUDLRMap tabMap2;
+	/**
+	 * 单键最后节点
+	 */
+	ISGTabNode tabMap2LastNode;
+//	/**
+//	 * 组合键最后的节点
+//	 */
+//	ISGTabNode tabMap2LastXNode;
+//	Array<Actor> tabMapItem;
 //
 //	public SelectCharacterScreen(final SashaGame game, final SashaData sasha
 //			) {
@@ -349,17 +366,21 @@ public class KeySettingScreen implements Screen {
 ////			combinKeySettingLbls.get(i).remove();
 //////			combinKeySettingLbls.remove(i);
 ////		}
-		int oldCombineNum=combinKeySettingLbls.size();
+
+		if(null!=tabMap2LastNode.getDown()) {
+			tabMap2LastNode.getDown().setUp(null);
+			tabMap2LastNode.setDown(null);
+//			tabMap2LastXNode=null;
+			tabMap2.setEndNode(tabMap2LastNode);
+		}
+		//int oldCombineNum=combinKeySettingLbls.size();
 		combinKeySettingLbls.clear();
 		combinKeyBtns.clear();
 		playerRow2.clear();
-//		for(int i=tabMapItem.size-4;i>=tabMapItem.size-4-oldCombineNum+1;i--){
-//			tabMapItem.removeIndex(i);//这样删除，索引报错，原因未明
+//		if(0<oldCombineNum) {
+//			tabMapItem.removeRange(tabMapItem.size - 4 - oldCombineNum + 1, tabMapItem.size - 4);
+//			tabMap.setItem(tabMapItem);
 //		}
-		if(0<oldCombineNum) {
-			tabMapItem.removeRange(tabMapItem.size - 4 - oldCombineNum + 1, tabMapItem.size - 4);
-			tabMap.setItem(tabMapItem);
-		}
 
 		generateCombineLbls();
 
@@ -490,8 +511,11 @@ public class KeySettingScreen implements Screen {
 		// table.
 		table = new Table();
 		tabUi=new TabUi();
-		tabMap=new SGTabUpDownMap();
-		tabMapItem=new Array2<>();
+//		tabMap=new SGTabUpDownMap();
+		tabMap=new SGTabUDLRHierarchicalMap2();
+		 tabMap2=new SGTabUDLRMap();
+		tabMap2.endToBegin= SGTabUpDownMap.EndToBeginType.EMPTY;
+//		tabMapItem=new Array2<>();
 		// table.setFillParent(true);
 		// table.defaults().pad(5);
 		int valueCol=5;
@@ -565,12 +589,34 @@ public class KeySettingScreen implements Screen {
 
 		loadGamepadSetting(pads.get(0));
 
-//		tabUi.addItem(gamepadCombo);
-//		tabUi.addItem(settingCombo);
-//		tabMap.addItem(gamepadCombo);
-//		tabMap.addItem(settingCombo);
-		tabMapItem.add(gamepadCombo);
-		tabMapItem.add(settingCombo);
+////		tabUi.addItem(gamepadCombo);
+////		tabUi.addItem(settingCombo);
+////		tabMap.addItem(gamepadCombo);
+////		tabMap.addItem(settingCombo);
+//		tabMapItem.add(gamepadCombo);
+//		tabMapItem.add(settingCombo);
+		com.sellgirl.sgGameHelper.tabUi.ISGTabNode node1=tabMap.newNode(gamepadCombo);
+		com.sellgirl.sgGameHelper.tabUi.ISGTabNode node2=tabMap.newNode(settingCombo);
+		com.sellgirl.sgGameHelper.tabUi.ISGTabNode node4=tabMap.newNode(addSettingBtn);
+		com.sellgirl.sgGameHelper.tabUi.ISGTabNode node5=tabMap.newNode(delSettingBtn);
+
+		node1.setDown(node2);
+		node2.setUp(node1);
+		node4.setUp(node1);
+		node5.setUp(node1);
+		node2.setRight(node4);
+		node4.setLeft(node2);
+		node4.setRight(node5);
+		node5.setLeft(node4);
+		tabMap.setFirstNode(node1);
+
+		//中间的滚动部分
+		SGTabUDLRHierarchicalMap2.SGTabUDLRNode node6=new SGTabUDLRHierarchicalMap2.SGTabUDLRNode();
+		node6.tabMap=tabMap2;
+		node2.setDown(node6);
+		node4.setDown(node6);
+		node5.setDown(node6);
+		node6.setUp(node2);
 
 
 //		table.add(playerRow).colspan(valueCol+1).spaceBottom(40);
@@ -589,6 +635,7 @@ public class KeySettingScreen implements Screen {
 		keySettingLbls=new HashMap<>();
 		mouseKeySettingLbls=new HashMap<>();
 //		for (final Map.Entry<String, Integer> player : gameKeyMap.entrySet()) {
+		ISGTabNode tmpLastNode=null;
 		for (final KeySimulateItem player : gameKeyMap2) {
 //			final Label playerlbl = new Label(gameKey.getKeyNamesByMask(player.getValue()), skin);
 //			if(XBoxKey.stick1Up.ordinal()== player.getSrcKey()){
@@ -626,13 +673,6 @@ public class KeySettingScreen implements Screen {
 									}
 								}
 
-//								@Override
-//								public void go(Object t) {
-//////									playerlbl.setText("team" + player.getTeam() + ", " + player.getCharacter());
-////									player.setValue((int)t);//这里用iter操作已经很有风险了
-////									playerlbl.setText(XBoxKey.getTexts(player.getValue()));
-//									onKeyChange(player.getKey(),(int)t);
-//								}
 							},
 							SGTouchGamepad.class ==gamepad.getClass()?new SGAction<String,Integer,Object>() {
 
@@ -681,13 +721,6 @@ public class KeySettingScreen implements Screen {
 									}
 								}
 
-//								@Override
-//								public void go(Object t) {
-//////									playerlbl.setText("team" + player.getTeam() + ", " + player.getCharacter());
-////									player.setValue((int)t);//这里用iter操作已经很有风险了
-////									playerlbl.setText(XBoxKey.getTexts(player.getValue()));
-//									onKeyChange(player.getKey(),(int)t);
-//								}
 							},
 							SGTouchGamepad.class ==gamepad.getClass()?new SGAction<String,Integer,Object>() {
 
@@ -700,13 +733,6 @@ public class KeySettingScreen implements Screen {
 									}
 								}
 
-//								@Override
-//								public void go(Object t) {
-//////									playerlbl.setText("team" + player.getTeam() + ", " + player.getCharacter());
-////									player.setValue((int)t);//这里用iter操作已经很有风险了
-////									playerlbl.setText(XBoxKey.getTexts(player.getValue()));
-//									onKeyChange(player.getKey(),(int)t);
-//								}
 							}:null
 					);
 					mouseKeyDialog.show(stage);
@@ -721,12 +747,32 @@ public class KeySettingScreen implements Screen {
 			playerRow.add(mouselbl).spaceBottom(20);
 			playerRow.row();
 
-//			tabUi.addItem(padNameBtn);
-//			tabMap.addItem(padNameBtn);
-			tabMapItem.add(padNameBtn);
+////			tabUi.addItem(padNameBtn);
+////			tabMap.addItem(padNameBtn);
+//			tabMapItem.add(padNameBtn);
+			ISGTabNode nodeInner1=tabMap2.newNode(padNameBtn);
+			ISGTabNode nodeInner2=tabMap2.newNode(playerlbl);
+			ISGTabNode nodeInner3=tabMap2.newNode(mouselbl);
+			nodeInner1.setRight(nodeInner2);
+			nodeInner2.setLeft(nodeInner1);
+			nodeInner2.setRight(nodeInner3);
+			nodeInner3.setLeft(nodeInner2);
+			if(null==tmpLastNode){
+				tabMap2.setFirstNode(nodeInner1);
+			}else{
+//				tmpLastNode.setDown(nodeInner1);
+//				nodeInner1.setUp(tmpLastNode);
+//				tmpLastNode.getRight().setDown(nodeInner1.getRight());
+//				nodeInner1.getRight().setUp(tmpLastNode.getRight());
+//				tmpLastNode.getRight().getRight().setDown(nodeInner1.getRight().getRight());
+//				nodeInner1.getRight().getRight().setUp(tmpLastNode.getRight().getRight());
+				connectTabMap2Rows(tmpLastNode,nodeInner1);
+			}
+			tmpLastNode=nodeInner1;
 
 			i++;
 		}
+		this.tabMap2LastNode=tmpLastNode;
 
 		combinKeySettingLbls=new HashMap<>();
 		combineMouseKeySettingLbls=new HashMap<>();
@@ -838,9 +884,15 @@ public class KeySettingScreen implements Screen {
 
 							@Override
 							public void go(String s, Integer integer, Object o) {
-								if (SGTouchGamepad.class ==gamepad.getClass()) {
-									((SGTouchGamepad) gamepad).remove();
-								}
+								//注意这个action只有TouchGamepad才会进来，其实暂时没用了
+								//if(0>=buttonWaitCount) {
+									if (SGTouchGamepad.class == gamepad.getClass()) {
+										((SGTouchGamepad) gamepad).remove();
+									}
+//									buttonWaitCount=buttonWait;
+//									oWaitCount=oWait;
+//								}
+//								oWaitCount=oWait;
 							}
 
 						}:null
@@ -891,16 +943,27 @@ public class KeySettingScreen implements Screen {
 
 		table.add(backBtn).colspan(4);
 
-//		tabUi.addItem(combinKeyBtn);
-//		tabUi.addItem(saveBtn);
-//		tabUi.addItem(backBtn);
-//		tabMap.addItem(combinKeyBtn);
-//		tabMap.addItem(saveBtn);
-//		tabMap.addItem(backBtn);
-		tabMapItem.add(combinKeyBtn);
-		tabMapItem.add(saveBtn);
-		tabMapItem.add(backBtn);
-		tabMap.setItem(tabMapItem);
+////		tabUi.addItem(combinKeyBtn);
+////		tabUi.addItem(saveBtn);
+////		tabUi.addItem(backBtn);
+////		tabMap.addItem(combinKeyBtn);
+////		tabMap.addItem(saveBtn);
+////		tabMap.addItem(backBtn);
+//		tabMapItem.add(combinKeyBtn);
+//		tabMapItem.add(saveBtn);
+//		tabMapItem.add(backBtn);
+//		tabMap.setItem(tabMapItem);
+		ISGTabNode node7 =tabMap.newNode(combinKeyBtn);
+		ISGTabNode node8 =tabMap.newNode(saveBtn);
+		ISGTabNode node9 =tabMap.newNode(backBtn);
+		node6.setDown(node7);
+		node7.setUp(node6);
+		node7.setDown(node8);
+		node8.setUp(node7);
+		node8.setDown(node9);
+		node9.setUp(node8);
+		node9.setDown(node1);
+		node1.setUp(node9);
 		tabUi.setTabMap(tabMap);
 		isSaveBtnAdded=true;
 //		if(SGCharacter.GODDESSPRINCESSSASHA==sasha.getCharacter()) {
@@ -1058,9 +1121,24 @@ public class KeySettingScreen implements Screen {
 //
 	//}
 	private boolean isSaveBtnAdded=false;
+
+	/**
+	 * 上下连接2行
+	 * @param tmpLastNode
+	 * @param nodeInner1
+	 */
+	private void connectTabMap2Rows(ISGTabNode tmpLastNode,ISGTabNode nodeInner1){
+		tmpLastNode.setDown(nodeInner1);
+		nodeInner1.setUp(tmpLastNode);
+		tmpLastNode.getRight().setDown(nodeInner1.getRight());
+		nodeInner1.getRight().setUp(tmpLastNode.getRight());
+		tmpLastNode.getRight().getRight().setDown(nodeInner1.getRight().getRight());
+		nodeInner1.getRight().getRight().setUp(tmpLastNode.getRight().getRight());
+	}
 	private void generateCombineLbls(){
 
 //		for (final Map.Entry<Integer, Integer> player : gameKeyCombinMap.entrySet()) {
+		ISGTabNode tmpLastNode=null;
 		for (final KeySimulateItem player : gameKeyCombinMap2) {
 //			if(KeySimulateItem.KeyType.NONE!=player.getDstKeyType()
 //					&&0<player.getDstKey()
@@ -1195,16 +1273,41 @@ public class KeySettingScreen implements Screen {
 			playerRow2.add(mouselbl).spaceBottom(spaceBottom);
 			playerRow2.row();
 
-//			tabUi.addItem(padNameBtn);
-//			tabMap.addItem(padNameBtn);
-			if(isSaveBtnAdded) {
-				tabMapItem.insert(tabMapItem.size-3,padNameBtn);
-				tabMap.setItem(tabMapItem);
-			}else {
-				tabMapItem.add(padNameBtn);
+////			tabUi.addItem(padNameBtn);
+////			tabMap.addItem(padNameBtn);
+//			if(isSaveBtnAdded) {
+//				tabMapItem.insert(tabMapItem.size-3,padNameBtn);
+//				tabMap.setItem(tabMapItem);
+//			}else {
+//				tabMapItem.add(padNameBtn);
+//			}
+
+			ISGTabNode nodeInner1=tabMap2.newNode(padNameBtn);
+			ISGTabNode nodeInner2=tabMap2.newNode(playerlbl);
+			ISGTabNode nodeInner3=tabMap2.newNode(mouselbl);
+			nodeInner1.setRight(nodeInner2);
+			nodeInner2.setLeft(nodeInner1);
+			nodeInner2.setRight(nodeInner3);
+			nodeInner3.setLeft(nodeInner2);
+			if(null==tmpLastNode){
+////				tabMap2.setFirstNode(nodeInner1);
+//				tabMap2LastNode.setDown(nodeInner1);
+//				nodeInner1.setUp(tabMap2LastNode);
+				connectTabMap2Rows(tabMap2LastNode,nodeInner1);
+			}else{
+//				tmpLastNode.setDown(nodeInner1);
+//				nodeInner1.setUp(tmpLastNode);
+				connectTabMap2Rows(tmpLastNode,nodeInner1);
 			}
+			tmpLastNode=nodeInner1;
+
 			//i++;
 		}
+		if(null!=tmpLastNode) {
+//			tabMap2LastXNode = tmpLastNode;
+			tabMap2.setEndNode(tmpLastNode);
+		}
+
 //		String aa="aa";
 	}
 	private SelectBox<String> getStringSelectBox() {
@@ -1364,7 +1467,10 @@ public class KeySettingScreen implements Screen {
 		}
 		keySettingLbls.get(key).setText(0==keyMask?"映射键盘":gameKey.getKeyNamesByMask(keyMask));
 //		mouseKeySettingLbls.get(key).setText("设置鼠标键位");
-		mouseKeySettingLbls.get(key).setText("映射鼠标");//按键");
+
+		if(0!=keyMask) {
+			mouseKeySettingLbls.get(key).setText("映射鼠标");//按键");
+		}
 	}
 	private void showErrorText(String err){
 		saveResultLbl.setText(err);
@@ -1397,7 +1503,9 @@ public class KeySettingScreen implements Screen {
 			gameKeyMap2.add(i);
 		}
 //		keySettingLbls.get(key).setText("设置键盘键位");
-		keySettingLbls.get(key).setText("映射键盘");//按键");
+		if(0!=keyMask) {
+			keySettingLbls.get(key).setText("映射键盘");//按键");
+		}
 		mouseKeySettingLbls.get(key).setText(0==keyMask?"映射鼠标":MouseKey.values()[keyMask].toString());
 	}
 
@@ -1524,9 +1632,29 @@ public class KeySettingScreen implements Screen {
 		playerRow2.add(mouselbl).spaceBottom(20);
 				playerRow2.row();
 
-//				tabMap.addItem(padNameBtn);
-		tabMapItem.insert(tabMapItem.size-3,padNameBtn);//
-		tabMap.setItem(tabMapItem);//当前这个api勉强可以用来当作insert
+////				tabMap.addItem(padNameBtn);
+//		tabMapItem.insert(tabMapItem.size-3,padNameBtn);//
+//		tabMap.setItem(tabMapItem);//当前这个api勉强可以用来当作insert
+
+		ISGTabNode nodeInner1=tabMap2.newNode(padNameBtn);
+		ISGTabNode nodeInner2=tabMap2.newNode(playerlbl);
+		ISGTabNode nodeInner3=tabMap2.newNode(mouselbl);
+		nodeInner1.setRight(nodeInner2);
+		nodeInner2.setLeft(nodeInner1);
+		nodeInner2.setRight(nodeInner3);
+		nodeInner3.setLeft(nodeInner2);
+		if(null==tabMap2.getEndNode()){
+////				tabMap2.setFirstNode(nodeInner1);
+//			tabMap2LastNode.setDown(nodeInner1);
+//			nodeInner1.setUp(tabMap2LastNode);
+			connectTabMap2Rows(tabMap2LastNode,nodeInner1);
+		}else{
+//			tabMap2.getEndNode().setDown(nodeInner1);
+//			nodeInner1.setUp(tabMap2.getEndNode());
+			connectTabMap2Rows(tabMap2.getEndNode(),nodeInner1);
+		}
+//		tabMap2LastXNode=nodeInner1;
+		tabMap2.setEndNode(nodeInner1);
 
 //		ensureCurrentInView2(padNameBtn);
 //		scrollPane.setScrollY(needHeight-(scrollPane.getHeight()/2f));
@@ -1564,7 +1692,10 @@ public class KeySettingScreen implements Screen {
 			gameKeyCombinMap2.add(i);
 		}
 		combinKeySettingLbls.get(key).setText(0==keyMask?"映射键盘":gameKey.getKeyNamesByMask(keyMask));
-		combineMouseKeySettingLbls.get(key).setText("映射鼠标");//按键");
+
+		if(0!=keyMask) {
+			combineMouseKeySettingLbls.get(key).setText("映射鼠标");//按键");
+		}
 	}
 
 	private void onCombineMouseKeyChange(String key,int keyMask,
@@ -1589,7 +1720,9 @@ int keyValue
 			gameKeyCombinMap2.add(i);
 		}
 //		keySettingLbls.get(key).setText("设置键盘键位");
-	   this.combinKeySettingLbls.get(keyValue).setText("映射键盘");//按键");
+		if(0!=keyMask) {
+			this.combinKeySettingLbls.get(keyValue).setText("映射键盘");//按键");
+		}
 		combineMouseKeySettingLbls.get(keyValue).setText(0==keyMask?"映射鼠标":MouseKey.values()[keyMask].toString());
 	}
 //	private void goToGamePage() {
@@ -1827,6 +1960,9 @@ int keyValue
 			}
 		}
 	}
+	private boolean isPopupsOpen(Dialog dialog){
+		return !(null == dialog || (!dialog.isVisible()) || null == dialog.getStage());
+	}
 	@Override
 	public void render(float delta) {
 
@@ -1859,6 +1995,10 @@ int keyValue
 				toScrollWaitCount -= delta;
 			}
 		}
+		if(oKeyDown&&null!=sgcontroller&&!sgcontroller.isROUND()){
+			oKeyDown=false;
+		}
+
 		if(0>=buttonWaitCount) {
 
 //			if(simulating){
@@ -1867,11 +2007,17 @@ int keyValue
 //					robot.keyPress(KeyEvent.VK_Z);
 //				}
 //			}else{
-				boolean isDialogOpen=!(null == dialog || (!dialog.isVisible()) || null == dialog.getStage());
-			boolean isGamepadKeyDialogOpen=!(null == gamepadKeyDialog || (!gamepadKeyDialog.isVisible()) || null == gamepadKeyDialog.getStage());
+//			boolean isDialogOpen=!(null == dialog || (!dialog.isVisible()) || null == dialog.getStage());
+			boolean isDialogOpen=isPopupsOpen(dialog);
+			boolean isMouseKeyDialogOpen=isPopupsOpen(mouseKeyDialog);
+			boolean isGamepadKeyDialogOpen=isPopupsOpen(gamepadKeyDialog);
+//			if(null!=sgcontroller&&sgcontroller.isROUND()){
+//				String aa="aa";
+//			}
 				if (
-						!isDialogOpen
-				&&!isGamepadKeyDialogOpen
+						(!isDialogOpen)
+					&&(!isMouseKeyDialogOpen)
+				&&(!isGamepadKeyDialogOpen)
 				) {
 					if (tabUi.isEditing()) {
 
@@ -1887,8 +2033,9 @@ int keyValue
 							}
 						}
 					} else {
-						//无编辑时的主要操作
-						if (oWait <= 0) {
+//						//无编辑时的主要操作
+						//关弹窗也是ROUND键，太容易失误退出了
+						if (  0>=oWaitCount&&0 >= buttonWaitCount&&(!oKeyDown)) {
 							if (null != sgcontroller && sgcontroller.isROUND()) {
 								goToMainPage();
 								return;
@@ -1903,6 +2050,14 @@ int keyValue
 							} else if (null != sgcontroller && sgcontroller.isDOWN()) {
 								tabUi.down();
 								ensureCurrentInView();
+								buttonWaitCount = buttonWait;
+							} else if (null != sgcontroller && sgcontroller.isLEFT()) {
+								tabUi.left();
+//								ensureCurrentInView();
+								buttonWaitCount = buttonWait;
+							} else if (null != sgcontroller && sgcontroller.isRIGHT()) {
+								tabUi.right();
+//								ensureCurrentInView();
 								buttonWaitCount = buttonWait;
 							} else if (null != sgcontroller && sgcontroller.isCROSS()) {
 								//				((ClickListener)((TextButton)tabUi.getCurrentActor()).getListeners().get(((TextButton)tabUi.getCurrentActor()).getListeners().size-1)).clicked(null,0,0);
@@ -1922,22 +2077,40 @@ int keyValue
 				} else {
 					//有弹窗时
 					if (isDialogOpen&&0 >= buttonWaitCount) {
-						if (null != sgcontroller && sgcontroller.isCROSS() && dialog.isDone()) {
+						if (null != sgcontroller && sgcontroller.isCROSS() //&& dialog.isDone()
+						) {
 							dialog.getRestoreButton().toggle();
 							buttonWaitCount = buttonWait;
-						} else if (null != sgcontroller && sgcontroller.isROUND() && dialog.isDone()) {
+						} else if (null != sgcontroller && sgcontroller.isROUND() //&& dialog.isDone()
+						) {
 							dialog.getCloseButton().toggle();
 							buttonWaitCount = buttonWait;
+							oWaitCount=oWait;
+							oKeyDown=true;
 						}
-					}
-
-					if (isGamepadKeyDialogOpen&&0 >= buttonWaitCount) {
-						if (null != sgcontroller && sgcontroller.isCROSS() && gamepadKeyDialog.isDone()) {
+					}else if (isMouseKeyDialogOpen&&0 >= buttonWaitCount) {
+						if (null != sgcontroller && sgcontroller.isCROSS() //&& gamepadKeyDialog.isDone()
+						) {
+							mouseKeyDialog.getRestoreButton().toggle();
+							buttonWaitCount = buttonWait;
+						} else if (null != sgcontroller && sgcontroller.isROUND() //&& gamepadKeyDialog.isDone()
+						) {
+							mouseKeyDialog.getCloseButton().toggle();
+							buttonWaitCount = buttonWait;
+							oWaitCount=oWait;
+							oKeyDown=true;
+						}
+					}else if (isGamepadKeyDialogOpen&&0 >= buttonWaitCount) {
+						if (null != sgcontroller && sgcontroller.isCROSS() && gamepadKeyDialog.isDone()
+						) {
 							gamepadKeyDialog.getRestoreButton().toggle();
 							buttonWaitCount = buttonWait;
-						} else if (null != sgcontroller && sgcontroller.isROUND() && gamepadKeyDialog.isDone()) {
+						} else if (null != sgcontroller && sgcontroller.isROUND() && gamepadKeyDialog.isDone()
+						) {
 							gamepadKeyDialog.getCloseButton().toggle();
 							buttonWaitCount = buttonWait;
+							oWaitCount=oWait;
+							oKeyDown=true;
 						}
 					}
 				}
@@ -1976,11 +2149,11 @@ int keyValue
 			xWait = 0;
 		}
 
-		if (oWait > 0) {
+		if (oWaitCount > 0) {
 
-			oWait -= delta;
-		} else if (oWait < 0) {
-			oWait = 0;
+			oWaitCount -= delta;
+		} else if (oWaitCount < 0) {
+			oWaitCount = 0;
 		}
 
 		if (squartWait > 0) {
