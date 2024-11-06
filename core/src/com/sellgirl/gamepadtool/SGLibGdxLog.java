@@ -8,7 +8,7 @@ public class SGLibGdxLog implements ISGLog {
     /**
      * 这里一定别用类名, 以防被混淆了
      */
-    private final String tag="knightSasha";
+    private final String tag="gamepadTool";
     @Override
     public void writeException(Throwable e, String filePrev) {
         //Gdx.app.error(tag, e.toString());

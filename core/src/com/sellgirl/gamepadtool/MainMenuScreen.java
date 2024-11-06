@@ -117,8 +117,8 @@ ISGPS5Gamepad sgcontroller;
 //		public MainMenuScreen( SashaGame game) {
 		this.game = game;
 
-		initLibGdx();
-		initSG();
+//		initLibGdx();
+//		initSG();
 
 //
 //		sasha = readSashaData();
@@ -556,165 +556,11 @@ ISGPS5Gamepad sgcontroller;
 
 	// ...Rest of class omitted for succinctness.
 
-//
-//	public static void getSashaVipAsync(final SashaData sashaRef
-//										//, final SGRef<Boolean> needUpdateVip
-//										, final SGAction1<Boolean> callBack
-//										) {
-//		String requestContent = null;
-//
-//		HttpRequest httpRequest = new HttpRequest(Net.HttpMethods.GET);
-//		httpRequest.setUrl(url.getVip());
-//		httpRequest.setHeader("Content-Type", "text/plain");
-//		httpRequest.setContent(requestContent);
-//
-//		Gdx.net.sendHttpRequest(httpRequest, new HttpResponseListener() {
-//
-//			public void handleHttpResponse(HttpResponse httpResponse) {
-//
-//				//final int statusCode = httpResponse.getStatus().getStatusCode();
-//
-////		            System.out.println("HTTP Request status:" + statusCode);
-////		            System.out.println("Content:");
-//				try {
-//					// String s = AES.AESDecryptDemo(httpResponse.getResultAsString(),
-//					// SGDataHelper.decodeBase64(key));
-//					String s = AES.AESEncryptDemo(sashaRef.getUserId(), SGDataHelper.decodeBase64(key));
-//					// if (Arrays.asList(s.split("|")).contains(sasha.getUserId())) {
-//					if (httpResponse.getResultAsString().indexOf("|" + s + "|") > -1) {
-//
-//						if (!sashaRef.getVip()) {
-//							sashaRef.setVip(true);
-//							saveSashaData(sashaRef);
-//							//needUpdateVip.SetValue(true);
-//							callBack.go(true);
-//							//System.out.println("远程是vip,本地不是vip");
-//							SGEmailSend.SendMail(new String[] { SGEmailSend.EMAIL_OWNER_ADDR },
-//									"knightSasha_" + sashaRef.getUserId() + "数据通知", "远程是vip,本地不是vip");
-//						}
-//					} else if (sashaRef.getVip()) {
-//						//System.out.println("远程不是vip,本地是vip");
-//						SGEmailSend.SendMail(new String[] { SGEmailSend.EMAIL_OWNER_ADDR },
-//								"knightSasha_" + sashaRef.getUserId() + "数据异常通知", "远程不是vip,本地是vip");
-//						SGDate d = new SGDate(2020, 1, 1, 0, 0, 0).AddDays(((Double) sashaRef.getVipDate()).intValue());
-//						if (d.AddDays(7).compareTo(SGDate.Now()) < 0) {// 7天之内没有支付开通的检测
-//							sashaRef.setVip(false);
-//							MainMenuScreen.saveSashaData(sashaRef);
-//						}
-//					}
-//					System.out.println();
-//				} catch (Exception e) {
-//					SGDataHelper.getLog().printException(e,tag);
-//				}
-//
-//			}
-//
-//			public void failed(Throwable t) {
-//				System.out.println("HTTP request failed!");
-//			}
-//
-//			@Override
-//			public void cancelled() {
-//				System.out.println("HTTP request failed!");
-//			}
-//
-//		});
+
+//	private  void initLibGdx(){
+//		Gdx.app.setLogLevel(Application.LOG_DEBUG);
+////		SGDataHelper.getLog().print("开始运行: "+SGDate.Now());
 //	}
-//	public static SashaData getSashaBackupData(final SashaData sasha) {
-//		// final SashaData[] r= new SashaData[] {};
-//		final SGRef<SashaData> r = new SGRef<SashaData>();
-//		String requestContent = null;
-//
-//		HttpRequest httpRequest = new HttpRequest(Net.HttpMethods.GET);
-//		httpRequest.setUrl(url.getCharacterBakup().replace("{character}", sasha.getCharacter().name()));
-//		httpRequest.setHeader("Content-Type", "text/plain");
-//		httpRequest.setContent(requestContent);
-//
-//		long now = System.currentTimeMillis();
-//		final SGRef<Boolean> end = new SGRef<Boolean>(false);
-//		Gdx.net.sendHttpRequest(httpRequest, new HttpResponseListener() {
-//
-//			public void handleHttpResponse(HttpResponse httpResponse) {
-//
-//				// System.out.println("1111111111111111111111");
-//				//final int statusCode = httpResponse.getStatus().getStatusCode();
-//
-////		            System.out.println("HTTP Request status:" + statusCode);
-////		            System.out.println("Content:");
-//				try {
-//					// String s = AES.AESDecryptDemo(httpResponse.getResultAsString(),
-//					// SGDataHelper.decodeBase64(key));
-//					String s = AES.AESEncryptDemo(sasha.getUserId(), SGDataHelper.decodeBase64(key));
-//					// if (Arrays.asList(s.split("|")).contains(sasha.getUserId())) {
-//					String s2 = httpResponse.getResultAsString();
-//					int idx = s2.indexOf("|" + s);
-//					if (idx > -1) {
-//						int idx2 = s2.indexOf("|", idx + s.length());
-//						if (idx2 > -1) {
-//							// r[0]= initSashaByEncodeStr(s2.substring(idx+s.length(), idx2));
-//							r.SetValue(initSashaByEncodeStr(s2.substring(idx + s.length() + 1, idx2)));
-//						}
-//					} else {
-////						System.out.println("远程不是vip,本地是vip");
-////						PFEmailSend.SendMail(new String[] { PFEmailSend.EMAIL_OWNER_ADDR },
-////								"knightSasha" + sasha.getUserId() + "数据异常通知", "远程不是vip,本地是vip");
-////						SGDate d=new SGDate(2020,1,1,0,0,0).AddDays(((Double)sasha.getVipDate()).intValue());
-////						if(d.AddDays(7).compareTo(SGDate.Now())<0) {//7天之内没有支付开通的检测
-////							sasha.setVip("0");
-////							MainMenuScreen.saveSashaData(sasha);
-////						}
-//					}
-//					// System.out.println();
-//				} catch (Exception e) {
-//					SGDataHelper.getLog().printException(e,tag);
-//				}
-//				end.SetValue(true);
-//				// System.out.println("33333333333----"+end.GetValue());
-//			}
-//
-//			public void failed(Throwable t) {
-//				System.out.println("HTTP request failed!");
-//				end.SetValue(true);
-//			}
-//
-//			@Override
-//			public void cancelled() {
-//				System.out.println("HTTP request failed!");
-//				end.SetValue(true);
-//			}
-//
-//		});
-//		// System.out.println("222222222222222");
-//		while (!end.GetValue() && System.currentTimeMillis() - now < 10000) {
-//			try {
-//				// System.out.println("44444444444----"+end.GetValue());
-//				Thread.sleep(1000);
-//			} catch (InterruptedException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//		}
-//		return r.GetValue();
-//	}
-	private  void initLibGdx(){
-		Gdx.app.setLogLevel(Application.LOG_DEBUG);
-		SGDataHelper.getLog().print("开始运行: "+SGDate.Now());
-	}
-	private void initSG() {
-		SGDataHelper.SetConfigMapper(new SGConfigMapper());
-//		SGEmailSend.EMAIL_OWNER_ADDR_HOST = "";
-		SGDataHelper.sgLog=new SGLibGdxLog();
-		SGGameHelper.setGameConfig(new SGGameConfig());
-//		try {
-//			SGEmailSend.EMAIL_OWNER_ADDR = AES.AESDecryptDemo("u8k/Cz5Z9ddjUvNuTeXVVA==",
-//					SGDataHelper.decodeBase64(key));
-//			SGEmailSend.EMAIL_OWNER_ADDR_PASS = AES.AESDecryptDemo("9Y4YkBmOw1mlrmmx4QHz8wK5E7/ZhZxuvoll2MmCvVc=",
-//					SGDataHelper.decodeBase64(key));
-//			SGEmailSend.EMAIL_OWNER_ADDR_HOST_PROPERTY = HostType.SELLGIRL.getProperties();
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-	}
 //
 //	public void testEmailSend() throws InterruptedException {
 //
