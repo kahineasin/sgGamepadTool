@@ -392,6 +392,7 @@ public class KeySettingScreen implements Screen {
 //			tabMap2LastXNode=null;
 //			tabMap2.setEndNode(tabMap2LastNode);
 		}
+		if(null!=tabMap2LastXNode){tabMap2LastXNode=null;}
 		//int oldCombineNum=combinKeySettingLbls.size();
 		combinKeySettingLbls.clear();
 		combinKeyBtns.clear();
