@@ -1652,7 +1652,7 @@ public class KeySettingScreen implements Screen {
 										   int key,
 										   int keyMask){
 
-		if(!isSupportKey(keyMask)){
+		if(0!=keyMask&&!isSupportKey(keyMask)){
 			showErrorText(TXT.g("not support this key"));
 			return;
 		}
