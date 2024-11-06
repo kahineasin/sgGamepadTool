@@ -168,10 +168,10 @@ public class KeySettingScreen implements Screen {
 	 * 单键最后节点
 	 */
 	ISGTabNode tabMap2LastNode;
-//	/**
-//	 * 组合键最后的节点
-//	 */
-//	ISGTabNode tabMap2LastXNode;
+	/**
+	 * 组合键最后的节点
+	 */
+	ISGTabNode tabMap2LastXNode;
 //	Array<Actor> tabMapItem;
 //
 //	public SelectCharacterScreen(final SashaGame game, final SashaData sasha
@@ -390,7 +390,7 @@ public class KeySettingScreen implements Screen {
 			tabMap2LastNode.getRight().setDown(null);
 			tabMap2LastNode.getRight().getRight().setDown(null);
 //			tabMap2LastXNode=null;
-			tabMap2.setEndNode(tabMap2LastNode);
+//			tabMap2.setEndNode(tabMap2LastNode);
 		}
 		//int oldCombineNum=combinKeySettingLbls.size();
 		combinKeySettingLbls.clear();
@@ -792,84 +792,14 @@ public class KeySettingScreen implements Screen {
 			i++;
 		}
 		this.tabMap2LastNode=tmpLastNode;
-		this.tabMap2.setEndNode(tabMap2LastNode);
+//		this.tabMap2.setEndNode(tabMap2LastNode);
 
 		combinKeySettingLbls=new HashMap<>();
 		combineMouseKeySettingLbls=new HashMap<>();
 //		combinKeySettingLbls=new LinkedHashMap<>();
 		combinKeyBtns=new HashMap<>();
 		generateCombineLbls();
-//		for (final Map.Entry<Integer, Integer> player : gameKeyCombinMap.entrySet()) {
-//			final Label playerlbl = new Label(gameKey.getKeyNamesByMask(player.getValue()), skin);
-//			//playerlbls.add(playerlbl);
-//		   this.combinKeySettingLbls.put(player.getKey(),playerlbl);
-//
-//		   final String keyName=XBoxKey.getTexts( player.getKey());
-//			TextButton padNameBtn = new TextButton( keyName+ ":", skin);
-//			//// final SGRef<Integer> iRef=new SGRef<Integer>(i);
-//			//final int i2 = i;
-//			ClickListener listener = new ClickListener() {
-//
-//				@Override
-//				public void clicked(InputEvent event, float x, float y) {
-//					 dialog.init(//KeySettingScreen.this, //sasha,
-//							//player, pcCount,
-//							gamepad,
-//							keyName,//player.getKey(),
-//							new SGAction<String,Integer,Object>() {
-//
-//								@Override
-//								public void go(String s, Integer integer, Object o) {
-//
-//								 onGamepadKeySettingChange(player.getKey(),integer);
-//									if (SGTouchGamepad.class ==gamepad.getClass()) {
-//										((SGTouchGamepad) gamepad).remove();
-//										//((SGTouchGamepad) gamepad).setVisible(false);
-//										//if(!needAccessStageInput){needAccessStageInput=true;}
-//									}
-//								}
-//
-////								@Override
-////								public void go(Object t) {
-////////									playerlbl.setText("team" + player.getTeam() + ", " + player.getCharacter());
-//////									player.setValue((int)t);//这里用iter操作已经很有风险了
-//////									playerlbl.setText(XBoxKey.getTexts(player.getValue()));
-////									onKeyChange(player.getKey(),(int)t);
-////								}
-//							},
-//							SGTouchGamepad.class ==gamepad.getClass()?new SGAction<String,Integer,Object>() {
-//
-//								@Override
-//								public void go(String s, Integer integer, Object o) {
-//									if (SGTouchGamepad.class ==gamepad.getClass()) {
-//										((SGTouchGamepad) gamepad).remove();
-////										((SGTouchGamepad) gamepad).setVisible(false);
-////										//if(!needAccessStageInput){needAccessStageInput=true;}
-//									}
-//								}
-//
-////								@Override
-////								public void go(Object t) {
-////////									playerlbl.setText("team" + player.getTeam() + ", " + player.getCharacter());
-//////									player.setValue((int)t);//这里用iter操作已经很有风险了
-//////									playerlbl.setText(XBoxKey.getTexts(player.getValue()));
-////									onKeyChange(player.getKey(),(int)t);
-////								}
-//							}:null
-//					);
-//					dialog.show(stage);
-//
-//				}
-//			};
-//			playerlbl.addListener(listener);
-//			padNameBtn.addListener(listener);
-//			playerRow.add(padNameBtn).spaceBottom(20).spaceRight(10);
-//			playerRow.add(playerlbl).spaceBottom(20);
-//			playerRow.row();
-//
-//			tabUi.addItem(padNameBtn);
-//			//i++;
-//		}
+
 		playerRow.add(playerRow2).colspan(3);
 		scrollPane=new ScrollPane(playerRow);
 		scrollPane.setWidth(ScreenSetting.WORLD_WIDTH);
@@ -1324,8 +1254,8 @@ public class KeySettingScreen implements Screen {
 			//i++;
 		}
 		if(null!=tmpLastNode) {
-//			tabMap2LastXNode = tmpLastNode;
-			tabMap2.setEndNode(tmpLastNode);
+			tabMap2LastXNode = tmpLastNode;
+//			tabMap2.setEndNode(tmpLastNode);
 		}
 
 //		String aa="aa";
@@ -1469,7 +1399,25 @@ public class KeySettingScreen implements Screen {
 		settingDefault=true;
 		updateUIAfterChangeGamepadSetting();
 	}
+
+	HashMap<Integer,Integer> gdxToSysKeyMap=null;
+	private boolean isSupportKey(Integer key){
+		if(null==gdxToSysKeyMap){
+			gdxToSysKeyMap=new HashMap<>();
+			SimulateScreen.initGdxToSysKeyMap(gdxToSysKeyMap);
+		}
+		return gdxToSysKeyMap.containsKey(key);
+	}
+	/**
+	 * 单键设置键盘
+	 * @param key
+	 * @param keyMask
+	 */
 	private void onKeyChange(String key,int keyMask){
+		if(!isSupportKey(keyMask)){
+			showErrorText(TXT.g("not support this key"));
+			return;
+		}
 		gameKeyMap.put(key,keyMask);//这里用iter操作已经很有风险了
 		boolean exist=false;
 		for(KeySimulateItem i:gameKeyMap2){
@@ -1665,18 +1613,22 @@ public class KeySettingScreen implements Screen {
 		nodeInner2.setLeft(nodeInner1);
 		nodeInner2.setRight(nodeInner3);
 		nodeInner3.setLeft(nodeInner2);
-		if(null==tabMap2.getEndNode()){
+		if(//null==tabMap2.getEndNode()
+				null==tabMap2LastXNode
+		){
 ////				tabMap2.setFirstNode(nodeInner1);
 //			tabMap2LastNode.setDown(nodeInner1);
 //			nodeInner1.setUp(tabMap2LastNode);
 			connectTabMap2Rows(tabMap2LastNode,nodeInner1);
 		}else{
-//			tabMap2.getEndNode().setDown(nodeInner1);
-//			nodeInner1.setUp(tabMap2.getEndNode());
-			connectTabMap2Rows(tabMap2.getEndNode(),nodeInner1);
+////			tabMap2.getEndNode().setDown(nodeInner1);
+////			nodeInner1.setUp(tabMap2.getEndNode());
+//			connectTabMap2Rows(tabMap2.getEndNode(),nodeInner1);
+			connectTabMap2Rows(tabMap2LastXNode,nodeInner1);
 		}
-//		tabMap2LastXNode=nodeInner1;
-		tabMap2.setEndNode(nodeInner1);
+////		tabMap2LastXNode=nodeInner1;
+//		tabMap2.setEndNode(nodeInner1);
+		tabMap2LastXNode=nodeInner1;
 
 //		ensureCurrentInView2(padNameBtn);
 //		scrollPane.setScrollY(needHeight-(scrollPane.getHeight()/2f));
@@ -1690,9 +1642,19 @@ public class KeySettingScreen implements Screen {
 	private  float  toScrollWait=0.1f;
 	private float toScrollWaitCount=0.1f;
 
+	/**
+	 * 组合键映射键盘
+	 * @param key
+	 * @param keyMask
+	 */
 	private void onGamepadKeySettingChange(//String key,
 										   int key,
 										   int keyMask){
+
+		if(!isSupportKey(keyMask)){
+			showErrorText(TXT.g("not support this key"));
+			return;
+		}
 //		gameKeyCombinMap.put(key,keyMask);
 //		this.combinKeySettingLbls.get(key).setText(gameKey.getKeyNamesByMask(keyMask));
 
@@ -2023,13 +1985,6 @@ int keyValue
 
 		if(0>=buttonWaitCount) {
 
-//			if(simulating){
-//
-//				if(sgcontroller.isCROSS()){
-//					robot.keyPress(KeyEvent.VK_Z);
-//				}
-//			}else{
-//			boolean isDialogOpen=!(null == dialog || (!dialog.isVisible()) || null == dialog.getStage());
 			boolean isDialogOpen=isPopupsOpen(dialog);
 			boolean isMouseKeyDialogOpen=isPopupsOpen(mouseKeyDialog);
 			boolean isGamepadKeyDialogOpen=isPopupsOpen(gamepadKeyDialog);
@@ -2111,9 +2066,27 @@ int keyValue
 							oKeyDown=true;
 						}
 					}else if (isMouseKeyDialogOpen&&0 >= buttonWaitCount) {
-						if (null != sgcontroller && sgcontroller.isCROSS() //&& gamepadKeyDialog.isDone()
+						if (null != sgcontroller && sgcontroller.isUP()) {
+							mouseKeyDialog.getTabUi().up();
+							buttonWaitCount = buttonWait;
+						} else if (null != sgcontroller && sgcontroller.isDOWN()) {
+							mouseKeyDialog.getTabUi().down();
+							buttonWaitCount = buttonWait;
+						} else if (null != sgcontroller && sgcontroller.isLEFT()) {
+							mouseKeyDialog.getTabUi().left();
+							buttonWaitCount = buttonWait;
+						} else if (null != sgcontroller && sgcontroller.isRIGHT()) {
+							mouseKeyDialog.getTabUi().right();
+							buttonWaitCount = buttonWait;
+						}else if (null != sgcontroller && sgcontroller.isCROSS() //&& gamepadKeyDialog.isDone()
 						) {
-							mouseKeyDialog.getRestoreButton().toggle();
+//							mouseKeyDialog.getRestoreButton().toggle();
+//							if(null==mouseKeyDialog.getTabMap().getCurrent()){
+//
+//							}else{
+//
+//							}
+							mouseKeyDialog.getTabUi().select();
 							buttonWaitCount = buttonWait;
 						} else if (null != sgcontroller && sgcontroller.isROUND() //&& gamepadKeyDialog.isDone()
 						) {

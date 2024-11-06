@@ -18,6 +18,12 @@ import com.sellgirl.gamepadtool.model.MouseKey;
 import com.sellgirl.sgGameHelper.gamepad.ISGPS5Gamepad;
 import com.sellgirl.sgGameHelper.gamepad.SGKeyboardGamepad;
 import com.sellgirl.sgGameHelper.gamepad.XBoxKey;
+import com.sellgirl.sgGameHelper.tabUi.ISGTabMap;
+import com.sellgirl.sgGameHelper.tabUi.ISGTabNode;
+import com.sellgirl.sgGameHelper.tabUi.SGTabUDLRHierarchicalMap2;
+import com.sellgirl.sgGameHelper.tabUi.SGTabUDLRMap;
+import com.sellgirl.sgGameHelper.tabUi.SGTabUpDownMap;
+import com.sellgirl.sgGameHelper.tabUi.TabUi;
 import com.sellgirl.sgJavaHelper.SGAction;
 import com.sellgirl.sgJavaHelper.config.SGDataHelper;
 
@@ -61,6 +67,9 @@ private static  final String tag= MouseKeySettingDialog.class.getName();
 	SGAction<String,Integer,Integer> action;
 	SGAction<String,Integer,Object> onPopupClose=null;
 
+	TabUi tabUi;
+//	SGTabUDLRHierarchicalMap2 tabMap;
+	SGTabUDLRMap tabMap2;
 	public MouseKeySettingDialog(final KeySettingScreen app//,//final PurchaseManager purchaseManager,
                                  //final SashaData sasha,
                                  //KofPlayer player, final int playerId,
@@ -198,6 +207,26 @@ private static  final String tag= MouseKeySettingDialog.class.getName();
 		Label scrollUpLbl = new Label("鼠标滚轮(上)",app.skin);
 		Label scrollDownLbl = new Label("鼠标滚轮(下)",app.skin);
 
+		tabMap2=new SGTabUDLRMap();
+		tabMap2.endToBegin= SGTabUpDownMap.EndToBeginType.TO;
+		ISGTabNode node1=tabMap2.newNode(upLbl);
+		ISGTabNode node2=tabMap2.newNode(downLbl);
+		ISGTabNode node3=tabMap2.newNode(leftLbl);
+		ISGTabNode node4=tabMap2.newNode(rightLbl);
+		ISGTabNode node5=tabMap2.newNode(buttonLeftLbl);
+		ISGTabNode node6=tabMap2.newNode(buttonRightLbl);
+		ISGTabNode node7=tabMap2.newNode(buttonScrollLbl);
+		ISGTabNode node8=tabMap2.newNode(scrollUpLbl);
+		ISGTabNode node9=tabMap2.newNode(scrollDownLbl);
+		ISGTabNode node10=tabMap2.newNode(closeButton);
+		ISGTabNode node11=tabMap2.newNode(restoreButton);
+		tabMap2.generateUDLRConnect(node1,node2,node3,node4,null
+		,node5,node6,null,node7,node8,node9,null,node10,node11);
+		tabMap2.setFirstNode(node1);
+//		tabMap2.setEndNode(node10);
+		tabUi=new TabUi();
+		tabUi.setTabMap(tabMap2);
+
 //		upLbl.addListener(new ClickListener() {
 //			@Override
 //			public void clicked(InputEvent event, float x, float y) {
@@ -232,68 +261,18 @@ private static  final String tag= MouseKeySettingDialog.class.getName();
 		iapTable.add(scrollUpLbl).spaceRight(spaceRight).spaceBottom(spaceBottom);
 		iapTable.add(scrollDownLbl).colspan(2).spaceBottom(spaceBottom);
 		iapTable.row();
-//		//skillLbl = new Label("", skin);
-//		 //sashaBtn = new TextButton(SGCharacter.SASHA.name()+" 当前选择", skin);
-//		TextButton team1Btn = new TextButton("team1", skin);
-//		TextButton team2Btn = new TextButton("team2", skin);
-//		TextButton team3Btn = new TextButton("no", skin);
-//		teamBtns[0]=team1Btn;
-//		teamBtns[1]=team2Btn;
-//		teamBtns[2]=team3Btn;
-//		team1Btn.addListener(new ClickListener() {
-//
-//		     @Override
-//		     public void clicked(InputEvent event, float x, float y) {
-//		         player.setTeam(1);
-//
-//		         teamBtns[0].setChecked(true);
-//		         teamBtns[1].setChecked(false);
-//		         teamBtns[2].setChecked(false);
-//
-//		     }
-//	  	});
-//		team2Btn.addListener(new ClickListener() {
-//
-//		     @Override
-//		     public void clicked(InputEvent event, float x, float y) {
-//		         player.setTeam(2);
-//		         teamBtns[0].setChecked(false);
-//		         teamBtns[1].setChecked(true);
-//		         teamBtns[2].setChecked(false);
-//		     }
-//	  	});
-//		team3Btn.addListener(new ClickListener() {
-//
-//		     @Override
-//		     public void clicked(InputEvent event, float x, float y) {
-//		         player.setTeam(-1);
-//		         teamBtns[0].setChecked(false);
-//		         teamBtns[1].setChecked(false);
-//		         teamBtns[2].setChecked(true);
-//		     }
-//	  	});
-//		iapTable.add(teamlbl);
-//		iapTable.row();
-//		iapTable.add(team1Btn);
-//		iapTable.row();
-//		iapTable.add(team2Btn);
-//		iapTable.row();
-//		iapTable.add(team3Btn).spaceBottom(10);
-//		iapTable.row();
-//
-////		Label characterlbl = new Label("选择角色. 切换角色 □",app.skin);
-//		Label characterlbl = new Label("选择角色.",app.skin);
-////		//skillLbl = new Label("", skin);
-////		 //sashaBtn = new TextButton(SGCharacter.SASHA.name()+" 当前选择", skin);
-////		TextButton sashaBtn = new TextButton("1."+SGCharacter.GODDESSPRINCESSSASHA.name(), skin);
-////		TextButton aliceBtn = new TextButton("2."+SGCharacter.ALICE.name(), skin);
-////		TextButton chomperBtn = new TextButton("3."+SGCharacter.CHOMPER.name(), skin);
-//
-//		SGCharacter[] characters=new SGCharacter[] {SGCharacter.GODDESSPRINCESSSASHA,SGCharacter.ALICE,SGCharacter.CHOMPER,SGCharacter.GIANT};
-//
+
 
         contentTable.add(iapTable);
     }
+
+//	public ISGTabMap getTabMap(){
+//		return tabMap2;
+//	}
+
+	public TabUi getTabUi(){
+		return tabUi;
+	}
 
 
 

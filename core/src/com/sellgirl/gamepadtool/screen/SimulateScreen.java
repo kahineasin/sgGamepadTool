@@ -714,41 +714,7 @@ public class SimulateScreen implements Screen {
 //		if(Input.Keys.Z ==key){
 //			return KeyEvent.VK_Z;
 			gdxToSysKeyMap=new HashMap<>();
-			gdxToSysKeyMap.put(Input.Keys.A,KeyEvent.VK_A);
-			gdxToSysKeyMap.put(Input.Keys.B,KeyEvent.VK_B);
-			gdxToSysKeyMap.put(Input.Keys.C,KeyEvent.VK_C);
-			gdxToSysKeyMap.put(Input.Keys.D,KeyEvent.VK_D);
-			gdxToSysKeyMap.put(Input.Keys.E,KeyEvent.VK_E);
-			gdxToSysKeyMap.put(Input.Keys.F,KeyEvent.VK_F);
-			gdxToSysKeyMap.put(Input.Keys.G,KeyEvent.VK_G);
-			gdxToSysKeyMap.put(Input.Keys.H,KeyEvent.VK_H);
-			gdxToSysKeyMap.put(Input.Keys.I,KeyEvent.VK_I);
-			gdxToSysKeyMap.put(Input.Keys.J,KeyEvent.VK_J);
-			gdxToSysKeyMap.put(Input.Keys.K,KeyEvent.VK_K);
-			gdxToSysKeyMap.put(Input.Keys.L,KeyEvent.VK_L);
-			gdxToSysKeyMap.put(Input.Keys.M,KeyEvent.VK_M);
-			gdxToSysKeyMap.put(Input.Keys.N,KeyEvent.VK_N);
-			gdxToSysKeyMap.put(Input.Keys.O,KeyEvent.VK_O);
-			gdxToSysKeyMap.put(Input.Keys.P,KeyEvent.VK_P);
-			gdxToSysKeyMap.put(Input.Keys.Q,KeyEvent.VK_Q);
-			gdxToSysKeyMap.put(Input.Keys.R,KeyEvent.VK_R);
-			gdxToSysKeyMap.put(Input.Keys.S,KeyEvent.VK_S);
-			gdxToSysKeyMap.put(Input.Keys.T,KeyEvent.VK_T);
-			gdxToSysKeyMap.put(Input.Keys.U,KeyEvent.VK_U);
-			gdxToSysKeyMap.put(Input.Keys.V,KeyEvent.VK_V);
-			gdxToSysKeyMap.put(Input.Keys.W,KeyEvent.VK_W);
-			gdxToSysKeyMap.put(Input.Keys.X,KeyEvent.VK_X);
-			gdxToSysKeyMap.put(Input.Keys.Y,KeyEvent.VK_Y);
-			gdxToSysKeyMap.put(Input.Keys.Z,KeyEvent.VK_Z);
-			gdxToSysKeyMap.put(Input.Keys.SPACE,KeyEvent.VK_SPACE);
-			gdxToSysKeyMap.put(Input.Keys.SHIFT_LEFT,KeyEvent.VK_SHIFT);
-			gdxToSysKeyMap.put(Input.Keys.UP,KeyEvent.VK_UP);
-			gdxToSysKeyMap.put(Input.Keys.DOWN,KeyEvent.VK_DOWN);
-			gdxToSysKeyMap.put(Input.Keys.LEFT,KeyEvent.VK_LEFT);
-			gdxToSysKeyMap.put(Input.Keys.RIGHT,KeyEvent.VK_RIGHT);
-			gdxToSysKeyMap.put(Input.Keys.ENTER,KeyEvent.VK_ENTER);
-			gdxToSysKeyMap.put(Input.Keys.ESCAPE,KeyEvent.VK_ESCAPE);
-			gdxToSysKeyMap.put(Input.Keys.BACKSPACE,KeyEvent.VK_BACK_SPACE);
+			 SimulateScreen.initGdxToSysKeyMap(gdxToSysKeyMap);
 
 //			keyDowns=new boolean[24];
 //			keyDowns=new boolean[24+gameKey.getCombinedMap().size()];
@@ -1132,38 +1098,10 @@ public class SimulateScreen implements Screen {
 //				 scrollY=0;
 
 				int historyId=0;
-				boolean isPress=false;
-				int gdxKey=0;
+//				boolean isPress=false;
+//				int gdxKey=0;
 				historyId =simulateByMap(true,gameKeyCombinMap2,historyId);
-//				for (Map.Entry<Integer, Integer> m1 : gameKeyCombinMap.entrySet()) {
-//					isPress=gameKey.isBtn(m1.getKey());
-//					if(isPress){
-//						activeCombine.add(m1.getKey());
-//					}
-//					if(isPress==keyDowns[historyId]){
-//						historyId++;
-//						continue;
-//					}
-//					gdxKey=m1.getValue();
-//					if(Input.Keys.UNKNOWN!=gdxKey){
-//						int sysKey=gdxKeyToSysKey( gdxKey);
-//						if(isPress) {
-//							robot.keyPress(sysKey);
-//						}else {
-//							robot.keyRelease(sysKey);
-//						}
-//						keyDowns[historyId]=isPress;
-//					}
-//					historyId++;
-//				}
 
-//				//鼠标参数
-//				float mouseX=0;
-//				float mouseY=0;
-//				//鼠标滚轮
-//				float scrollY=0;
-				////速度大概是5秒移动一个屏幕高度
-				//int speed= (int) (ScreenSetting.WORLD_HEIGHT/(5*ScreenSetting.FPS));
 
 				historyId =simulateByMap(false,gameKeyMap2,historyId);
 				if(0!=mouseX||0!=mouseY){
@@ -1190,167 +1128,6 @@ public class SimulateScreen implements Screen {
 					scrollY-=doY;
 				}
 
-//				for(KeySimulateItem j:gameKeyMap2){
-//					isPress=gameKey.isBtn(1<<j.getSrcKey());
-//					//mouse移动不跳过
-////					if(isPress==keyDowns[historyId]){
-//////						return;
-////						historyId++;
-////						continue;
-////					}
-//					XBoxKey padKey=XBoxKey.values()[j.getSrcKey()];
-//					//如果组合键中包含，就跳过
-//					if(null!=padKey) {
-//						boolean ok=false;
-//						for (Integer i : activeCombine) {
-//							String aa="aa";
-//							if (//SGDataHelper.EnumHasFlag(i, padKey.ordinal())
-//									SGDataHelper.EnumHasFlag(i, padKey.getBinary())
-//							) {
-////									return;
-//								ok=true;
-//								break;
-//							}
-//						}
-//						if(ok){
-//							historyId++;
-//							continue;
-//						}
-//					}
-//					if(
-//							KeySimulateItem.KeyType.KEYBOARD==j.getDstKeyType()
-//					){
-//						if(isPress==keyDowns[historyId]){
-////						return;
-//							historyId++;
-//							continue;
-//						}
-//						gdxKey=j.getDstKey();
-//						if(Input.Keys.UNKNOWN!=gdxKey){
-//							int sysKey=gdxKeyToSysKey( gdxKey);
-//							if(isPress) {
-//								robot.keyPress(sysKey);
-//							}else {
-//								robot.keyRelease(sysKey);
-//							}
-//							keyDowns[historyId]=isPress;
-//						}
-//					}else if(KeySimulateItem.KeyType.MOUSE==j.getDstKeyType()){
-//						MouseKey dstKeyEnum=MouseKey.values()[j.getDstKey()];
-//						boolean isAxis=MouseKey.UP==dstKeyEnum||MouseKey.DOWN==dstKeyEnum
-//								||MouseKey.LEFT==dstKeyEnum||MouseKey.RIGHT==dstKeyEnum
-//								||MouseKey.scrollUp==dstKeyEnum||MouseKey.scrollDown==dstKeyEnum;
-//						if(isPress==keyDowns[historyId]
-//						&&!isAxis
-//						){
-////						return;
-//							historyId++;
-//							continue;
-//						}
-//						if(MouseKey.NONE!=dstKeyEnum){
-////							int sysKey=gdxKeyToSysKey( gdxKey);
-//							if(isPress) {
-////								robot.keyPress(sysKey);
-////								int x=0;
-////								int y=0;
-//								//速度大概是5秒移动一个屏幕高度
-////								int speed= (int) (ScreenSetting.WORLD_HEIGHT/(5*ScreenSetting.FPS));
-////								int speed=100;
-//
-//								//当dstKey是mouseMove而且srcKey是轴时，要计算轴幅度
-//								float percent=1;
-//								if(isAxis){
-//
-//									percent=GameKey.getAxisPercent(gameKey.getGamepad(),padKey);
-//								}
-//
-//								switch (dstKeyEnum){
-//									case UP:
-//										mouseY-=speed*percent;
-//										//robot.mouseMove(0, mouseY);
-//										break;
-//									case DOWN:
-//										//y-=speed;
-//										mouseY+=speed*percent;
-////										robot.mouseMove(0, mouseY);
-//										break;
-//									case LEFT:
-//										//x-=speed;
-//										mouseX-=speed*percent;
-////										robot.mouseMove( mouseX,0);
-//										break;
-//									case RIGHT:
-////										x+=speed;
-//										mouseX+=speed*percent;
-////										if(0!=x||0!=y) {
-////											robot.mouseMove(x, y);
-////										}
-////										robot.mouseMove(mouseX,mouseY);
-//										break;
-//									case scrollUp:
-//										scrollY-=scrollSpeed*percent;
-//										break;
-//									case scrollDown:
-//										scrollY+=scrollSpeed*percent;
-//										break;
-//									case buttonLeft:
-//										robot.mousePress(java.awt.event.InputEvent.BUTTON1_DOWN_MASK);
-//										break;
-//									case buttonRight:
-//										robot.mousePress(java.awt.event.InputEvent.BUTTON2_DOWN_MASK);
-//										break;
-//									case buttonScroll:
-//										robot.mousePress(java.awt.event.InputEvent.BUTTON3_DOWN_MASK);
-//										break;
-//									default:
-//										break;
-//								}
-//							}else {
-//////								robot.keyRelease(sysKey);
-////								int x=0;
-////								int y=0;
-////								//速度大概是5秒移动一个屏幕高度
-////								int speed= (int) (ScreenSetting.WORLD_HEIGHT/(5*ScreenSetting.FPS));
-//								switch (dstKeyEnum){
-////									case UP:
-////										y+=speed;
-////									case DOWN:
-////										y-=speed;
-////									case LEFT:
-////										x-=speed;
-////									case RIGHT:
-////										x+=speed;
-////										robot.mouseMove(x,y);
-////										break;
-//									case buttonLeft:
-//										robot.mouseRelease(java.awt.event.InputEvent.BUTTON1_DOWN_MASK);
-//										break;
-//									case buttonRight:
-//										robot.mouseRelease(java.awt.event.InputEvent.BUTTON2_DOWN_MASK);
-//										break;
-//									case buttonScroll:
-//										robot.mouseRelease(java.awt.event.InputEvent.BUTTON3_DOWN_MASK);
-//										break;
-//									default:
-//										break;
-//								}
-//							}
-//							keyDowns[historyId]=isPress;
-//						}
-//					}
-//					historyId++;
-//				}
-//				if(0!=mouseX||0!=mouseY){
-//					Point mouseLocation = MouseInfo.getPointerInfo().getLocation();
-////					int mouseX=mouseLocation.x;
-////					int mouseY=mouseLocation.y;
-//					robot.mouseMove(((Float)(mouseX+mouseLocation.x)).intValue(),
-//							((Float)(mouseY+ mouseLocation.y)).intValue());
-//				}
-//				if(0!=scrollY){
-////					Point mouseLocation = MouseInfo.getPointerInfo().getLocation();
-//					robot.mouseWheel(((Float)scrollY).intValue());
-//				}
 
 //				//这里未完善,SGPS5Gamepad.getQuickBtnKey里面的组合不完整，比如没有l2 r2 --benjamin todo
 //				keyPress(gameKey.getAttack(),gameKey.getGamepad().isSQUARE(),0+historyId,XBoxKey.SQUARE);
@@ -1500,33 +1277,7 @@ public class SimulateScreen implements Screen {
 //			return KeyEvent.VK_Z;
 //		}else
 	}
-//	private void keyPress(int gdxKey,boolean isPress,int historyId,XBoxKey padKey){
-//		if(isPress==keyDowns[historyId]){
-//			return;
-//		}
-////		if(Input.Keys.UNKNOWN!=gameKey.getAttack()&& gameKey.getGamepad().isSQUARE()){
-////			robot.keyPress(gdxKeyToSysKey( gameKey.getAttack()));
-////		}
-//		if(null!=padKey) {
-//			for (Integer i : activeCombine) {
-//				String aa="aa";
-//				if (//SGDataHelper.EnumHasFlag(i, padKey.ordinal())
-//						SGDataHelper.EnumHasFlag(i, padKey.getBinary())
-//				) {
-//					return;
-//				}
-//			}
-//		}
-//		if(Input.Keys.UNKNOWN!=gdxKey){
-//			int sysKey=gdxKeyToSysKey( gdxKey);
-//			if(isPress) {
-//				robot.keyPress(sysKey);
-//			}else {
-//				robot.keyRelease(sysKey);
-//			}
-//			keyDowns[historyId]=isPress;
-//		}
-//	}
+
 	private float mouseX=0;
 	private float mouseY=0;
 	//鼠标滚轮
@@ -1599,7 +1350,9 @@ public class SimulateScreen implements Screen {
 					continue;
 				}
 				gdxKey=j.getDstKey();
-				if(Input.Keys.UNKNOWN!=gdxKey){
+				if(Input.Keys.UNKNOWN!=gdxKey
+				&&gdxToSysKeyMap.containsKey(gdxKey)
+				){
 					int sysKey=gdxKeyToSysKey( gdxKey);
 					if(isPress) {
 						robot.keyPress(sysKey);
@@ -1627,7 +1380,7 @@ public class SimulateScreen implements Screen {
 					continue;
 				}
 				if(MouseKey.NONE!=dstKeyEnum){
-//							int sysKey=gdxKeyToSysKey( gdxKey);
+
 					if(isPress) {
 
 						//当dstKey是mouseMove而且srcKey是轴时，要计算轴幅度
@@ -1854,6 +1607,68 @@ public class SimulateScreen implements Screen {
 		public void canceled() {
 		}
 	}
+	public static Map<Integer,Integer> initGdxToSysKeyMap(Map<Integer,Integer> gdxToSysKeyMap){
 
+		gdxToSysKeyMap.put(Input.Keys.A,KeyEvent.VK_A);
+		gdxToSysKeyMap.put(Input.Keys.B,KeyEvent.VK_B);
+		gdxToSysKeyMap.put(Input.Keys.C,KeyEvent.VK_C);
+		gdxToSysKeyMap.put(Input.Keys.D,KeyEvent.VK_D);
+		gdxToSysKeyMap.put(Input.Keys.E,KeyEvent.VK_E);
+		gdxToSysKeyMap.put(Input.Keys.F,KeyEvent.VK_F);
+		gdxToSysKeyMap.put(Input.Keys.G,KeyEvent.VK_G);
+		gdxToSysKeyMap.put(Input.Keys.H,KeyEvent.VK_H);
+		gdxToSysKeyMap.put(Input.Keys.I,KeyEvent.VK_I);
+		gdxToSysKeyMap.put(Input.Keys.J,KeyEvent.VK_J);
+		gdxToSysKeyMap.put(Input.Keys.K,KeyEvent.VK_K);
+		gdxToSysKeyMap.put(Input.Keys.L,KeyEvent.VK_L);
+		gdxToSysKeyMap.put(Input.Keys.M,KeyEvent.VK_M);
+		gdxToSysKeyMap.put(Input.Keys.N,KeyEvent.VK_N);
+		gdxToSysKeyMap.put(Input.Keys.O,KeyEvent.VK_O);
+		gdxToSysKeyMap.put(Input.Keys.P,KeyEvent.VK_P);
+		gdxToSysKeyMap.put(Input.Keys.Q,KeyEvent.VK_Q);
+		gdxToSysKeyMap.put(Input.Keys.R,KeyEvent.VK_R);
+		gdxToSysKeyMap.put(Input.Keys.S,KeyEvent.VK_S);
+		gdxToSysKeyMap.put(Input.Keys.T,KeyEvent.VK_T);
+		gdxToSysKeyMap.put(Input.Keys.U,KeyEvent.VK_U);
+		gdxToSysKeyMap.put(Input.Keys.V,KeyEvent.VK_V);
+		gdxToSysKeyMap.put(Input.Keys.W,KeyEvent.VK_W);
+		gdxToSysKeyMap.put(Input.Keys.X,KeyEvent.VK_X);
+		gdxToSysKeyMap.put(Input.Keys.Y,KeyEvent.VK_Y);
+		gdxToSysKeyMap.put(Input.Keys.Z,KeyEvent.VK_Z);
+		gdxToSysKeyMap.put(Input.Keys.SPACE,KeyEvent.VK_SPACE);
+		gdxToSysKeyMap.put(Input.Keys.SHIFT_LEFT,KeyEvent.VK_SHIFT);
+		gdxToSysKeyMap.put(Input.Keys.UP,KeyEvent.VK_UP);
+		gdxToSysKeyMap.put(Input.Keys.DOWN,KeyEvent.VK_DOWN);
+		gdxToSysKeyMap.put(Input.Keys.LEFT,KeyEvent.VK_LEFT);
+		gdxToSysKeyMap.put(Input.Keys.RIGHT,KeyEvent.VK_RIGHT);
+		gdxToSysKeyMap.put(Input.Keys.ENTER,KeyEvent.VK_ENTER);
+		gdxToSysKeyMap.put(Input.Keys.ESCAPE,KeyEvent.VK_ESCAPE);
+		gdxToSysKeyMap.put(Input.Keys.BACKSPACE,KeyEvent.VK_BACK_SPACE);
+		gdxToSysKeyMap.put(Input.Keys.ALT_LEFT,KeyEvent.VK_ALT);
+		gdxToSysKeyMap.put(Input.Keys.TAB,KeyEvent.VK_TAB);
+		gdxToSysKeyMap.put(Input.Keys.NUM_1,KeyEvent.VK_1);
+		gdxToSysKeyMap.put(Input.Keys.NUM_2,KeyEvent.VK_2);
+		gdxToSysKeyMap.put(Input.Keys.NUM_3,KeyEvent.VK_3);
+		gdxToSysKeyMap.put(Input.Keys.NUM_4,KeyEvent.VK_4);
+		gdxToSysKeyMap.put(Input.Keys.NUM_5,KeyEvent.VK_5);
+		gdxToSysKeyMap.put(Input.Keys.NUM_6,KeyEvent.VK_6);
+		gdxToSysKeyMap.put(Input.Keys.NUM_7,KeyEvent.VK_7);
+		gdxToSysKeyMap.put(Input.Keys.NUM_8,KeyEvent.VK_8);
+		gdxToSysKeyMap.put(Input.Keys.NUM_9,KeyEvent.VK_9);
+		gdxToSysKeyMap.put(Input.Keys.NUM_0,KeyEvent.VK_0);
+		gdxToSysKeyMap.put(Input.Keys.F1,KeyEvent.VK_F1);
+		gdxToSysKeyMap.put(Input.Keys.F2,KeyEvent.VK_F2);
+		gdxToSysKeyMap.put(Input.Keys.F3,KeyEvent.VK_F3);
+		gdxToSysKeyMap.put(Input.Keys.F4,KeyEvent.VK_F4);
+		gdxToSysKeyMap.put(Input.Keys.F5,KeyEvent.VK_F5);
+		gdxToSysKeyMap.put(Input.Keys.F6,KeyEvent.VK_F6);
+		gdxToSysKeyMap.put(Input.Keys.F7,KeyEvent.VK_F7);
+		gdxToSysKeyMap.put(Input.Keys.F8,KeyEvent.VK_F8);
+		gdxToSysKeyMap.put(Input.Keys.F9,KeyEvent.VK_F9);
+		gdxToSysKeyMap.put(Input.Keys.F10,KeyEvent.VK_F10);
+		gdxToSysKeyMap.put(Input.Keys.F11,KeyEvent.VK_F11);
+		gdxToSysKeyMap.put(Input.Keys.F12,KeyEvent.VK_F12);
+		return gdxToSysKeyMap;
+	}
 
 }
