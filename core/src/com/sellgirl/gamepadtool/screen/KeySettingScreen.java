@@ -1415,7 +1415,7 @@ public class KeySettingScreen implements Screen {
 	 * @param keyMask
 	 */
 	private void onKeyChange(String key,int keyMask){
-		if(!isSupportKey(keyMask)){
+		if(0!=keyMask&&!isSupportKey(keyMask)){
 			showErrorText(TXT.g("not support this key"));
 			return;
 		}
