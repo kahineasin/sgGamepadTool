@@ -2,7 +2,7 @@ package com.sellgirl.gamepadtool;
 
 import com.sellgirl.gamepadtool.util.LocalSaveSettingHelper3;
 import com.sellgirl.sgGameHelper.ISGGameConfig;
-import com.sellgirl.sgGameHelper.ScreenSetting;
+//import com.sellgirl.sgGameHelper.ScreenSetting;
 import com.sellgirl.sgGameHelper.gamepad.ISGPS5Gamepad;
 import com.sellgirl.sgGameHelper.gamepad.SGPS5GamepadSetting;
 
@@ -12,11 +12,11 @@ public class SGGameConfig implements ISGGameConfig {
         return GameSetting.gdxControllerVersion;
     }
 
-    private ScreenSetting screenSetting=null;
+    private com.sellgirl.sgGameHelper.ScreenSetting screenSetting=null;
     @Override
-    public ScreenSetting getScreenSetting() {
+    public com.sellgirl.sgGameHelper.ScreenSetting getScreenSetting() {
         if(null==screenSetting) {
-            screenSetting=new ScreenSetting();
+            screenSetting=new com.sellgirl.sgGameHelper.ScreenSetting();
             screenSetting.setWORLD_WIDTH(com.sellgirl.gamepadtool.ScreenSetting.WORLD_WIDTH);
             screenSetting.setWORLD_HEIGHT(com.sellgirl.gamepadtool.ScreenSetting.WORLD_HEIGHT);
             screenSetting.setWORLD_HEIGHT_METER(com.sellgirl.gamepadtool.ScreenSetting.WORLD_HEIGHT_METER);
