@@ -1643,14 +1643,14 @@ public class SimulateScreen implements Screen {
 		gdxToSysKeyMap.put(Input.Keys.RIGHT,KeyEvent.VK_RIGHT);
 		gdxToSysKeyMap.put(Input.Keys.ENTER,KeyEvent.VK_ENTER);
 		gdxToSysKeyMap.put(Input.Keys.ESCAPE,KeyEvent.VK_ESCAPE);
-		gdxToSysKeyMap.put(Input.Keys.BACKSPACE,KeyEvent.VK_BACK_SPACE);
+		gdxToSysKeyMap.put(Input.Keys.BACKSPACE,KeyEvent.VK_BACK_SPACE);//Input.Keys.DEL就是Input.Keys.BACKSPACE
 		gdxToSysKeyMap.put(Input.Keys.ALT_LEFT,KeyEvent.VK_ALT);
 		gdxToSysKeyMap.put(Input.Keys.CONTROL_LEFT,KeyEvent.VK_CONTROL);
 		gdxToSysKeyMap.put(Input.Keys.TAB,KeyEvent.VK_TAB);
 		gdxToSysKeyMap.put(Input.Keys.PAGE_UP,KeyEvent.VK_PAGE_UP);
 		gdxToSysKeyMap.put(Input.Keys.PAGE_DOWN,KeyEvent.VK_PAGE_DOWN);
 		gdxToSysKeyMap.put(Input.Keys.INSERT,KeyEvent.VK_INSERT);
-		gdxToSysKeyMap.put(Input.Keys.DEL,KeyEvent.VK_DELETE);
+		gdxToSysKeyMap.put(Input.Keys.FORWARD_DEL,KeyEvent.VK_DELETE);
 		gdxToSysKeyMap.put(Input.Keys.HOME,KeyEvent.VK_HOME);
 		gdxToSysKeyMap.put(Input.Keys.END,KeyEvent.VK_END);
 		gdxToSysKeyMap.put(Input.Keys.NUM_1,KeyEvent.VK_1);
