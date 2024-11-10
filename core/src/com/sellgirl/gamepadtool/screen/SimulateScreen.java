@@ -1645,7 +1645,10 @@ public class SimulateScreen implements Screen {
 		gdxToSysKeyMap.put(Input.Keys.ESCAPE,KeyEvent.VK_ESCAPE);
 		gdxToSysKeyMap.put(Input.Keys.BACKSPACE,KeyEvent.VK_BACK_SPACE);
 		gdxToSysKeyMap.put(Input.Keys.ALT_LEFT,KeyEvent.VK_ALT);
+		gdxToSysKeyMap.put(Input.Keys.CONTROL_LEFT,KeyEvent.VK_CONTROL);
 		gdxToSysKeyMap.put(Input.Keys.TAB,KeyEvent.VK_TAB);
+		gdxToSysKeyMap.put(Input.Keys.PAGE_UP,KeyEvent.VK_PAGE_UP);
+		gdxToSysKeyMap.put(Input.Keys.PAGE_DOWN,KeyEvent.VK_PAGE_DOWN);
 		gdxToSysKeyMap.put(Input.Keys.NUM_1,KeyEvent.VK_1);
 		gdxToSysKeyMap.put(Input.Keys.NUM_2,KeyEvent.VK_2);
 		gdxToSysKeyMap.put(Input.Keys.NUM_3,KeyEvent.VK_3);
