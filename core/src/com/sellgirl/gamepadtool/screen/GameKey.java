@@ -588,30 +588,58 @@ public class GameKey implements IKnightSashaGameKey//extends GameKeyBase
         return 0;
     }
 
+    private static XBoxKey[] axisKeys=null;
+
+    /**
+     * 获得组合键的轴百分比（如果含有轴的话）；非轴时返回1
+     *
+     * 由于前面是isPressed才调用此方法，所以此方法不考虑按钮是否按下
+     * @param gamepad
+     * @param keyMask
+     * @return
+     */
     public static float getAxisPercent2(ISGPS5Gamepad gamepad,int keyMask){
         if(0==keyMask){
             return 1;
         }
-        for (XBoxKey key:XBoxKey.values()
-             ) {
+        if(null==axisKeys){
+
+            //L2和stick组合时，最好优先用stick, 这样便于模拟鼠标的360度斜向
+            axisKeys=new XBoxKey[]{
+                    XBoxKey.stick2Up,XBoxKey.stick2Down,XBoxKey.stick2Left,XBoxKey.stick2Right,
+                    XBoxKey.stick1Up,XBoxKey.stick1Down,XBoxKey.stick1Left,XBoxKey.stick1Right,
+                    XBoxKey.R2,XBoxKey.L2
+            };
+        }
+
+        for (XBoxKey key:axisKeys
+        ) {
             if(SGDataHelper.EnumHasFlag(keyMask,key.getBinary())){
-                switch (key){
-                    case L2:
-                    case R2:
-                    case stick1Up:
-                    case stick1Down:
-                    case stick1Left:
-                    case stick1Right:
-                    case stick2Up:
-                    case stick2Down:
-                    case stick2Left:
-                    case stick2Right:
-                        return getAxisPercent(gamepad,key);
-                    default:
-                        break;
-                }
+                return getAxisPercent(gamepad,key);
             }
         }
+        //L2和stick组合时，最好优先用stick, 这样便于模拟鼠标
+//        for (XBoxKey key:axisKeys
+////        XBoxKey key:XBoxKey.values()
+//             ) {
+//            if(SGDataHelper.EnumHasFlag(keyMask,key.getBinary())){
+//                switch (key){
+//                    case L2:
+//                    case R2:
+//                    case stick1Up:
+//                    case stick1Down:
+//                    case stick1Left:
+//                    case stick1Right:
+//                    case stick2Up:
+//                    case stick2Down:
+//                    case stick2Left:
+//                    case stick2Right:
+//                        return getAxisPercent(gamepad,key);
+//                    default:
+//                        break;
+//                }
+//            }
+//        }
         return 1;
     }
 }
