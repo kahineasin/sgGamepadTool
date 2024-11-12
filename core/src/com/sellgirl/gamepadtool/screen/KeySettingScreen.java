@@ -12,6 +12,7 @@ import com.badlogic.gdx.controllers.Controllers;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -53,6 +54,7 @@ import com.sellgirl.sgGameHelper.tabUi.SGTabUpDownMap;
 import com.sellgirl.sgGameHelper.tabUi.TabUi;
 import com.sellgirl.sgJavaHelper.SGAction;
 import com.sellgirl.sgJavaHelper.SGRef;
+import com.sellgirl.sgJavaHelper.config.SGDataHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -139,7 +141,7 @@ public class KeySettingScreen implements Screen {
 	HashMap<String,Label> keySettingLbls = null;
 	HashMap<String,Label> mouseKeySettingLbls = null;
 
-	HashMap<String,Label> combinKeyLbls = null;
+	//HashMap<String,Label> combinKeyLbls = null;
 //	HashMap<String,Label> combinKeySettingLbls = null;
 	HashMap<Integer,Label> combinKeySettingLbls = null;
 	HashMap<Integer,Label> combineMouseKeySettingLbls = null;
@@ -810,7 +812,7 @@ public class KeySettingScreen implements Screen {
 		table.row();
 
 
-		combinKeyLbls=new LinkedHashMap<>();
+		//combinKeyLbls=new LinkedHashMap<>();
 //		combinKeySettingLbls=new LinkedHashMap<>();
 		TextButton combinKeyBtn=new TextButton(TXT.g("add combin key"), skin);
 		combinKeyBtn.addListener(new ClickListener() {
@@ -1920,6 +1922,110 @@ int keyValue
 //
 //		}
 //	}
+
+//	@Deprecated
+//	private void ensureCurrentInViewOld(){
+//		if(null!=tabMap.getCurrent()) {
+//			Actor actor2=(Actor) tabMap.getCurrent();
+//			//ensureCurrentInView2(actor2);
+//
+//			if(null==actorRef){actorRef=new SGRef<>();}
+//			//旧方法，actorRef是取scrollPanel.actor.children
+//			// 因为combineBtn是在一个较大的容器中，这样会一下滚到容器的最后
+//			ScrollPane scrollPane = this.isInScrollPanel(actor2,actorRef);
+//			Actor actor=actorRef.GetValue();
+//			if (null != scrollPane ) {
+//
+//				float panMaxHeight=scrollPane.getActor().getHeight();//pan.getMaxHeight()永远是0，gdx旧版本就有值
+//				float needHeight=0f;
+//				boolean isInView=false;
+//				needHeight=panMaxHeight-actor.getY();
+//				isInView=needHeight-scrollPane.getScrollY()>0
+//						&&needHeight-scrollPane.getScrollY()<scrollPane.getHeight();
+//
+//				if(test){
+//					//panMaxHeight:2556.0 actorY:2530.0 needHeight:26.0 isInView:true scrollY:-321.0
+//					System.out.println(SGDataHelper.FormatString(
+//							"panMaxHeight:{0} actorY:{1} needHeight:{2} isInView:{3} scrollY:{4} "
+//							,panMaxHeight,actor.getY(),needHeight,isInView,(needHeight-(scrollPane.getHeight()/2f))
+//					));
+//				}
+//				if(!isInView){
+//					scrollPane.setScrollY(needHeight-(scrollPane.getHeight()/2f));
+//				}
+//
+//			}
+//		}
+//	}
+//
+//	/**
+//	 * 这里转换为了舞台坐标，感觉没有必要
+//	 */
+//	@Deprecated
+//	private void ensureCurrentInViewOld2(){
+//		if(null!=tabMap.getCurrent()) {
+//			Actor actor2=(Actor) tabMap.getCurrent();
+//			//ensureCurrentInView2(actor2);
+//
+//			if(null==actorRef){actorRef=new SGRef<>();}
+//			ScrollPane scrollPane = this.isInScrollPanel(actor2,actorRef);
+//			Actor actor=actorRef.GetValue();
+//			if (null != scrollPane ) {
+//
+//				//旧方法，因为combineBtn是在一个较大的容器中，这样会一下滚到容器的最后
+////				float panMaxHeight=scrollPane.getActor().getHeight();//pan.getMaxHeight()永远是0，gdx旧版本就有值
+//				float needHeight=0f;
+//				boolean isInView=false;
+//
+////				needHeight=panMaxHeight-actor.getY();
+//
+//				if(null==tmp2){
+//					tmp2 = new Vector2();
+//					tmp3 = new Vector2();
+//				}
+//				Vector2 actorCoords =
+//						actor2.getParent()
+//								.localToStageCoordinates(tmp2.set(actor2.getX(), actor2.getY()));
+//
+//				Vector2 actorCoords2 =
+//						scrollPane.getParent()
+//								.localToStageCoordinates(tmp3.set(scrollPane.getX(), scrollPane.getY()));
+////				needHeight=panMaxHeight-actorCoords.y;
+////				needHeight=panMaxHeight+actorCoords.y;
+////				needHeight=(scrollPane.getHeight()/2f);
+//				needHeight=(scrollPane.getHeight()/2f)+actorCoords2.y;
+//
+////				isInView=needHeight-scrollPane.getScrollY()>0
+////						&&needHeight-scrollPane.getScrollY()<scrollPane.getHeight();
+////				isInView=actorCoords.y>0
+////						&&actorCoords.y<scrollPane.getHeight();
+////				isInView=actorCoords.y>actorCoords2.y
+////						&&actorCoords.y<scrollPane.getHeight()+actorCoords2.y;
+//				isInView=actorCoords.y>actorCoords2.y
+//						&&actor2.getHeight()+ actorCoords.y<scrollPane.getHeight()+actorCoords2.y;
+//
+////				x:798.0 y846.0 x2:721.0 y2:202.0
+////				scrollPanelH:694.0 needHeight:549.0 isInView:true scrollY:-297.0
+//
+//				float scrollY=needHeight-((actor2.getHeight()/2f)+actorCoords.y);
+//				if(test) {
+//					System.out.println(SGDataHelper.FormatString(
+//							"x:{0} y{1} x2:{2} y2:{3}\r\n scrollPanelH:{4} needHeight:{5} isInView:{6} scrollY:{7}"
+//							, actorCoords.x, actorCoords.y, actorCoords2.x, actorCoords2.y
+//							, scrollPane.getHeight(), needHeight, isInView, scrollY
+//					));
+//				}
+//				if(!isInView){
+////					scrollPane.setScrollY(needHeight-(scrollPane.getHeight()/2f));
+////					scrollPane.setScrollY(needHeight-actorCoords.y);
+//					scrollPane.setScrollY(scrollPane.getScrollY()+ scrollY);
+//				}
+//
+//			}
+//		}
+//
+//	}
+
 	private void ensureCurrentInView(){
 		if(null!=tabMap.getCurrent()) {
 			Actor actor2=(Actor) tabMap.getCurrent();
@@ -1927,29 +2033,111 @@ int keyValue
 
 			if(null==actorRef){actorRef=new SGRef<>();}
 			ScrollPane scrollPane = this.isInScrollPanel(actor2,actorRef);
-			Actor actor=actorRef.GetValue();
+			//Actor actor=actorRef.GetValue();
 			if (null != scrollPane ) {
 
-				float panMaxHeight=scrollPane.getActor().getHeight();//pan.getMaxHeight()永远是0，gdx旧版本就有值
-
-
+				//旧方法，因为combineBtn是在一个较大的容器中，这样会一下滚到容器的最后
+//				float panMaxHeight=scrollPane.getActor().getHeight();//pan.getMaxHeight()永远是0，gdx旧版本就有值
 				float needHeight=0f;
 				boolean isInView=false;
-				needHeight=panMaxHeight-actor.getY();
-				isInView=needHeight-scrollPane.getScrollY()>0
-						&&needHeight-scrollPane.getScrollY()<scrollPane.getHeight();
+
+//				needHeight=panMaxHeight-actor.getY();
+
+				if(null==tmp4){
+//					tmp2 = new Vector2();
+//					tmp3 = new Vector2();
+					tmp4 = new Vector2();
+				}
+//				Vector2 actorCoords =
+//						actor2.getParent()
+//								.localToStageCoordinates(tmp2.set(actor2.getX(), actor2.getY()));
+//				//隔层不行
+//				Vector2 actorCoords3 =
+//						scrollPane
+//								.localToParentCoordinates(tmp4.set(actor2.getX(), actor2.getY()));
+				Vector2 actorCoords =
+						actor2.getParent()
+								.localToAscendantCoordinates(scrollPane,tmp4.set(actor2.getX(), actor2.getY()));
+
+//				Vector2 actorCoords2 =
+//						scrollPane.getParent()
+//								.localToStageCoordinates(tmp3.set(scrollPane.getX(), scrollPane.getY()));
+
+//				needHeight=panMaxHeight-actorCoords.y;
+//				needHeight=panMaxHeight+actorCoords.y;
+				needHeight=(scrollPane.getHeight()/2f);
+//				needHeight=(scrollPane.getHeight()/2f)+actorCoords2.y;
+
+//				isInView=needHeight-scrollPane.getScrollY()>0
+//						&&needHeight-scrollPane.getScrollY()<scrollPane.getHeight();
+//				isInView=actorCoords.y>0
+//						&&actorCoords.y<scrollPane.getHeight();
+//				isInView=actorCoords.y>actorCoords2.y
+//						&&actorCoords.y<scrollPane.getHeight()+actorCoords2.y;
+//				isInView=actorCoords.y>actorCoords2.y
+//						&&actor2.getHeight()+ actorCoords.y<scrollPane.getHeight()+actorCoords2.y;
+				isInView=actorCoords.y>0f
+						&&actor2.getHeight()+ actorCoords.y<scrollPane.getHeight();
+
+//				x:798.0 y846.0 x2:721.0 y2:202.0
+//				scrollPanelH:694.0 needHeight:549.0 isInView:true scrollY:-297.0
+
+				float scrollY=needHeight-((actor2.getHeight()/2f)+actorCoords.y);
+				if(test) {
+					System.out.println(SGDataHelper.FormatString(
+							"x:{0} y{1} x2:{2} y2:{3}\r\n scrollPanelH:{4} needHeight:{5} isInView:{6} scrollY:{7}"
+							, actorCoords.x, actorCoords.y, 0,0//actorCoords2.x, actorCoords2.y
+							, scrollPane.getHeight(), needHeight, isInView, scrollY
+					));
+
+//					System.out.println(SGDataHelper.FormatString(
+//							"x:{0} y{1} x2:{2} y2:{3}\r\n scrollPanelH:{4} needHeight:{5} isInView:{6} scrollY:{7}"
+//							, actorCoords3.x, actorCoords3.y, actorCoords2.x, actorCoords2.y
+//							, scrollPane.getHeight(), needHeight, isInView, scrollY
+//					));
+				}
 				if(!isInView){
-					scrollPane.setScrollY(needHeight-(scrollPane.getHeight()/2f));
+//					scrollPane.setScrollY(needHeight-(scrollPane.getHeight()/2f));
+//					scrollPane.setScrollY(needHeight-actorCoords.y);
+					scrollPane.setScrollY(scrollPane.getScrollY()+ scrollY);
 				}
 
 			}
 		}
+
 	}
+
 	private boolean isPopupsOpen(Dialog dialog){
 		return !(null == dialog || (!dialog.isVisible()) || null == dialog.getStage());
 	}
+	private boolean test=false;
+	 private  Vector2 tmp2 = null;
+	private  Vector2 tmp3 = null;
+	private  Vector2 tmp4 = null;
+	//private  TextButton[] tmpTBtnArr = null;
 	@Override
 	public void render(float delta) {
+//		if(test){
+//			if(null!=this.combinKeyBtns&&!combinKeyBtns.isEmpty()
+//			&&null!=sgcontroller&&sgcontroller.isTRIANGLE()){
+//				if(null==tmp2){
+//					tmp2 = new Vector2();
+//				}
+//				test=false;
+//				Actor actor=combinKeyBtns.values().toArray(new TextButton[combinKeyBtns.size()])[combinKeyBtns.size()-1];
+//				Actor crollPanelTmp=actor.getParent().getParent().getParent();
+//				boolean b=crollPanelTmp==this.scrollPane;
+//				Vector2 actorCoords =
+////						scrollPane
+//				actor.getParent()
+//								.localToStageCoordinates(tmp2.set(actor.getX(), actor.getY()));  //来自TextField
+//				System.out.println(SGDataHelper.FormatString(
+//						"x:{0} y{1} x2:{2} y2:{3}\r\n scrollPanel:\r\n x:{4} y:{5}\r\n{6}"
+//						,actor.getX(),actor.getY(),actorCoords.x,actorCoords.y
+//						,scrollPane.getX(),scrollPane.getY(),b
+//				));
+//			}
+//		}
 
 		if(!ok){
 
