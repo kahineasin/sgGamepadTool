@@ -2041,7 +2041,7 @@ int keyValue
 				float needHeight=0f;
 				boolean isInView=false;
 
-//				needHeight=panMaxHeight-actor.getY();
+
 
 				if(null==tmp4){
 //					tmp2 = new Vector2();
@@ -2063,19 +2063,7 @@ int keyValue
 //						scrollPane.getParent()
 //								.localToStageCoordinates(tmp3.set(scrollPane.getX(), scrollPane.getY()));
 
-//				needHeight=panMaxHeight-actorCoords.y;
-//				needHeight=panMaxHeight+actorCoords.y;
 				needHeight=(scrollPane.getHeight()/2f);
-//				needHeight=(scrollPane.getHeight()/2f)+actorCoords2.y;
-
-//				isInView=needHeight-scrollPane.getScrollY()>0
-//						&&needHeight-scrollPane.getScrollY()<scrollPane.getHeight();
-//				isInView=actorCoords.y>0
-//						&&actorCoords.y<scrollPane.getHeight();
-//				isInView=actorCoords.y>actorCoords2.y
-//						&&actorCoords.y<scrollPane.getHeight()+actorCoords2.y;
-//				isInView=actorCoords.y>actorCoords2.y
-//						&&actor2.getHeight()+ actorCoords.y<scrollPane.getHeight()+actorCoords2.y;
 				isInView=actorCoords.y>0f
 						&&actor2.getHeight()+ actorCoords.y<scrollPane.getHeight();
 
