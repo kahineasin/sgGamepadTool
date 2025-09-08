@@ -1,0 +1,210 @@
+
+
+//sourceCompatibility = 1.8
+//sourceSets.main.java.srcDirs = [ "src/" ]
+//sourceSets.main.resources.srcDirs = ["../assets"]
+//
+//project.ext.mainClassName = "com.sellgirl.gamepadtool.DesktopLauncher"
+//project.ext.assetsDir = new File("../assets")
+
+//import org.gradle.internal.os.OperatingSystem
+
+
+buildscript {
+    repositories {
+        maven { url 'file://D:/maven_repository'}
+        gradlePluginPortal()
+    }
+    dependencies {
+        classpath "io.github.fourlastor:construo:1.4.2"
+        if(enableGraalNative == 'true') {
+            classpath "org.graalvm.buildtools.native:org.graalvm.buildtools.native.gradle.plugin:0.9.28"
+        }
+    }
+}
+plugins {
+    id "application"
+}
+apply plugin: 'io.github.fourlastor.construo'
+
+import io.github.fourlastor.construo.Target
+import org.gradle.api.JavaVersion
+import org.gradle.api.file.DuplicatesStrategy
+
+sourceSets.main.resources.srcDirs += [ rootProject.file('assets').path ]
+mainClassName = 'com.sellgirl.gamepadtool.lwjgl3.Lwjgl3Launcher'
+application.setMainClass(mainClassName)
+eclipse.project.name = appName + '-lwjgl3'
+java.sourceCompatibility = 17
+java.targetCompatibility = 17
+if (JavaVersion.current().isJava9Compatible()) {
+    compileJava.options.release.set(17)
+}
+dependencies {
+    implementation "com.badlogicgames.gdx-controllers:gdx-controllers-desktop:$gdxControllersVersion"
+    implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
+    implementation "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop"
+    implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+    implementation project(':core')
+
+//    api "com.badlogicgames.gdx:gdx-bullet-platform:$gdxVersion:natives-desktop"
+//    api "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
+//    implementation 'com.sun.mail:javax.mail:1.6.2'
+
+    if(enableGraalNative == 'true') {
+        implementation "io.github.berstanio:gdx-svmhelper-backend-lwjgl3:$graalHelperVersion"
+        implementation "io.github.berstanio:gdx-svmhelper-extension-freetype:$graalHelperVersion"
+    }
+
+//    implementation "com.sellgirl:sgJavaHelper:$sgVersion"
+
+}
+
+def os = System.properties['os.name'].toLowerCase()
+
+//tasks.register('run', JavaExec) {
+//    dependsOn classes
+//    mainClass = project.mainClassName
+//    classpath = sourceSets.main.runtimeClasspath
+//    standardInput = System.in
+//    workingDir = project.assetsDir
+//    ignoreExitValue = true
+//
+//    if (OperatingSystem.current() == OperatingSystem.MAC_OS) {
+//        // Required to run on macOS
+//        jvmArgs += "-XstartOnFirstThread"
+//    }
+//}
+//
+//tasks.register('debug', JavaExec) {
+//    dependsOn classes
+//    mainClass = project.mainClassName
+//    classpath = sourceSets.main.runtimeClasspath
+//    standardInput = System.in
+//    workingDir = project.assetsDir
+//    ignoreExitValue = true
+//    debug = true
+//}
+//
+
+run {
+    workingDir = rootProject.file('assets').path
+    setIgnoreExitValue(true)
+
+    if (os.contains('mac')) jvmArgs += "-XstartOnFirstThread"
+}
+
+
+jar {
+// sets the name of the .jar file this produces to the name of the game or app, with the version after.
+    archiveFileName.set("${appName}-${projectVersion}.jar")
+// the duplicatesStrategy matters starting in Gradle 7.0; this setting works.
+    duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
+    dependsOn configurations.runtimeClasspath
+    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+// these "exclude" lines remove some unnecessary duplicate files in the output JAR.
+    exclude('META-INF/INDEX.LIST', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
+    dependencies {
+        exclude('META-INF/INDEX.LIST', 'META-INF/maven/**')
+    }
+// setting the manifest makes the JAR runnable.
+    manifest {
+        attributes 'Main-Class': project.mainClassName
+    }
+// this last step may help on some OSes that need extra instruction to make runnable JARs.
+    doLast {
+        file(archiveFile).setExecutable(true, false)
+    }
+}
+
+construo {
+    // name of the executable
+    name.set(appName)
+    // human-readable name, used for example in the `.app` name for macOS
+    humanName.set(appName)
+    // Optional, defaults to project version property
+    version.set("$projectVersion")
+
+    targets.configure {
+        create("linuxX64", Target.Linux) {
+            architecture.set(Target.Architecture.X86_64)
+            jdkUrl.set("https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.12%2B7/OpenJDK17U-jdk_x64_linux_hotspot_17.0.12_7.tar.gz")
+        }
+        create("macM1", Target.MacOs) {
+            architecture.set(Target.Architecture.AARCH64)
+            jdkUrl.set("https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.12%2B7/OpenJDK17U-jdk_aarch64_mac_hotspot_17.0.12_7.tar.gz")
+            // macOS needs an identifier
+            identifier.set("com.mygdx.game." + appName)
+            // Optional: icon for macOS
+            macIcon.set(project.file("icons/logo.icns"))
+        }
+        create("macX64", Target.MacOs) {
+            architecture.set(Target.Architecture.X86_64)
+            jdkUrl.set("https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.12%2B7/OpenJDK17U-jdk_x64_mac_hotspot_17.0.12_7.tar.gz")
+            // macOS needs an identifier
+            identifier.set("com.mygdx.game." + appName)
+            // Optional: icon for macOS
+            macIcon.set(project.file("icons/logo.icns"))
+        }
+        create("winX64", Target.Windows) {
+            architecture.set(Target.Architecture.X86_64)
+            jdkUrl.set("https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.12%2B7/OpenJDK17U-jdk_x64_windows_hotspot_17.0.12_7.zip")
+        }
+    }
+}
+
+//tasks.register('dist', Jar) {
+//    duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
+//    manifest {
+//        attributes 'Main-Class': project.mainClassName
+//    }
+//    dependsOn configurations.runtimeClasspath
+//    from {
+//        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+//    }
+//    with jar
+//}
+tasks.register('dist') {
+    dependsOn 'jar'
+}
+
+tasks.register('proguardx', proguard.gradle.ProGuardTask) {
+    configuration file('proguard.pro')
+
+    dependsOn("dist")
+
+//    injars(layout.buildDirectory.file("libs/desktop-1.0.jar"))
+    injars(layout.buildDirectory.file("libs/GamepadTool-1.0.0.jar"))
+
+    verbose
+
+    outjars(layout.buildDirectory.file("libs/sgGamepadTool-fusion.jar"))
+
+
+}
+//
+//dist.dependsOn classes
+//
+//eclipse.project.name = appName + "-desktop"
+
+
+distributions {
+    main {
+        contents {
+            into('libs') {
+                project.configurations.runtimeClasspath.files.findAll { file ->
+                    file.getName() != project.tasks.jar.outputs.files.singleFile.name
+                }.each { file ->
+                    exclude file.name
+                }
+            }
+        }
+    }
+}
+
+startScripts.dependsOn(':lwjgl3:jar')
+startScripts.classpath = project.tasks.jar.outputs.files
+
+if(enableGraalNative == 'true') {
+    apply from: file("nativeimage.gradle")
+}

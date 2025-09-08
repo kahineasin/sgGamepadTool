@@ -1,6 +1,48 @@
-sourceCompatibility = 1.7
+//sourceCompatibility = 1.7
+//[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+//
+//sourceSets.main.java.srcDirs = [ "src/" ]
+//
+//eclipse.project.name = appName + "-core"
+
+plugins {
+    // Apply the java-library plugin for API and implementation separation.
+    id 'java-library'
+    id 'maven-publish'
+}
+
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+eclipse.project.name = appName + '-core'
 
-sourceSets.main.java.srcDirs = [ "src/" ]
 
-eclipse.project.name = appName + "-core"
+dependencies {
+    api "com.badlogicgames.gdx-controllers:gdx-controllers-core:$gdxControllersVersion"
+    api "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
+    api "com.badlogicgames.gdx:gdx:$gdxVersion"
+
+//    api "com.badlogicgames.gdxpay:gdx-pay-client:$gdxPayVersion"
+//    api "com.badlogicgames.gdx:gdx-bullet:$gdxVersion"
+////        api "com.badlogicgames.gdx:gdx-ai:$aiVersion"
+////        api "com.badlogicgames.ashley:ashley:$ashleyVersion"
+//    api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
+//    api "com.badlogicgames.gdx:gdx-ai:$aiVersion"
+//
+//    if(enableGraalNative == 'true') {
+//        implementation "io.github.berstanio:gdx-svmhelper-annotations:$graalHelperVersion"
+//    }
+
+    implementation "com.sellgirl:sgJavaHelper:$sgVersion"
+    implementation "com.sellgirl:sgGameHelper:$sgGameVersion"
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication){
+            groupId = "com.sellgirl"
+            artifactId = "gamepadtool"
+            version = "1.0"
+
+            from(components["java"])
+        }
+    }
+}
