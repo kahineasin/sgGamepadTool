@@ -8,6 +8,7 @@ import com.badlogic.gdx.Preferences;
 //import com.mygdx.game.sasha.util.Constants;
 //import com.mygdx.game.sasha.util.LocalSaveSettingHelperBase;
 //import com.mygdx.game.share.SGDataHelper7;
+import com.badlogic.gdx.math.Vector2;
 import com.sellgirl.gamepadtool.model.KeySimulateItem;
 import com.sellgirl.gamepadtool.util.Constants;
 import com.sellgirl.gamepadtool.util.LocalSaveSettingHelperBase;
@@ -115,6 +116,27 @@ public class LocalSaveSettingHelper2 extends LocalSaveSettingHelperBase<IKnightS
         sasha.setCombinedMap2(map);
         return sasha;
     }
+
+    protected String getMouseBezierEncodeStrByGameKey(IKnightSashaGameKey sasha) {
+
+        String str = JSONObject.toJSONString(sasha.getMouseBezier());
+        try {
+            return AES.AESEncryptDemo(str, SGDataHelper.decodeBase64(key));
+        } catch (Exception e) {
+            //hasReadError=true;
+            SGDataHelper.getLog().printException(e,tag+".getMouseBezierEncodeStrByGameKey ");
+        }
+        return null;
+    }
+
+    protected  IKnightSashaGameKey initMouseBezierByEncodeStr(String s,IKnightSashaGameKey sasha) throws Exception {
+
+        List<Vector2> map=JSONObject.parseObject(AES.AESDecryptDemo(s, SGDataHelper.decodeBase64(key)),
+                new TypeReference<List<Vector2>>(){});
+
+        sasha.setMouseBezier(map);
+        return sasha;
+    }
     public List<String> getSettings(String gamepadName){
 
         Preferences preferences = Gdx.app.getPreferences(getFileKey());
@@ -177,6 +199,7 @@ public class LocalSaveSettingHelper2 extends LocalSaveSettingHelperBase<IKnightS
             if(null==gameKey){
                 preferences.remove(gamepadName+setting);
                 preferences.remove(gamepadName+setting+"_combine");
+                preferences.remove(gamepadName+setting+"_mouseBezier");
                 for(int i=r.size()-1;0<=i;i--){
                     if(r.get(i).equals(setting)){
                         r.remove(setting);
@@ -185,6 +208,7 @@ public class LocalSaveSettingHelper2 extends LocalSaveSettingHelperBase<IKnightS
             }else{
                 preferences.putString(gamepadName+setting, getEncodeStrByGameKey(gameKey));
                 preferences.putString(gamepadName+setting+"_combine", getCombineMapEncodeStrByGameKey(gameKey));
+                preferences.putString(gamepadName+setting+"_mouseBezier", getMouseBezierEncodeStrByGameKey(gameKey));
                 boolean exist=false;
                 for(int i=r.size()-1;0<=i;i--){
                     if(r.get(i).equals(setting)){
@@ -231,6 +255,18 @@ public class LocalSaveSettingHelper2 extends LocalSaveSettingHelperBase<IKnightS
             } else {
                 gameKey=initCombineMapGameKeyByEncodeStr(s2, gameKey);
                 //return initGameKeyByEncodeStr(s, gameKey);
+            }
+        }catch (Throwable e2){
+            SGDataHelper.getLog().printException(e2,tag);
+        }
+
+        try {
+            String s2 = preferences.getString(gamepadName+"_mouseBezier");
+
+            if (null == s2 || "".equals(s2)) {
+                //return null;
+            } else {
+                gameKey=initMouseBezierByEncodeStr(s2, gameKey);
             }
         }catch (Throwable e2){
             SGDataHelper.getLog().printException(e2,tag);

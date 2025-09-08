@@ -9,6 +9,9 @@ import com.badlogic.gdx.controllers.Controllers;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.BSpline;
+import com.badlogic.gdx.math.Bezier;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -49,6 +52,7 @@ import com.sellgirl.sgGameHelper.list.Array2;
 import com.sellgirl.sgGameHelper.list.ISGList;
 import com.sellgirl.sgGameHelper.tabUi.TabUi;
 import com.sellgirl.sgJavaHelper.SGAction;
+import com.sellgirl.sgJavaHelper.SGVectorHelper;
 import com.sellgirl.sgJavaHelper.config.SGDataHelper;
 
 import java.awt.AWTException;
@@ -233,6 +237,16 @@ public class SimulateScreen implements Screen {
 
 		this.gamepad=gamepad;
 		gameKey.setGamepad(gamepad);
+
+		if(null!=gameKey.getMouseBezier()&&gameKey.getMouseBezier().size()>5){
+			int size=gameKey.getMouseBezier().size();
+			bezier=new BSpline<Vector2>(
+//					gameKey.getMouseBezier().subList(1,size-1).toArray(new Vector2[size-2]),3,false) ;
+			gameKey.getMouseBezier().toArray(new Vector2[size]),3,false) ;
+			if(null==bezierOut) {
+				bezierOut = new Vector2();
+			}
+		}
 
 //		if(SGPS5Gamepad.class==gamepad.getClass()){
 //			SGPS5Gamepad tmp=(SGPS5Gamepad) gamepad;
@@ -1115,8 +1129,26 @@ public class SimulateScreen implements Screen {
 
 					int doX=((Float)(mouseX)).intValue();
 					int doY=((Float)(mouseY)).intValue();
+////					double doX=mouseX;
+////					double doY=mouseY;
+//
+//					if(null!=bezier){
+//						//极坐标
+//						Double theta=Math.atan2(mouseY, mouseX);
+//						double len=SGVectorHelper.len2(new float[]{mouseY,mouseX,0});
+//						if(0<len){len=Math.sqrt(len);}
+//						len=bezier.valueAt(bezierOut,((Double)len).floatValue()).x;//这里x范围较大,另外曲线一定要作用到极坐标
+//						doX= (int) (len*Math.cos(theta));
+//						doY= (int) (len*Math.sin(theta));
+//					}
+//					doX*=speed;
+//					doY*=speed;
+//					int iDoX= (int) doX;
+//					int iDoY= (int) doY;
 					robot.mouseMove(doX+mouseLocation.x,
 							doY+ mouseLocation.y);
+//					robot.mouseMove((int) (doX*speed+mouseLocation.x),
+//                            (int) (doY*speed+ mouseLocation.y));
 					mouseX-=doX;
 					mouseY-=doY;
 				}
@@ -1283,6 +1315,9 @@ public class SimulateScreen implements Screen {
 	//鼠标滚轮
 	private float scrollY=0;
 //	private boolean test=true;
+//	private Bezier<Vector2> bezier=null;
+	private BSpline<Vector2> bezier=null;
+	private Vector2 bezierOut=null;
 	private int simulateByMap(boolean isCombine,
 							   ISGList<KeySimulateItem> gameKeyMap2,
 							   int historyId){
@@ -1394,25 +1429,31 @@ public class SimulateScreen implements Screen {
 								percent=GameKey.getAxisPercent(gameKey.getGamepad(),padKey);
 							}
 						}
-
+						if(null!=bezier){
+							percent=bezier.valueAt(bezierOut,percent).x;//这里x范围较大
+						}
 						switch (dstKeyEnum){
 							case UP:
 								mouseY-=speed*percent;
+//								mouseY-=percent;
 								//robot.mouseMove(0, mouseY);
 								break;
 							case DOWN:
 								//y-=speed;
 								mouseY+=speed*percent;
+//								mouseY+=percent;
 //										robot.mouseMove(0, mouseY);
 								break;
 							case LEFT:
 								//x-=speed;
 								mouseX-=speed*percent;
+//								mouseX-=percent;
 //										robot.mouseMove( mouseX,0);
 								break;
 							case RIGHT:
 //										x+=speed;
 								mouseX+=speed*percent;
+//								mouseX+=percent;
 //										if(0!=x||0!=y) {
 //											robot.mouseMove(x, y);
 //										}

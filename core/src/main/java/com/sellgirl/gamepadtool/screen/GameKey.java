@@ -2,8 +2,10 @@ package com.sellgirl.gamepadtool.screen;
 
 import com.badlogic.gdx.Input;
 //import com.mygdx.game.share.gamepad.ISGPS5Gamepad;
+import com.badlogic.gdx.math.Vector2;
 import com.sellgirl.gamepadtool.model.KeySimulateItem;
 import com.sellgirl.sgGameHelper.gamepad.ISGPS5Gamepad;
+import com.sellgirl.sgGameHelper.gamepad.SGPS5Gamepad;
 import com.sellgirl.sgGameHelper.gamepad.XBoxKey;
 import com.sellgirl.sgJavaHelper.config.SGDataHelper;
 
@@ -96,7 +98,11 @@ public class GameKey implements IKnightSashaGameKey//extends GameKeyBase
 
     private ISGPS5Gamepad gamepad=null;
     public void update(){
-        gamepadMask=gamepad.getQuickBtnKey();
+        if(SGPS5Gamepad.class==gamepad.getClass()){
+            gamepadMask =SGPS5Gamepad.getQuickBtnKey(gamepad,SGPS5Gamepad.QuickBtnType.NORMAL.getBinary()|SGPS5Gamepad.QuickBtnType.STICK.getBinary());
+        }else {
+            gamepadMask = gamepad.getQuickBtnKey();
+        }
         //        //XBoxKey r=null;
 //        int mask=0;
 //
@@ -507,6 +513,13 @@ public class GameKey implements IKnightSashaGameKey//extends GameKeyBase
     }
     public List<KeySimulateItem> getKeyMap(){
         return keyMap;
+    }
+    private List<Vector2> mouseBezier=null;
+    public void setMouseBezier(List< Vector2> mouseBezier){
+        this.mouseBezier=mouseBezier;
+    }
+    public List<Vector2> getMouseBezier(){
+        return mouseBezier;
     }
     public static List< KeySimulateItem> intDefaultKeyMap(List< KeySimulateItem> r){
         //HashMap<String,Integer> r=new HashMap<>();

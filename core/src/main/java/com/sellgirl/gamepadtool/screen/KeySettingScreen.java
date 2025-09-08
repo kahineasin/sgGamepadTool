@@ -6,6 +6,7 @@ import static com.badlogic.gdx.scenes.scene2d.actions.Actions.touchable;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.TextInputListener;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.controllers.Controller;
 import com.badlogic.gdx.controllers.Controllers;
@@ -504,13 +505,19 @@ public class KeySettingScreen implements Screen {
 
 		// stage = new Stage(new ExtendViewport(800, 450));//如果二维码变型不能用时,就改为这句的方式
 		stage = new Stage(new StretchViewport(ScreenSetting.WORLD_WIDTH, ScreenSetting.WORLD_HEIGHT));
-		Gdx.input.setInputProcessor(stage);
+
+//		Gdx.input.setInputProcessor(stage);
+		mulProcess=new InputMultiplexer();
+		mulProcess.addProcessor(stage);
+//		mulProcess.addProcessor(inputListener);
+		Gdx.input.setInputProcessor(mulProcess);
 
 
 		prepareUI();
 
 //		loadGamepadSetting(pads.get(0));
 	}
+	protected InputMultiplexer mulProcess;
 
 	private final int pcCount = 0;
 	//private ArrayList<Actor> pcList = new ArrayList<Actor>();
@@ -871,6 +878,19 @@ public class KeySettingScreen implements Screen {
 			}
 		});
 
+		TextButton bezierBtn = new TextButton(TXT.g("mouse bezier"), skin);
+		bezierBtn.addListener(new ClickListener() {
+
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+
+				if (0 >= buttonWaitCount) {
+//					saveKey();
+					goToBezierPage();
+					buttonWaitCount=buttonWait;
+				}
+			}
+		});
 
 
 
@@ -887,7 +907,9 @@ public class KeySettingScreen implements Screen {
 		int spaceRight=10;
 		table.add(saveResultLbl).colspan(4).spaceBottom(spaceBottom);
 		table.row();
-		table.add(combinKeyBtn).colspan(4).spaceBottom(spaceBottom);
+//		table.add(combinKeyBtn).colspan(4).spaceBottom(spaceBottom);
+		table.add(combinKeyBtn).colspan(2).spaceBottom(spaceBottom);
+		table.add(bezierBtn).colspan(2).spaceBottom(spaceBottom);
 		table.row();
 		table.add(saveBtn).colspan(4).spaceBottom(spaceBottom)//.spaceRight(spaceRight)
 		;
@@ -909,9 +931,14 @@ public class KeySettingScreen implements Screen {
 		ISGTabNode node7 =tabMap.newNode(combinKeyBtn);
 		ISGTabNode node8 =tabMap.newNode(saveBtn);
 		ISGTabNode node9 =tabMap.newNode(backBtn);
+		ISGTabNode node10 =tabMap.newNode(bezierBtn);
 		node6.setDown(node7);
 		node7.setUp(node6);
 		node7.setDown(node8);
+		node7.setRight(node10);
+		node10.setLeft(node7);
+		node10.setUp(node6);
+		node10.setDown(node8);
 		node8.setUp(node7);
 		node8.setDown(node9);
 		node9.setUp(node8);
@@ -1749,6 +1776,16 @@ int keyValue
 		game.setScreen(new MainMenuScreen(game));
 		dispose();
 	}
+
+	private void goToBezierPage() {
+		pause();
+		game.setScreen(new BezierScreen(game,this,gameKey.getMouseBezier()));
+//		dispose();
+	}
+	public void saveBezier(List<Vector2> bezier){
+//		this.saveKey();
+		gameKey.setMouseBezier(bezier);
+	}
 //	private void goToKofGamePage() {
 //
 //		AssetManager manager = GameScreen.getAssetsManager();
@@ -2470,14 +2507,21 @@ int keyValue
 
 	}
 
-	@Override
-	public void pause() {
 
+	protected boolean isPaused=false;
+	@Override public void pause () {
+		if(!isPaused) {
+			isPaused=true;
+		}
 	}
-
-	@Override
-	public void resume() {
-
+	@Override public void resume () {
+		if(isPaused) {
+			isPaused=false;
+//            if(null!=touchPAUSE&&touchPAUSE.isChecked()){
+//                touchPAUSE.setChecked(false);
+//            }
+			Gdx.input.setInputProcessor(mulProcess);
+		}
 	}
 
 	@Override
