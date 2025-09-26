@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeBitmapFontData;
@@ -44,17 +45,23 @@ import com.sellgirl.gamepadtool.language.TXT;
 import com.sellgirl.gamepadtool.screen.GamepadSettingScreen;
 import com.sellgirl.gamepadtool.screen.KeySettingScreen;
 import com.sellgirl.gamepadtool.screen.SimulateScreen;
+import com.sellgirl.gamepadtool.util.Constants;
+import com.sellgirl.sgGameHelper.SGConfirmPopups;
+import com.sellgirl.sgGameHelper.SGFileDownloader;
 import com.sellgirl.sgGameHelper.SGGameHelper;
 import com.sellgirl.sgGameHelper.SGLibGdxHelper;
 import com.sellgirl.sgGameHelper.gamepad.ISGPS5Gamepad;
 import com.sellgirl.sgGameHelper.tabUi.TabUi;
+import com.sellgirl.sgJavaHelper.SGAction1;
 import com.sellgirl.sgJavaHelper.SGDate;
 import com.sellgirl.sgJavaHelper.antivirus.SGProcess;
 import com.sellgirl.sgJavaHelper.antivirus.SGProcessHelper;
 import com.sellgirl.sgJavaHelper.config.SGDataHelper;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.function.Consumer;
 
 public class MainMenuScreen implements Screen {
 //	private static final String tag="MainMenuScreen";
@@ -312,19 +319,33 @@ ISGPS5Gamepad sgcontroller;
 
 		stage.addActor(table);
 
-//		Table layerOptionsWindow = buildOptionsWindowLayer();
-//		stage.addActor(layerOptionsWindow);
-
-
-
-////		System.out.println("main screen b"+(++cnt));
-//		this.controller = SGLibGdxHelper.getGamepad();
-////		System.out.println("main screen e"+(cnt));
-//
-//		if (null != controller) {
-//			sgcontroller=new SGPS5Gamepad(controller);
-//			this.controller.addListener(new SGXInputControllerListener());
-//		}
+		if(Application.ApplicationType.Android==Gdx.app.getType()||Application.ApplicationType.Desktop==Gdx.app.getType()) {
+			getLastVersion(new SGAction1<String>() {
+				@Override
+				public void go(String s) {
+					String version = s;
+					if (null != version && 0 < SGDataHelper.compareVersion(version, gameVersion)) {
+						SGConfirmPopups confirmPopups= new SGConfirmPopups(SGDataHelper.FormatString(TXT.g("found new version {0}, update now?"), version),
+								new Consumer<Object>() {
+									@Override
+									public void accept(Object o) {
+//										if (Application.ApplicationType.Android == Gdx.app.getType()) {
+//											downloadJar(true);
+//										}
+										downloadJar(true);
+									}
+								},
+								skin
+						);
+						confirmPopups.show(stage);
+//                // 将对话框右下
+						confirmPopups.setPosition(
+								(stage.getWidth() - confirmPopups.getWidth()) *7f/ 8f,
+								(stage.getHeight() - confirmPopups.getHeight()) / 8f);
+					}
+				}
+			});
+		}
 	}
 	// private int cnt=0;
 
@@ -398,12 +419,43 @@ ISGPS5Gamepad sgcontroller;
 			buttonWaitCount = 0;
 		}
 
+//		final SGFileDownloader jarDownloader=game.getJarDownloader();
+		if(null!=game.getJarDownloader()&& game.getJarDownloader().downloading){
+			if(null==jarPB){
+				jarPB=new ProgressBar(0,100,1,false,skin);
+				jarPB.setX(ScreenSetting.WORLD_WIDTH*3f/4f);
+				jarPB.setY(ScreenSetting.WORLD_HEIGHT/4f);
+				stage.addActor(jarPB);
+			}
+			if(100<=game.getJarDownloader().progress){
+//				if(game instanceof AndroidMusicPlayer){
+//					((AndroidMusicPlayer)game).updateApk(Constants.EXTERNAL_APK_FILE);
+//				}else
+				if(Application.ApplicationType.Desktop== Gdx.app.getType()){// 启动更新脚本并退出当前应用
+					try {
+						new ProcessBuilder("cmd", "/c", "start", "updater.bat").start();
+						Gdx.app.exit();
+					} catch (IOException e) {
+						throw new RuntimeException(e);
+					}
+				}
+			}else{
+				jarPB.setValue(game.getJarDownloader().progress);
+			}
+		}
+
+
 //		ScreenUtils.clear(0, 0, 0.2f, 1);
 		ScreenUtils.clear(Color.PINK);
 //		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 //		stage.act(Gdx.graphics.getDeltaTime());
 		stage.act(delta);
 		stage.draw();
+
+		Batch batch=stage.getBatch();
+		batch.begin();
+		game.font.draw(batch,"version:"+gameVersion,ScreenSetting.WORLD_WIDTH-300,40);
+		batch.end();
 	}
 
 
@@ -1124,4 +1176,38 @@ ISGPS5Gamepad sgcontroller;
 				alpha(alphaTo, duration)));
 	}
 	/*------------------游戏设置相关 end------------------*/
+
+	/*------------------apk自动更新------------------*/
+//	private SGFileDownloader jarDownloader=null;
+	private ProgressBar jarPB=null;
+	private String gameVersion="1.0.0";
+	private void downloadJar(
+			boolean forceUpdate
+	) {
+		if(null!=game.getJarDownloader()){return;}
+		game.setJarDownloader(new SGFileDownloader());
+		switch (Gdx.app.getType()){
+//			case Android:
+//				game.getJarDownloader().download(Constants.APK_URL,Gdx.files.external( Constants.EXTERNAL_APK_FILE),forceUpdate);
+//				break;
+			case Desktop:
+				game.getJarDownloader().download(Constants.JAR_URL,Gdx.files.local( Constants.LOCAL_JAR_FILE),forceUpdate);
+				break;
+			default:
+				break;
+		}
+	}
+	public static void getLastVersion(SGAction1<String> action){
+		switch (Gdx.app.getType()){
+//			case Android:
+//				SGLibGdxHelper.getHttpStringAsync(Constants.LAST_VERSION_URL,action);
+//				break;
+			case Desktop:
+				SGLibGdxHelper.getHttpStringAsync(Constants.LAST_JAR_VERSION_URL,action);
+				break;
+			default:
+				break;
+		}
+	}
+	/*------------------apk自动更新 end------------------*/
 }

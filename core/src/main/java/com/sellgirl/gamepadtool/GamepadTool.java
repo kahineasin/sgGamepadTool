@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.sellgirl.sgGameHelper.SGFileDownloader;
 import com.sellgirl.sgGameHelper.SGGameHelper;
 import com.sellgirl.sgJavaHelper.SGDate;
 import com.sellgirl.sgJavaHelper.config.SGDataHelper;
@@ -66,4 +67,17 @@ public class GamepadTool extends Game //extends ApplicationAdapter
 //			e.printStackTrace();
 //		}
 	}
+
+	/*------------------apk自动更新------------------*/
+//     @Override
+	public SGFileDownloader getJarDownloader() {
+		return jarDownloader;
+	}
+
+	//     @Override
+	public void setJarDownloader(SGFileDownloader d) {
+		jarDownloader=d;
+	}
+	public SGFileDownloader jarDownloader=null;
+	/*------------------apk自动更新 end------------------*/
 }
