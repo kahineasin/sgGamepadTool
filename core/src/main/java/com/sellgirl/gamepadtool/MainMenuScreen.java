@@ -42,6 +42,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.sellgirl.gamepadtool.language.CN;
 import com.sellgirl.gamepadtool.language.TXT;
+import com.sellgirl.gamepadtool.phone.ControllerMappingScreen;
 import com.sellgirl.gamepadtool.screen.GamepadSettingScreen;
 import com.sellgirl.gamepadtool.screen.KeySettingScreen;
 import com.sellgirl.gamepadtool.screen.SimulateScreen;
@@ -464,7 +465,11 @@ ISGPS5Gamepad sgcontroller;
 //		game.setScreen(new com.mygdx.game.sasha.screen.KeySettingScreen(game, //manager,
 //				sasha));
 
-		game.setScreen(new SimulateScreen(game));
+		if(game instanceof AndroidGamepadTool){
+			game.setScreen(new ControllerMappingScreen((AndroidGamepadTool) game));
+		}else{
+			game.setScreen(new SimulateScreen(game));
+		}
 
 		dispose();
 

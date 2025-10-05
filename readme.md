@@ -13,3 +13,8 @@ GamepadTool 可以帮你用游戏手柄映射键盘的输入，他使用的是li
 
 # 发布地址
 [https://gitee.com/sellgirl/sgGamepadToolRelease/wikis/Home](https://gitee.com/sellgirl/sgGamepadToolRelease/wikis/Home)
+
+# 安卓版本
+## 为了使用无障碍min sdk from 19->24
+1. [build.gradle](android%2Fbuild.gradle)
+2. [project.properties](android%2Fproject.properties)

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="app_name">GamepadTool</string>
+  <!-- 为你的无障碍服务提供清晰的功能描述，这将在系统无障碍设置中显示给用户 -->
+  <string name="accessibility_service_description">用于将手柄按键映射到屏幕指定位置，实现触控模拟。</string>
+
+</resources>

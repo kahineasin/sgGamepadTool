@@ -1,0 +1,9 @@
+badlogic.jpg
+favicon.jpg
+font_cn.txt
+simhei.ttf
+skin/default.fnt
+skin/default.png
+skin/uiskin.atlas
+skin/uiskin.json
+skin/uiskin.png
