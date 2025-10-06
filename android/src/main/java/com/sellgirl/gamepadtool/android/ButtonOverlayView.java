@@ -33,6 +33,10 @@ public class ButtonOverlayView extends View {
 
     public ButtonOverlayView(Context context) {
         super(context);
+//        setFocusable(true);
+//        setFocusableInTouchMode(true);
+//        requestFocus();
+        setClickable(true); // 根据需求设置
         init();
     }
 
@@ -124,5 +128,11 @@ public class ButtonOverlayView extends View {
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         Log.d("FocusOverlay", "Key up: " + keyCode);
         return true;
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        // 不处理触摸事件，返回 false 让事件传递到下层
+        return false;
     }
 }

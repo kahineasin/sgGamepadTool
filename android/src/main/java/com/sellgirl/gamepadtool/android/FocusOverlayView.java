@@ -1,5 +1,6 @@
 package com.sellgirl.gamepadtool.android;
 import android.content.Context;
+import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -29,7 +30,9 @@ import java.util.Set;
 /**
  * 问题在于,view可以监听到touch事件，但是监听不到手柄的key事件 todo
  */
-public class FocusOverlayView extends View {
+public class FocusOverlayView extends View
+implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListener
+{
     private GamepadCallback callback;
 
     // 需要拦截的系统默认按键
@@ -47,11 +50,69 @@ public class FocusOverlayView extends View {
 
     public FocusOverlayView(Context context) {
         super(context);
-        setFocusable(true);
-        setFocusableInTouchMode(true);
-        requestFocus();
+//        setFocusable(true);
+//        setFocusableInTouchMode(true);
+//        requestFocus();
+        View v=this;
+//        v.setOnKeyListener(this);
+//        v.setOnTouchListener(this);
+//        v.setFocusable(true);
+//        v.setFocusableInTouchMode(true);
+//        v.requestFocus();
+//        v.setOnGenericMotionListener(this);
+        setupFocus();
     }
 
+    private void setupFocus() {
+        // 关键步骤1：设置为可获取焦点
+        setFocusable(true);
+        setFocusableInTouchMode(true); // 在触摸模式下也可聚焦
+
+        // 关键步骤2：请求焦点
+        requestFocus();
+
+        // 关键步骤3：设置按键监听器
+        setOnKeyListener(new OnKeyListener() {
+            @Override
+          public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if (isGamepadButton(keyCode)) {
+                    int action = event.getAction();
+
+                    if (action == KeyEvent.ACTION_DOWN && callback != null) {
+                        callback.onButtonPressed(keyCode, event.getDeviceId());
+                        return true; // 消费事件
+                    } else if (action == KeyEvent.ACTION_UP && callback != null) {
+                        callback.onButtonReleased(keyCode, event.getDeviceId());
+                        return true; // 消费事件
+                    }
+                }
+                return false;
+            }
+        });
+    }
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        // 再次确保获取焦点，因为此时View已附加到窗口
+        post(new Runnable() {
+            @Override
+            public void run() {
+                requestFocus();
+            }
+        });
+    }
+//    // 在FocusOverlayView中添加
+//    @Override
+//    public void onFocusChanged(boolean gainFocus, int direction, Rect previouslyFocusedRect) {
+//        super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
+//        Log.d("FocusOverlay", "Focus changed: " + gainFocus);
+//
+//        if (gainFocus) {
+//            setBackgroundColor(Color.argb(20, 0, 255, 0)); // 获取焦点时显示绿色背景
+//        } else {
+//            setBackgroundColor(Color.TRANSPARENT); // 失去焦点时透明
+//        }
+//    }
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         Log.d("FocusOverlay", "Key down: " + keyCode + ", source: " + event.getSource());
@@ -106,25 +167,25 @@ public class FocusOverlayView extends View {
 //        return super.dispatchKeyEvent(event);
 //    }
 
-    // 在 FocusOverlayView 中集成拦截器
-    @Override
-    public boolean dispatchKeyEvent(KeyEvent event) {
-        int keyCode = event.getKeyCode();
-        int action = event.getAction();
-
-        // 使用拦截器检查是否应该拦截
-        if (KeyInterceptor.getInstance().shouldIntercept(keyCode, action)) {
-            // 拦截这个事件
-            if (action == KeyEvent.ACTION_DOWN) {
-                onKeyDown(keyCode, event);
-            } else if (action == KeyEvent.ACTION_UP) {
-                onKeyUp(keyCode, event);
-            }
-            return true; // 消费事件，阻止系统处理
-        }
-
-        return super.dispatchKeyEvent(event);
-    }
+//    // 在 FocusOverlayView 中集成拦截器
+//    @Override
+//    public boolean dispatchKeyEvent(KeyEvent event) {
+//        int keyCode = event.getKeyCode();
+//        int action = event.getAction();
+//
+//        // 使用拦截器检查是否应该拦截
+//        if (KeyInterceptor.getInstance().shouldIntercept(keyCode, action)) {
+//            // 拦截这个事件
+//            if (action == KeyEvent.ACTION_DOWN) {
+//                onKeyDown(keyCode, event);
+//            } else if (action == KeyEvent.ACTION_UP) {
+//                onKeyUp(keyCode, event);
+//            }
+//            return true; // 消费事件，阻止系统处理
+//        }
+//
+//        return super.dispatchKeyEvent(event);
+//    }
     /**
      * 检查是否是游戏手柄按钮
      */
@@ -151,6 +212,21 @@ public class FocusOverlayView extends View {
 
     public void setCallback(GamepadCallback callback) {
         this.callback = callback;
+    }
+
+    @Override
+    public boolean onKey(View v, int keyCode, KeyEvent event) {
+        return false;
+    }
+
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        return false;
+    }
+
+    @Override
+    public boolean onGenericMotion(View v, MotionEvent event) {
+        return false;
     }
 
 //    public interface GamepadCallback {

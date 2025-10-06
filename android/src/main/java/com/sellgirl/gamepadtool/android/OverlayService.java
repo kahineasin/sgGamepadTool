@@ -43,10 +43,13 @@ public class OverlayService extends Service implements GamepadCallback {
     public void onCreate() {
         super.onCreate();
         setupButtonMappings();
+
+        bindGamepadService();
+
+        windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         createInputOverlay();
         showOverlay();
 
-        bindGamepadService();
     }
 
     @Override
@@ -66,10 +69,12 @@ public class OverlayService extends Service implements GamepadCallback {
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
+//                1, 1,
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ?
                         WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY :
                         WindowManager.LayoutParams.TYPE_PHONE,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |
+                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL |// 不拦截触摸(没有的话，touch无效)
+                        WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |
                         WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, // 注意：这里设置为不接收触摸
                 PixelFormat.TRANSLUCENT
         );
@@ -91,8 +96,15 @@ public class OverlayService extends Service implements GamepadCallback {
                 ViewGroup.LayoutParams.MATCH_PARENT
         ));
 
-        // 设置为可触摸（如果需要）
-        overlayView.setClickable(false); // 根据需求设置
+//        // 设置为可触摸（如果需要）
+//        overlayView.setClickable(false); // 根据需求设置
+
+        overlayView.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                return false;
+            }
+        });
 
         return overlayView;
     }
@@ -136,8 +148,8 @@ public class OverlayService extends Service implements GamepadCallback {
 //        ));
 //    }
 
-    private void createInputOverlay() {
-        windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+    private void createInputOverlayOld() {
+//        windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
 
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 1, 1, // 最小尺寸，几乎不可见
@@ -157,10 +169,58 @@ public class OverlayService extends Service implements GamepadCallback {
 
         focusOverlayView = new FocusOverlayView(this);
         focusOverlayView.setCallback(this);
+//        focusOverlayView.setOnKeyListener(new View.OnKeyListener() {
+//            @Override
+//            public boolean onKey(View v, int keyCode, KeyEvent event) {
+//                return false;
+//            }
+//        });
 
         windowManager.addView(focusOverlayView, params);
     }
+    private void createInputOverlay() {
+        //WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
 
+        WindowManager.LayoutParams params = new WindowManager.LayoutParams(
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ?
+                        WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY :
+                        WindowManager.LayoutParams.TYPE_PHONE,
+                // 关键：不要使用FLAG_NOT_FOCUSABLE，允许获取焦点
+                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL |
+                        WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH |
+                        WindowManager.LayoutParams.FLAG_SPLIT_TOUCH, // 允许触摸事件传递
+                PixelFormat.TRANSLUCENT
+        );
+
+        // 设置位置
+        params.gravity = Gravity.START | Gravity.TOP;
+        params.x = 0;
+        params.y = 0;
+
+        FocusOverlayView overlayView = new FocusOverlayView(this);
+        overlayView.setCallback(new GamepadCallback() {
+            @Override
+            public void onButtonPressed(int buttonCode, int deviceId) {
+//                handleGamepadButton(buttonCode, deviceId, true);
+                int a=1;
+            }
+
+            @Override
+            public void onButtonReleased(int buttonCode, int deviceId) {
+//                handleGamepadButton(buttonCode, deviceId, false);
+                int a=1;
+            }
+
+            @Override
+            public void onAxisMoved(int axis, float value, int deviceId) {
+                int a=1;
+            }
+        });
+
+        windowManager.addView(overlayView, params);
+    }
 //    @Override
 //    public void onButtonPressed(int buttonCode, int deviceId) {
 //        Log.d("OverlayService", "Button pressed: " + buttonCode);

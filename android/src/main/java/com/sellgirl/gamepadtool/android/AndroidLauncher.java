@@ -348,6 +348,7 @@ public class AndroidLauncher extends AndroidApplication {
 
 //        // 应用回到前台时停止悬浮窗（可选，根据需求）
         stopOverlayService();
+//        startOverlayService();
     }
     // 在请求权限前显示说明
     private void showOverlayPermissionExplanation() {
