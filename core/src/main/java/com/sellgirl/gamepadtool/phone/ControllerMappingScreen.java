@@ -3,7 +3,10 @@ package com.sellgirl.gamepadtool.phone;
 // ControllerMappingScreen.java
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.controllers.Controller;
+import com.badlogic.gdx.controllers.Controllers;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -12,6 +15,8 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.sellgirl.gamepadtool.AndroidGamepadTool;
 import com.sellgirl.gamepadtool.GamepadTool;
+import com.sellgirl.gamepadtool.MyInputProcessor;
+import com.sellgirl.gamepadtool.input.SGXInputControllerListener;
 import com.sellgirl.sgGameHelper.SGLibGdxHelper;
 import com.sellgirl.sgGameHelper.gamepad.ISGPS5Gamepad;
 import com.sellgirl.sgGameHelper.gamepad.XBoxKey;
@@ -41,6 +46,18 @@ public class ControllerMappingScreen implements Screen {
         setupDefaultKeyMapping();
 
         gamepad= SGLibGdxHelper.getSGGamepad();
+
+        InputMultiplexer multiplexer = new InputMultiplexer();
+        multiplexer.addProcessor(new MyInputProcessor());
+        // 可能添加你原有的UI输入处理器
+        Gdx.input.setInputProcessor(multiplexer);
+        for (Controller controller : Controllers.getControllers()) {
+//            if("XInput Controller".equals(controller.getName())) {
+//                controller.addListener(new SGXInputControllerListener());
+//            }
+            controller.addListener(new SGXInputControllerListener());
+
+        }
     }
 
     private void createDefaultButtons() {
@@ -85,13 +102,13 @@ public class ControllerMappingScreen implements Screen {
 
     @Override
     public void pause() {
-//        paused=true;
+////        paused=true;
         keeyPlaying();
     }
 
     @Override
     public void resume() {
-//        paused=false;
+////        paused=false;
         setKeepPlay(false);
     }
 

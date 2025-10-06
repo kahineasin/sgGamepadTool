@@ -1,6 +1,7 @@
 package com.sellgirl.gamepadtool.android;
 
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.graphics.PixelFormat;
 import android.net.Uri;
 import android.os.Bundle;
@@ -10,6 +11,8 @@ import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
 import android.content.Intent;
 
 import android.os.Build;
+import android.provider.Settings;
+import android.view.KeyEvent;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Toast;
@@ -29,77 +32,26 @@ public class AndroidLauncher extends AndroidApplication {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        AndroidApplicationConfiguration configuration = new AndroidApplicationConfiguration();
-        configuration.a = 8; // default is 0
-        configuration.useImmersiveMode = true; // Recommended, but not required.
 
-        AndroidGamepadTool player= new AndroidGamepadTool() {
-            @Override
-            public void startPlayService() {
-                playMusic();
+        //这句一定要在前面，否则super.onResume里面input属性null报错
+        initializeLibGDX();
+        // 检查并请求悬浮窗权限
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (!Settings.canDrawOverlays(this)) {
+//                requestOverlayPermission();
+                showOverlayPermissionExplanation();
+                return; // 等待权限授予后再初始化
             }
-
-            @Override
-            public void pausePlayService() {
-                pauseMusic();
-            }
-
-            @Override
-            public void stopPlayService() {
-                stopMusic();
-            }
-
-            @Override
-            public void updateApk(String url) {
-
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                File file= Gdx.files.external(url).file();
-                String authority = AndroidLauncher.this.getPackageName() + ".fileprovider";
-                Uri apkUri = FileProvider.getUriForFile(AndroidLauncher.this, authority, file);
-                intent.setDataAndType(apkUri, "application/vnd.android.package-archive");
-                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
-            }
-
-            @Override
-            public ISGTouchSimulate getTouchSimulate() {
-                if(null!=touchService){}
-                else {
-//
-//                    // 提示用户开启无障碍服务
-//                    Intent intent = new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS);
-//                    startActivity(intent);
-//                    touchService = new TouchSimulationService();
-                    if(null==TouchSimulationService.getInstance()){
-                        // 提示用户开启无障碍服务
-                        Intent intent = new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS);
-                        startActivity(intent);
-                        if(null!=TouchSimulationService.getInstance()){
-                            touchService = TouchSimulationService.getInstance();
-                        }
-                    }else{
-                        touchService = TouchSimulationService.getInstance();
-                    }
-                }
-                return touchService;
-            }
-        };
-
-//        initialize(player, configuration);
-
-        View view = initializeForView(player, configuration);
-        if (view instanceof SurfaceView) {
-            SurfaceView sv = (SurfaceView) view;
-            sv.setZOrderOnTop(true);
-            sv.getHolder().setFormat(PixelFormat.TRANSLUCENT);
         }
-        setContentView(view);
 
         // 检查并请求通知权限
         checkAndRequestNotificationPermission();
 
         // 检查并请求通知权限
         checkAndRequestSimulatePermission();
+
+        // 启动服务
+        startGamepadServices();
 
 //        Context context= this.getContext();
 //        // 在你的 Activity 中启动服务
@@ -267,4 +219,167 @@ public class AndroidLauncher extends AndroidApplication {
                 .show();
     }
     //--------------------模拟触屏 end---------------------
+
+    //--------------------悬浮按钮---------------------
+    private static final int REQUEST_OVERLAY_PERMISSION = 1001;
+    private void requestOverlayPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:" + getPackageName()));
+            startActivityForResult(intent, REQUEST_OVERLAY_PERMISSION);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_OVERLAY_PERMISSION) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (Settings.canDrawOverlays(this)) {
+                    initializeLibGDX();
+                } else {
+                    // 权限被拒绝，提示用户
+                    Toast.makeText(this, "需要悬浮窗权限才能显示按钮", Toast.LENGTH_LONG).show();
+                }
+            }
+        }
+    }
+
+    private void initializeLibGDX() {
+//        // 初始化您的libGDX应用
+//        AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
+//        initialize(new YourLibGDXGame(), config);
+
+
+        AndroidApplicationConfiguration configuration = new AndroidApplicationConfiguration();
+        configuration.a = 8; // default is 0
+        configuration.useImmersiveMode = true; // Recommended, but not required.
+
+        AndroidGamepadTool player= new AndroidGamepadTool() {
+            @Override
+            public void startPlayService() {
+                playMusic();
+            }
+
+            @Override
+            public void pausePlayService() {
+                pauseMusic();
+            }
+
+            @Override
+            public void stopPlayService() {
+                stopMusic();
+            }
+
+            @Override
+            public void updateApk(String url) {
+
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                File file= Gdx.files.external(url).file();
+                String authority = AndroidLauncher.this.getPackageName() + ".fileprovider";
+                Uri apkUri = FileProvider.getUriForFile(AndroidLauncher.this, authority, file);
+                intent.setDataAndType(apkUri, "application/vnd.android.package-archive");
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+            }
+
+            @Override
+            public ISGTouchSimulate getTouchSimulate() {
+                if(null!=touchService){}
+                else {
+//
+//                    // 提示用户开启无障碍服务
+//                    Intent intent = new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS);
+//                    startActivity(intent);
+//                    touchService = new TouchSimulationService();
+                    if(null==TouchSimulationService.getInstance()){
+                        // 提示用户开启无障碍服务
+                        Intent intent = new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS);
+                        startActivity(intent);
+                        if(null!=TouchSimulationService.getInstance()){
+                            touchService = TouchSimulationService.getInstance();
+                        }
+                    }else{
+                        touchService = TouchSimulationService.getInstance();
+                    }
+                }
+                return touchService;
+            }
+        };
+
+//        initialize(player, configuration);
+
+        View view = initializeForView(player, configuration);
+        if (view instanceof SurfaceView) {
+            SurfaceView sv = (SurfaceView) view;
+            sv.setZOrderOnTop(true);
+            sv.getHolder().setFormat(PixelFormat.TRANSLUCENT);
+        }
+        setContentView(view);
+    }
+
+    private void startOverlayService() {
+        Intent serviceIntent = new Intent(this, OverlayService.class);
+        startService(serviceIntent);
+    }
+
+    private void stopOverlayService() {
+        Intent serviceIntent = new Intent(this, OverlayService.class);
+        stopService(serviceIntent);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+////        // 应用进入后台时启动悬浮窗
+        startOverlayService();
+    }
+
+    @Override
+    protected void onResume() {
+
+        super.onResume();
+//        if(null==input){
+//            return;
+//        }
+////        if(null!=input){
+//            super.onResume();
+////        }
+
+//        // 应用回到前台时停止悬浮窗（可选，根据需求）
+        stopOverlayService();
+    }
+    // 在请求权限前显示说明
+    private void showOverlayPermissionExplanation() {
+        new AlertDialog.Builder(this)
+                .setTitle("需要悬浮窗权限")
+                .setMessage("为了在其他应用上方显示游戏按钮，需要您授权\"显示在其他应用上层\"的权限。")
+                .setPositiveButton("去设置", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        requestOverlayPermission();
+                    }
+                })
+                .setNegativeButton("取消", null)
+                .show();
+    }
+    //--------------------悬浮按钮 end---------------------
+
+
+    //--------------------手柄事件---------------------
+    private void startGamepadServices() {
+
+        // 启动游戏手柄服务
+        Intent gamepadIntent = new Intent(this, GamepadService.class);
+        startService(gamepadIntent);
+    }
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+            // 处理音量下键按下事件
+            return true; // 如果已经处理了事件，返回 true
+        }
+        return super.onKeyDown(keyCode, event); // 否则，让系统继续处理其他按键事件
+    }
+    //--------------------手柄事件 end---------------------
 }
