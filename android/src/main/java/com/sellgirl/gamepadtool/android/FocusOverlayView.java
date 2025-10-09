@@ -21,6 +21,9 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 
+import com.sellgirl.gamepadtool.android.model.ButtonInfo;
+import com.sellgirl.sgJavaHelper.time.Waiter;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -33,8 +36,15 @@ import java.util.Set;
 public class FocusOverlayView extends View
 implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListener
 {
+    private String tag="FocusOverlayView";
+    private Paint buttonPaint;
+    private Paint textPaint;
+    public List<ButtonInfo> buttons;
+    private List<ButtonInfo> toolButtons;
     private GamepadCallback callback;
+    private OverlayService service=null;
 
+    private Waiter waiter=new Waiter(1);
     // 需要拦截的系统默认按键
     private final Set<Integer> interceptedKeys = new HashSet<>(Arrays.asList(
             KeyEvent.KEYCODE_BUTTON_B,      // B键（通常映射为返回）
@@ -53,14 +63,17 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
 //        setFocusable(true);
 //        setFocusableInTouchMode(true);
 //        requestFocus();
-        View v=this;
+//        View v=this;
 //        v.setOnKeyListener(this);
 //        v.setOnTouchListener(this);
 //        v.setFocusable(true);
 //        v.setFocusableInTouchMode(true);
 //        v.requestFocus();
 //        v.setOnGenericMotionListener(this);
+
         setupFocus();
+
+        init();
     }
 
     private void setupFocus() {
@@ -89,6 +102,60 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
                 return false;
             }
         });
+    }
+    private void init(){
+        // 初始化绘制工具
+        buttonPaint = new Paint();
+        buttonPaint.setColor(Color.argb(128, 0, 100, 255));
+        buttonPaint.setStyle(Paint.Style.FILL);
+        buttonPaint.setAntiAlias(true);
+
+        textPaint = new Paint();
+        textPaint.setColor(Color.WHITE);
+        textPaint.setTextSize(30);
+        textPaint.setTextAlign(Paint.Align.CENTER);
+        textPaint.setAntiAlias(true);
+
+        buttons = new ArrayList<>();
+        toolButtons = new ArrayList<>();
+        loadButtonPositions();
+    }
+    private void loadButtonPositions() {
+        SharedPreferences prefs = getContext().getSharedPreferences("button_positions", Context.MODE_PRIVATE);
+
+        // 从SharedPreferences加载按钮位置
+        buttons.add(new ButtonInfo(
+                "A",
+                prefs.getFloat("buttonA_x", 100),
+                prefs.getFloat("buttonA_y", 100),
+                40
+        ));
+
+        toolButtons.add(new ButtonInfo(
+                "setting",
+                100,
+                100,
+                40
+        ));
+        // 添加更多按钮...
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        drawButtons(canvas);
+    }
+
+    private void drawButtons(Canvas canvas) {
+
+        for (ButtonInfo button : toolButtons) {
+            // 绘制圆形按钮
+            canvas.drawCircle(button.x, button.y, button.radius, buttonPaint);
+
+            // 绘制按钮文字
+            float textY = button.y - ((textPaint.descent() + textPaint.ascent()) / 2);
+            canvas.drawText(button.label, button.x, textY, textPaint);
+        }
     }
     @Override
     protected void onAttachedToWindow() {
@@ -207,6 +274,19 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         // 不处理触摸事件，返回 false 让事件传递到下层
+        ButtonOverlayView.printEvent(tag,event);
+        if(0==event.getAction()||MotionEvent.ACTION_OUTSIDE==event.getAction()){
+            for(ButtonInfo i: toolButtons){
+                //暂时只有一个工具按钮
+                if(i.isPosIn(event.getX(),event.getY())){
+                    if(waiter.isOK()) {
+                        service.removeSimulateOverlay();
+                        service.showButtonOverlay();
+                        return true;
+                    }
+                }
+            }
+        }
         return false;
     }
 
@@ -233,4 +313,7 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
 //        void onButtonPressed(int buttonCode, int deviceId);
 //        void onButtonReleased(int buttonCode, int deviceId);
 //    }
+    public void setService(OverlayService service) {
+        this.service = service;
+    }
 }

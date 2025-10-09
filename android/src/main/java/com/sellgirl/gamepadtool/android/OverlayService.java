@@ -6,9 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.os.Build;
 import android.os.IBinder;
@@ -19,18 +16,19 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.FrameLayout;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class OverlayService extends Service implements GamepadCallback {
 
+    public static final String ACTION_SIMULATE = "SIMULATE";
+    public static final String ACTION_SETTING = "SETTING";
     private WindowManager windowManager;
-    private View overlayView;
+    private ButtonOverlayView buttonView;
     private boolean isOverlayShowing = false;
 
-    private FocusOverlayView focusOverlayView;
+    private FocusOverlayView simulateView;
 //    private WindowManager windowManager;
 
     // 按钮映射配置
@@ -47,35 +45,57 @@ public class OverlayService extends Service implements GamepadCallback {
         bindGamepadService();
 
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-        createInputOverlay();
-        showOverlay();
+//        createInputOverlay();
+        showButtonOverlay();
 
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (!isOverlayShowing) {
-            showOverlay();
+//        if (!isOverlayShowing) {
+//            showOverlay();
+//        }
+
+        if (intent != null && intent.getAction() != null) {
+            String action = intent.getAction();
+
+            switch (action) {
+                case ACTION_SIMULATE:
+                    windowManager.removeView(buttonView);
+                    showSimulateOverlay();
+                    break;
+                case ACTION_SETTING:
+                    windowManager.removeView(simulateView);
+                    showButtonOverlay();
+                    break;
+                default:
+                    break;
+            }
         }
         return START_STICKY;
     }
 
-    private void showOverlay() {
-        if (overlayView != null) {
+    public void showButtonOverlay() {
+        if (buttonView != null) {
             return; // 已经显示
         }
 
         // 创建悬浮窗布局参数
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.WRAP_CONTENT,
+//                WindowManager.LayoutParams.WRAP_CONTENT,
+//                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.MATCH_PARENT,
+//                WindowManager.LayoutParams.FLAG_FULLSCREEN,//只有半屏
+//                WindowManager.LayoutParams.FLAG_FULLSCREEN,
 //                1, 1,
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ?
                         WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY :
                         WindowManager.LayoutParams.TYPE_PHONE,
-                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL |// 不拦截触摸(没有的话，touch无效)
-                        WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |
-                        WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, // 注意：这里设置为不接收触摸
+                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL // 不拦截触摸(没有的话，touch无效)
+//                        |WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE //|
+//                        |WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE // 注意：这里设置为不接收触摸
+                ,
                 PixelFormat.TRANSLUCENT
         );
 
@@ -84,11 +104,12 @@ public class OverlayService extends Service implements GamepadCallback {
         params.y = 100;
 
         // 创建悬浮窗视图
-        overlayView = createOverlayView();
-        windowManager.addView(overlayView, params);
+        buttonView = createButtonOverlayView();
+        buttonView.setService(this);
+        windowManager.addView(buttonView, params);
         isOverlayShowing = true;
     }
-    private View createOverlayView() {
+    private ButtonOverlayView createButtonOverlayView() {
         ButtonOverlayView overlayView = new ButtonOverlayView(this);
 
         overlayView.setLayoutParams(new ViewGroup.LayoutParams(
@@ -107,6 +128,10 @@ public class OverlayService extends Service implements GamepadCallback {
         });
 
         return overlayView;
+    }
+    public void removeButtonOverlay(){
+        windowManager.removeView(buttonView);
+        buttonView=null;
     }
 //    /**
 //     * 设置按钮映射 - 这里可以配置哪些按钮需要拦截和映射
@@ -167,8 +192,8 @@ public class OverlayService extends Service implements GamepadCallback {
         params.x = -1000;
         params.y = -1000;
 
-        focusOverlayView = new FocusOverlayView(this);
-        focusOverlayView.setCallback(this);
+        simulateView = new FocusOverlayView(this);
+        simulateView.setCallback(this);
 //        focusOverlayView.setOnKeyListener(new View.OnKeyListener() {
 //            @Override
 //            public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -176,21 +201,27 @@ public class OverlayService extends Service implements GamepadCallback {
 //            }
 //        });
 
-        windowManager.addView(focusOverlayView, params);
+        windowManager.addView(simulateView, params);
     }
-    private void createInputOverlay() {
+    public void showSimulateOverlay() {
         //WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-
+        if(null!= simulateView){
+            return;
+        }
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.WRAP_CONTENT,
+//                1, 1,
+                150,150,
+//                WindowManager.LayoutParams.WRAP_CONTENT,
+//                WindowManager.LayoutParams.WRAP_CONTENT,
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ?
                         WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY :
                         WindowManager.LayoutParams.TYPE_PHONE,
                 // 关键：不要使用FLAG_NOT_FOCUSABLE，允许获取焦点
-                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL |
-                        WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH |
-                        WindowManager.LayoutParams.FLAG_SPLIT_TOUCH, // 允许触摸事件传递
+                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+//                        |WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH
+//                        |WindowManager.LayoutParams.FLAG_SPLIT_TOUCH
+//                |WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE//有这句的话，touch一定可以穿透本窗口
+                , // 允许触摸事件传递
                 PixelFormat.TRANSLUCENT
         );
 
@@ -199,17 +230,19 @@ public class OverlayService extends Service implements GamepadCallback {
         params.x = 0;
         params.y = 0;
 
-        FocusOverlayView overlayView = new FocusOverlayView(this);
-        overlayView.setCallback(new GamepadCallback() {
+        simulateView = new FocusOverlayView(this);
+        simulateView.setCallback(new GamepadCallback() {
             @Override
             public void onButtonPressed(int buttonCode, int deviceId) {
 //                handleGamepadButton(buttonCode, deviceId, true);
+//                TouchSimulationService.getInstance().simulateTouch(simulateView.buttons.get(0).x,simulateView.buttons.get(0).y,MotionEvent.ACTION_DOWN,50);
                 int a=1;
             }
 
             @Override
             public void onButtonReleased(int buttonCode, int deviceId) {
 //                handleGamepadButton(buttonCode, deviceId, false);
+                TouchSimulationService.getInstance().simulateTouch(simulateView.buttons.get(0).x,simulateView.buttons.get(0).y,MotionEvent.ACTION_DOWN,50);
                 int a=1;
             }
 
@@ -219,7 +252,12 @@ public class OverlayService extends Service implements GamepadCallback {
             }
         });
 
-        windowManager.addView(overlayView, params);
+        simulateView.setService(this);
+        windowManager.addView(simulateView, params);
+    }
+    public void removeSimulateOverlay(){
+        windowManager.removeView(simulateView);
+        simulateView=null;
     }
 //    @Override
 //    public void onButtonPressed(int buttonCode, int deviceId) {
@@ -316,19 +354,19 @@ public class OverlayService extends Service implements GamepadCallback {
     public void onDestroy() {
         super.onDestroy();
         removeOverlay();
-        if (focusOverlayView != null && windowManager != null) {
-            windowManager.removeView(focusOverlayView);
+        if (simulateView != null && windowManager != null) {
+            windowManager.removeView(simulateView);
         }
-
+        windowManager=null;
         if (isBound) {
             unbindService(serviceConnection);
             isBound = false;
         }
     }
     private void removeOverlay() {
-        if (overlayView != null) {
-            windowManager.removeView(overlayView);
-            overlayView = null;
+        if (buttonView != null) {
+            windowManager.removeView(buttonView);
+            buttonView = null;
             isOverlayShowing = false;
         }
     }
@@ -342,35 +380,35 @@ public class OverlayService extends Service implements GamepadCallback {
         editor.apply();
 
         // 强制重绘
-        if (overlayView != null) {
-            overlayView.invalidate();
+        if (buttonView != null) {
+            buttonView.invalidate();
         }
     }
-    // 修改 OverlayService 中的参数
-    private void setupTouchableOverlay() {
-        WindowManager.LayoutParams params = new WindowManager.LayoutParams(
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ?
-                        WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY :
-                        WindowManager.LayoutParams.TYPE_PHONE,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |
-                        WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
-                PixelFormat.TRANSLUCENT
-        );
-
-        // 创建可触摸的视图
-//        overlayView = new TouchableOverlayView(this);
-        overlayView = createOverlayView();
-        overlayView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                // 处理触摸事件，判断是否点击了按钮
-                handleTouchEvent(event);
-                return true;
-            }
-        });
-    }
+//    // 修改 OverlayService 中的参数
+//    private void setupTouchableOverlay() {
+//        WindowManager.LayoutParams params = new WindowManager.LayoutParams(
+//                WindowManager.LayoutParams.WRAP_CONTENT,
+//                WindowManager.LayoutParams.WRAP_CONTENT,
+//                Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ?
+//                        WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY :
+//                        WindowManager.LayoutParams.TYPE_PHONE,
+//                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |
+//                        WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
+//                PixelFormat.TRANSLUCENT
+//        );
+//
+//        // 创建可触摸的视图
+////        overlayView = new TouchableOverlayView(this);
+//        overlayView = createOverlayView();
+//        overlayView.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                // 处理触摸事件，判断是否点击了按钮
+//                handleTouchEvent(event);
+//                return true;
+//            }
+//        });
+//    }
 
     private void handleTouchEvent(MotionEvent event) {
         float x = event.getX();

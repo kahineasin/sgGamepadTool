@@ -102,6 +102,9 @@ public class TouchSimulationService extends AccessibilityService implements ISGT
         simulateTouch(screenX, screenY,
                 MotionEvent.ACTION_DOWN,//action,
                 50);
+        simulateTouch(screenX, screenY,
+                MotionEvent.ACTION_UP,//action,
+                50);
     }
 
     public static boolean areNotificationsEnabled(Context context) {

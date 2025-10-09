@@ -305,6 +305,11 @@ public class AndroidLauncher extends AndroidApplication {
                 }
                 return touchService;
             }
+            @Override
+            public void dispose(){
+                Intent serviceIntent = new Intent(AndroidLauncher.this, OverlayService.class);
+                stopService(serviceIntent);
+            }
         };
 
 //        initialize(player, configuration);
