@@ -22,6 +22,7 @@ import android.view.WindowManager;
 import android.widget.FrameLayout;
 
 import com.sellgirl.gamepadtool.android.model.ButtonInfo;
+import com.sellgirl.sgJavaHelper.SGDate;
 import com.sellgirl.sgJavaHelper.time.Waiter;
 
 import java.util.ArrayList;
@@ -45,6 +46,16 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
     private OverlayService service=null;
 
     private Waiter waiter=new Waiter(1);
+    private WindowManager windowManager;
+    private WindowManager.LayoutParams layoutParams;
+
+//    private float dragOffsetX=0, dragOffsetY=0;
+    private float centerX=0, centerY=0;
+    private float radius=40;
+
+    // 用于稳定坐标计算的变量
+    private float initialTouchX, initialTouchY;
+    private float initialCenterX, initialCenterY;
     // 需要拦截的系统默认按键
     private final Set<Integer> interceptedKeys = new HashSet<>(Arrays.asList(
             KeyEvent.KEYCODE_BUTTON_B,      // B键（通常映射为返回）
@@ -58,7 +69,9 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
             KeyEvent.KEYCODE_BUTTON_MODE    // 模式键
     ));
 
-    public FocusOverlayView(Context context) {
+    public FocusOverlayView(Context context,
+                            //float x, float y,
+                            WindowManager windowManager, WindowManager.LayoutParams params) {
         super(context);
 //        setFocusable(true);
 //        setFocusableInTouchMode(true);
@@ -70,6 +83,11 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
 //        v.setFocusableInTouchMode(true);
 //        v.requestFocus();
 //        v.setOnGenericMotionListener(this);
+
+//        centerX=x;centerY=y;
+        centerX=params.x;centerY=params.y;
+        this.windowManager = windowManager;
+        this.layoutParams = params;
 
         setupFocus();
 
@@ -131,10 +149,17 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
                 40
         ));
 
+//        toolButtons.add(new ButtonInfo(
+//                "setting",
+//                100,
+//                100,
+//                40
+//        ));
+
         toolButtons.add(new ButtonInfo(
                 "setting",
-                100,
-                100,
+                40,
+                40,
                 40
         ));
         // 添加更多按钮...
@@ -150,11 +175,16 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
 
         for (ButtonInfo button : toolButtons) {
             // 绘制圆形按钮
-            canvas.drawCircle(button.x, button.y, button.radius, buttonPaint);
+//            canvas.drawCircle(button.x, button.y, button.radius, buttonPaint);
+//            canvas.drawCircle(this.getX()+button.x,this.getY()+ button.y, button.radius, buttonPaint);
+            canvas.drawCircle(button.radius,button.radius, button.radius, buttonPaint);
 
-            // 绘制按钮文字
-            float textY = button.y - ((textPaint.descent() + textPaint.ascent()) / 2);
-            canvas.drawText(button.label, button.x, textY, textPaint);
+//            // 绘制按钮文字
+//            float textY = button.y - ((textPaint.descent() + textPaint.ascent()) / 2);
+////            canvas.drawText(button.label, button.x, textY, textPaint);
+//            canvas.drawText(button.label, this.getX()+button.x,this.getY()+ textY, textPaint);
+            float textY = radius - ((textPaint.descent() + textPaint.ascent()) / 2);
+            canvas.drawText(button.label, radius, textY, textPaint);
         }
     }
     @Override
@@ -180,6 +210,85 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
 //            setBackgroundColor(Color.TRANSPARENT); // 失去焦点时透明
 //        }
 //    }
+
+    public void updateButtonPosition(String buttonId, float x, float y) {
+        for (ButtonInfo button : toolButtons) {
+            if (button.label.equals(buttonId)) {
+                button.x = x;
+                button.y = y;
+                break;
+            }
+        }
+        //这样不能改事件范围
+//        this.setX(x);
+//        this.setY(y);
+        invalidate(); // 请求重绘
+
+//        // 关键：更新 WindowManager 的布局参数
+////        layoutParams.x = (int) (newCenterX - getWidth() / 2);
+////        layoutParams.y = (int) (newCenterY - getHeight() / 2);
+//        float radius=toolButtons.get(0).radius;
+////        layoutParams.x = (int) (x-radius);
+////        layoutParams.y = (int) (y-radius);
+//        layoutParams.x = (int) (x);
+//        layoutParams.y = (int) (y);
+//        windowManager.updateViewLayout(this, layoutParams);
+
+//        this.centerX = x;
+//        this.centerY = y;
+//
+//        // 关键：更新 WindowManager 的布局参数
+//        layoutParams.x = (int) (x - radius);
+//        layoutParams.y = (int) (y - radius);
+//
+//        windowManager.updateViewLayout(this, layoutParams);
+    }
+
+    public void updateButtonPositionLayout(String buttonId, float x, float y) {
+//        for (ButtonInfo button : buttons) {
+//            if (button.label.equals(buttonId)) {
+//                button.x = x;
+//                button.y = y;
+//                break;
+//            }
+//        }
+        //这样不能改事件范围
+//        this.setX(x);
+//        this.setY(y);
+//        invalidate(); // 请求重绘
+
+//        // 关键：更新 WindowManager 的布局参数
+////        layoutParams.x = (int) (newCenterX - getWidth() / 2);
+////        layoutParams.y = (int) (newCenterY - getHeight() / 2);
+//        float radius=toolButtons.get(0).radius;
+////        layoutParams.x = (int) (x-radius);
+////        layoutParams.y = (int) (y-radius);
+//        layoutParams.x = (int) (x);
+//        layoutParams.y = (int) (y);
+//        windowManager.updateViewLayout(this, layoutParams);
+
+//        this.centerX = x;
+//        this.centerY = y;
+
+//        // 关键：更新 WindowManager 的布局参数
+//        layoutParams.x = (int) (x - radius);
+//        layoutParams.y = (int) (y - radius);
+//        //注意drag过程中改变layout会导致坐标一跳一跳的
+//        windowManager.updateViewLayout(this, layoutParams);
+
+        this.centerX = x;
+        this.centerY = y;
+
+        // 更新 WindowManager 的布局参数
+        layoutParams.x = (int) (x - getWidth() / 2);
+        layoutParams.y = (int) (y - getHeight() / 2);
+
+        try {
+            windowManager.updateViewLayout(this, layoutParams);
+        } catch (Exception e) {
+            Log.e("FloatingButton", "Failed to update position: " + e.getMessage());
+        }
+    }
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         Log.d("FocusOverlay", "Key down: " + keyCode + ", source: " + event.getSource());
@@ -271,20 +380,107 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
         return interceptedKeys.contains(keyCode);
     }
 
+    private boolean dragging=false;
+    private String dragId="";
+    private long dragBegin=0;
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         // 不处理触摸事件，返回 false 让事件传递到下层
         ButtonOverlayView.printEvent(tag,event);
-        if(0==event.getAction()||MotionEvent.ACTION_OUTSIDE==event.getAction()){
-            for(ButtonInfo i: toolButtons){
-                //暂时只有一个工具按钮
-                if(i.isPosIn(event.getX(),event.getY())){
-                    if(waiter.isOK()) {
-                        service.removeSimulateOverlay();
-                        service.showButtonOverlay();
-                        return true;
-                    }
+//        if(0==event.getAction()||MotionEvent.ACTION_OUTSIDE==event.getAction()
+//        ){
+//            for(ButtonInfo i: toolButtons){
+//                //暂时只有一个工具按钮
+//                if(i.isPosIn(event.getX(),event.getY())){
+//                    if(waiter.isOK()) {
+//                        service.removeSimulateOverlay();
+//                        service.showButtonOverlay();
+//                        return true;
+//                    }
+//                }
+//            }
+//        }
+
+        float rawX = event.getRawX();  // 使用绝对坐标
+        float rawY = event.getRawY();  // 使用绝对坐标
+        if(0==event.getAction()||MotionEvent.ACTION_OUTSIDE==event.getAction()
+        ){
+//            for(ButtonInfo i: toolButtons){
+//                //暂时只有一个工具按钮
+//                if(i.isPosIn(event.getX(),event.getY())){
+//                    if(waiter.isOK()) {
+//                        service.removeSimulateOverlay();
+//                        service.showButtonOverlay();
+//                        return true;
+//                    }
+//                }
+//            }
+
+            float x=this.getX()+toolButtons.get(0).x;
+            float y=this.getY()+toolButtons.get(0).y;
+            float radius=toolButtons.get(0).radius;
+            boolean isIn=x-radius<=event.getX()&&event.getX()<=x+radius
+                    &&y-radius<=event.getY()&&event.getY()<=y+radius;
+            if(isIn){
+                dragging=true;
+                dragId=toolButtons.get(0).label;
+                dragBegin=SGDate.Now().toTimestamp();
+//                //移动view的时候一定要这样，否则会一跳一跳
+////                dragOffsetX = x - getWidth() / 2;
+////                dragOffsetY = y - getHeight() / 2;
+//                 x = event.getX();
+//                 y = event.getY();
+//                dragOffsetX = x - radius;
+//                dragOffsetY = y - radius;
+
+                // 记录初始位置（绝对坐标）
+                initialTouchX = rawX;
+                initialTouchY = rawY;
+                initialCenterX = centerX;
+                initialCenterY = centerY;
+
+                invalidate(); // 重绘以更新颜色
+                return true;
+            }
+        }else if(2==event.getAction()){
+            if(dragging) {
+//                updateButtonPosition(dragId, event.getX(), event.getY());
+
+//                // 计算新的屏幕坐标(移动view的时候一定要这样，否则会一跳一跳)
+//                float x = event.getX();
+//                float y = event.getY();
+//                float newCenterX = centerX + (x - dragOffsetX - radius);
+//                float newCenterY = centerY + (y - dragOffsetY - radius);
+//                updateButtonPosition(dragId,newCenterX, newCenterY);
+
+                // 使用绝对坐标计算位移，避免坐标系变化
+                float deltaX = rawX - initialTouchX;
+                float deltaY = rawY - initialTouchY;
+
+                // 计算新的中心位置
+                float newCenterX = initialCenterX + deltaX;
+                float newCenterY = initialCenterY + deltaY;
+
+//                // 限制在屏幕范围内
+//                newCenterX = Math.max(radius, Math.min(newCenterX, getScreenWidth() - radius));
+//                newCenterY = Math.max(radius, Math.min(newCenterY, getScreenHeight() - radius));
+
+                // 更新位置
+                updateButtonPositionLayout(dragId,newCenterX, newCenterY);
+                return true;
+            }
+        }else if(1==event.getAction()){
+            if(dragging) {
+//                saveButtonPositions(dragId,event.getX(),event.getY());
+                dragging = false;
+                dragId = "";
+                invalidate(); // 重绘以恢复颜色
+//                updateButtonPositionLayout(dragId, event.getX(), event.getY());
+                if(200>SGDate.Now().toTimestamp()-dragBegin){
+                    service.removeSimulateOverlay();
+                    service.showButtonOverlay();
                 }
+                return true;
             }
         }
         return false;
@@ -316,4 +512,21 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
     public void setService(OverlayService service) {
         this.service = service;
     }
+//    @Override
+//    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+//        // 设置 View 大小为按钮直径
+//        int size = (int) (radius * 2);
+//        setMeasuredDimension(size, size);
+//    }
+//private int getScreenWidth() {
+//    DisplayMetrics displayMetrics = new DisplayMetrics();
+//    windowManager.getDefaultDisplay().getMetrics(displayMetrics);
+//    return displayMetrics.widthPixels;
+//}
+//
+//    private int getScreenHeight() {
+//        DisplayMetrics displayMetrics = new DisplayMetrics();
+//        windowManager.getDefaultDisplay().getMetrics(displayMetrics);
+//        return displayMetrics.heightPixels;
+//    }
 }

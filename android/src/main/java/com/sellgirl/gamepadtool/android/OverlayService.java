@@ -173,36 +173,36 @@ public class OverlayService extends Service implements GamepadCallback {
 //        ));
 //    }
 
-    private void createInputOverlayOld() {
-//        windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-
-        WindowManager.LayoutParams params = new WindowManager.LayoutParams(
-                1, 1, // 最小尺寸，几乎不可见
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ?
-                        WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY :
-                        WindowManager.LayoutParams.TYPE_PHONE,
-                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL |    // 不拦截触摸
-                        WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH | // 接收外部触摸
-                        WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,       // 可获取焦点
-                PixelFormat.TRANSLUCENT
-        );
-
-        // 放置在屏幕外
-        params.gravity = Gravity.START | Gravity.TOP;
-        params.x = -1000;
-        params.y = -1000;
-
-        simulateView = new FocusOverlayView(this);
-        simulateView.setCallback(this);
-//        focusOverlayView.setOnKeyListener(new View.OnKeyListener() {
-//            @Override
-//            public boolean onKey(View v, int keyCode, KeyEvent event) {
-//                return false;
-//            }
-//        });
-
-        windowManager.addView(simulateView, params);
-    }
+//    private void createInputOverlayOld() {
+////        windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+//
+//        WindowManager.LayoutParams params = new WindowManager.LayoutParams(
+//                1, 1, // 最小尺寸，几乎不可见
+//                Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ?
+//                        WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY :
+//                        WindowManager.LayoutParams.TYPE_PHONE,
+//                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL |    // 不拦截触摸
+//                        WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH | // 接收外部触摸
+//                        WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,       // 可获取焦点
+//                PixelFormat.TRANSLUCENT
+//        );
+//
+//        // 放置在屏幕外
+//        params.gravity = Gravity.START | Gravity.TOP;
+//        params.x = -1000;
+//        params.y = -1000;
+//
+//        simulateView = new FocusOverlayView(this);
+//        simulateView.setCallback(this);
+////        focusOverlayView.setOnKeyListener(new View.OnKeyListener() {
+////            @Override
+////            public boolean onKey(View v, int keyCode, KeyEvent event) {
+////                return false;
+////            }
+////        });
+//
+//        windowManager.addView(simulateView, params);
+//    }
     public void showSimulateOverlay() {
         //WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         if(null!= simulateView){
@@ -210,7 +210,9 @@ public class OverlayService extends Service implements GamepadCallback {
         }
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
 //                1, 1,
-                150,150,
+//                150,150,//ok
+//                1000,1000,
+                80,80,
 //                WindowManager.LayoutParams.WRAP_CONTENT,
 //                WindowManager.LayoutParams.WRAP_CONTENT,
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ?
@@ -227,10 +229,12 @@ public class OverlayService extends Service implements GamepadCallback {
 
         // 设置位置
         params.gravity = Gravity.START | Gravity.TOP;
-        params.x = 0;
-        params.y = 0;
+//        params.x = 0;
+//        params.y = 0;
+        params.x = 100;
+        params.y = 100;
 
-        simulateView = new FocusOverlayView(this);
+        simulateView = new FocusOverlayView(this,windowManager,params);
         simulateView.setCallback(new GamepadCallback() {
             @Override
             public void onButtonPressed(int buttonCode, int deviceId) {
