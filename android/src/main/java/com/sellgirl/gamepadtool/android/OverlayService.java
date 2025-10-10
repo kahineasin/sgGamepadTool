@@ -1,5 +1,6 @@
 package com.sellgirl.gamepadtool.android;
 
+import android.app.Activity;
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
@@ -8,6 +9,7 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.graphics.PixelFormat;
 import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.Gravity;
@@ -17,11 +19,24 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 
+import com.badlogic.gdx.Application;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.backends.android.AndroidApplication;
+import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
+import com.badlogic.gdx.backends.android.AndroidInput;
+import com.badlogic.gdx.backends.android.DefaultAndroidInput;
+import com.badlogic.gdx.controllers.Controller;
+import com.badlogic.gdx.controllers.ControllerListener;
+import com.badlogic.gdx.controllers.Controllers;
+import com.sellgirl.sgGameHelper.SGLibGdxHelper;
+import com.sellgirl.sgGameHelper.gamepad.ISGPS5Gamepad;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class OverlayService extends Service implements GamepadCallback {
 
+    private String TAG="OverlayService";
     public static final String ACTION_SIMULATE = "SIMULATE";
     public static final String ACTION_SETTING = "SETTING";
     private WindowManager windowManager;
@@ -37,6 +52,7 @@ public class OverlayService extends Service implements GamepadCallback {
 
     private GamepadService gamepadService;
     private boolean isBound = false;
+    private ISGPS5Gamepad gamepad;
     @Override
     public void onCreate() {
         super.onCreate();
@@ -44,11 +60,29 @@ public class OverlayService extends Service implements GamepadCallback {
 
         bindGamepadService();
 
+        gamepad= SGLibGdxHelper.getSGGamepad();
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
 //        createInputOverlay();
         showButtonOverlay();
 
+//        // 等待触摸服务可用
+//        waitForTouchService();
     }
+//    private void waitForTouchService() {
+//        new Handler().postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                TouchSimulationService touchService = TouchSimulationService.getInstance();
+//                if (touchService == null || !touchService.isEnabled()) {
+//                    // 继续等待
+//                    waitForTouchService();
+//                } else {
+//                    Log.d("OverlayService", "Touch service ready");
+//                    setupJoystickHandling();
+//                }
+//            }
+//        }, 1000);
+//    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -234,7 +268,7 @@ public class OverlayService extends Service implements GamepadCallback {
         params.x = 100;
         params.y = 100;
 
-        simulateView = new FocusOverlayView(this,windowManager,params);
+        simulateView = new FocusOverlayView(this,windowManager,params,gamepad);
         simulateView.setCallback(new GamepadCallback() {
             @Override
             public void onButtonPressed(int buttonCode, int deviceId) {
@@ -254,14 +288,75 @@ public class OverlayService extends Service implements GamepadCallback {
             public void onAxisMoved(int axis, float value, int deviceId) {
                 int a=1;
             }
+
+            @Override
+            public void handleJoystickTouch(//String joystickId,
+                                            float x, float y, boolean isActive, int pointerId) {
+                    OverlayService.this.handleJoystickTouch(//joystickId,
+                            x, y, isActive, pointerId);
+            }
         });
 
         simulateView.setService(this);
         windowManager.addView(simulateView, params);
+
+//        //参考自AndroidControllers，不过感觉太复杂了
+//        AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
+//        input=new DefaultAndroidInput(Gdx.app, (Activity)Gdx.app, this, config);//没必要，DefaultAndroidInput和手柄没太大关系，只做了一点事件转发
+////        input.addKeyListener(simulateView);
+////        input.addGenericMotionListener(simulateView);
+
+//        controllerListener = new ControllerListener() {
+//            @Override
+//            public void connected(Controller controller) {}
+//
+//            @Override
+//            public void disconnected(Controller controller) {}
+//
+//            @Override
+//            public boolean buttonDown(Controller controller, int buttonCode) {
+//                // 这会在后台继续工作
+//                if (isAppInBackground()) {
+//                    //handleBackgroundControllerInput(buttonCode, true);
+//                    return true; // 拦截事件
+//                }
+//                return false;
+//            }
+//
+//            @Override
+//            public boolean buttonUp(Controller controller, int buttonCode) {
+//                if (isAppInBackground()) {
+//                    //handleBackgroundControllerInput(buttonCode, false);
+//                    return true;
+//                }
+//                return false;
+//            }
+//
+//            @Override
+//            public boolean axisMoved(Controller controller, int axisCode, float value) {
+//                return false;
+//            }
+//        };
+//
+//        // 为所有控制器注册监听器
+//        for (Controller controller : Controllers.getControllers()) {
+//            controller.addListener(controllerListener);
+//            int aa=1;
+//        }
+    }
+    private AndroidInput input=null;
+    private ControllerListener controllerListener;
+
+    private boolean isAppInBackground() {
+        return Gdx.app.getType() == Application.ApplicationType.Android &&
+                ((AndroidApplication)Gdx.app).isFinishing();
     }
     public void removeSimulateOverlay(){
         windowManager.removeView(simulateView);
+        simulateView.dispose();
         simulateView=null;
+        input=null;
+
     }
 //    @Override
 //    public void onButtonPressed(int buttonCode, int deviceId) {
@@ -365,6 +460,12 @@ public class OverlayService extends Service implements GamepadCallback {
         if (isBound) {
             unbindService(serviceConnection);
             isBound = false;
+        }
+
+        // 停止所有触摸点
+        TouchSimulationService touchService = TouchSimulationService.getInstance();
+        if (touchService != null) {
+            touchService.stopAllTouchPoints();
         }
     }
     private void removeOverlay() {
@@ -575,4 +676,53 @@ public class OverlayService extends Service implements GamepadCallback {
         // 实现瞄准结束逻辑
     }
 
+    //-------------------------------处理摇杆-----------------------
+    private void setupJoystickHandling() {
+        // 设置摇杆处理
+        // 这里集成您之前的摇杆管理代码
+    }
+
+    /**
+     * 处理摇杆触摸事件
+     * @param pointerId 计算轴的UP DOWN, 所以用axisX或axisY都可以的
+     */
+    public void handleJoystickTouch(//String joystickId,
+                                    float x, float y, boolean isActive, int pointerId) {
+        TouchSimulationService touchService = TouchSimulationService.getInstance();
+        if (touchService == null) {
+            Log.w("OverlayService", "Touch service not available");
+            return;
+        }
+
+        if (isActive) {
+            if (!touchService.isTouchPointActive(pointerId)) {
+                // 第一次激活，发送 DOWN 事件
+                touchService.simulateTouchDown(x, y, pointerId);
+                Log.d(TAG, "simulateTouchDown:  at " + x + ", " + y+" id:"+pointerId);
+            } else {
+                // 持续激活，发送 MOVE 事件
+                touchService.simulateTouchMove(x, y, pointerId);
+                Log.d(TAG, "simulateTouchMove:  at " + x + ", " + y+" id:"+pointerId);
+            }
+        } else {
+            if (touchService.isTouchPointActive(pointerId)) {
+                // 失活，发送 UP 事件
+                touchService.simulateTouchUp(x, y, pointerId);
+                Log.d(TAG, "simulateTouchUp:  at " + x + ", " + y+" id:"+pointerId);
+            }
+        }
+    }
+
+    /**
+     * 处理按钮点击事件
+     */
+    public void handleButtonTap(float x, float y) {
+        TouchSimulationService touchService = TouchSimulationService.getInstance();
+        if (touchService != null) {
+            // 使用简单的点击模拟
+            touchService.simulateTap(x, y, 50);
+        }
+    }
+
+    //-------------------------------处理摇杆 end-----------------------
 }

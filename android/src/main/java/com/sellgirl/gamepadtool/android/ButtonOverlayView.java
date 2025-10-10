@@ -40,6 +40,7 @@ public class ButtonOverlayView extends View {
     private Paint textPaint;
     private List<ButtonInfo> buttons;
     private List<ButtonInfo> toolButtons;
+    public List<ButtonInfo> sticks;
 
     private OverlayService service=null;
 
@@ -120,6 +121,7 @@ public class ButtonOverlayView extends View {
 
         buttons = new ArrayList<>();
         toolButtons = new ArrayList<>();
+        sticks=new ArrayList<>();
         loadButtonPositions();
     }
 
@@ -147,6 +149,14 @@ public class ButtonOverlayView extends View {
             float textY = button.y - ((textPaint.descent() + textPaint.ascent()) / 2);
             canvas.drawText(button.label, button.x, textY, textPaint);
         }
+        for (ButtonInfo button : sticks) {
+            // 绘制圆形按钮
+            canvas.drawCircle(button.x, button.y, button.radius, buttonPaint);
+
+            // 绘制按钮文字
+            float textY = button.y - ((textPaint.descent() + textPaint.ascent()) / 2);
+            canvas.drawText(button.label, button.x, textY, textPaint);
+        }
     }
 
     private void loadButtonPositions() {
@@ -166,15 +176,37 @@ public class ButtonOverlayView extends View {
                 100,
                 40
         ));
+        for(int i=0;2>i;i++){
+            sticks.add(new ButtonInfo(
+                    "S"+i,
+//                    prefs.getFloat("stick"+i+"_x", 100),
+//                    prefs.getFloat("stick"+i+"_y", 100),
+                    prefs.getFloat("S"+i+"_x", 100),
+                    prefs.getFloat("S"+i+"_y", 100),
+                    40
+            ));
+        }
         // 添加更多按钮...
     }
 
     public void updateButtonPosition(String buttonId, float x, float y) {
+        boolean found=false;
         for (ButtonInfo button : buttons) {
             if (button.label.equals(buttonId)) {
                 button.x = x;
                 button.y = y;
+                found=true;
                 break;
+            }
+        }
+        if(!found){
+            for (ButtonInfo button : sticks) {
+                if (button.label.equals(buttonId)) {
+                    button.x = x;
+                    button.y = y;
+                    found=true;
+                    break;
+                }
             }
         }
         invalidate(); // 请求重绘
@@ -183,13 +215,29 @@ public class ButtonOverlayView extends View {
     private void saveButtonPositions(String buttonId, float x, float y) {
         SharedPreferences prefs = getContext().getSharedPreferences("button_positions", Context.MODE_PRIVATE);
         SharedPreferences.Editor edit=prefs.edit();
+        boolean found=false;
         for (ButtonInfo button : buttons) {
             if (button.label.equals(buttonId)) {
                 //buttonA_x
                 edit.putFloat("button"+buttonId+"_x",x);
                 edit.putFloat("button"+buttonId+"_y",y);
                 edit.apply();
+                found=true;
                 break;
+            }
+        }
+        if(!found){
+            for (ButtonInfo button : sticks) {
+                if (button.label.equals(buttonId)) {
+                    //buttonA_x
+//                    edit.putFloat("stick"+buttonId+"_x",x);
+//                    edit.putFloat("stick"+buttonId+"_y",y);
+                    edit.putFloat(buttonId+"_x",x);
+                    edit.putFloat(buttonId+"_y",y);
+                    edit.apply();
+                    found=true;
+                    break;
+                }
             }
         }
     }
@@ -252,6 +300,13 @@ public class ButtonOverlayView extends View {
 
         if(0==event.getAction()){
             for(ButtonInfo i: buttons){
+                if(i.isPosIn(event.getX(),event.getY())){
+                    dragging=true;
+                    dragId=i.label;
+                    return true;
+                }
+            }
+            for(ButtonInfo i: sticks){
                 if(i.isPosIn(event.getX(),event.getY())){
                     dragging=true;
                     dragId=i.label;

@@ -1,6 +1,8 @@
 package com.sellgirl.gamepadtool.android;
 import android.content.Context;
 import android.graphics.Rect;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -21,7 +23,11 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 
+import com.badlogic.gdx.controllers.android.AndroidController;
 import com.sellgirl.gamepadtool.android.model.ButtonInfo;
+import com.sellgirl.sgGameHelper.gamepad.ISGPS5Gamepad;
+import com.sellgirl.sgGameHelper.gamepad.SGPS5Gamepad;
+import com.sellgirl.sgJavaHelper.ISGDisposable;
 import com.sellgirl.sgJavaHelper.SGDate;
 import com.sellgirl.sgJavaHelper.time.Waiter;
 
@@ -36,12 +42,14 @@ import java.util.Set;
  */
 public class FocusOverlayView extends View
 implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListener
+    , ISGDisposable
 {
-    private String tag="FocusOverlayView";
+    private String TAG="FocusOverlayView";
     private Paint buttonPaint;
     private Paint textPaint;
     public List<ButtonInfo> buttons;
     private List<ButtonInfo> toolButtons;
+    public List<ButtonInfo> sticks;
     private GamepadCallback callback;
     private OverlayService service=null;
 
@@ -56,6 +64,10 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
     // 用于稳定坐标计算的变量
     private float initialTouchX, initialTouchY;
     private float initialCenterX, initialCenterY;
+
+    private  SGPS5Gamepad gamepad;
+//    private AndroidController controller;
+//    private AndroidController2 controller;
     // 需要拦截的系统默认按键
     private final Set<Integer> interceptedKeys = new HashSet<>(Arrays.asList(
             KeyEvent.KEYCODE_BUTTON_B,      // B键（通常映射为返回）
@@ -69,9 +81,25 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
             KeyEvent.KEYCODE_BUTTON_MODE    // 模式键
     ));
 
+    //保持摇杆事件
+    private Handler handler;
+    private static final int JOYSTICK_UPDATE_INTERVAL = 7;//16; // ~60fps
+    private boolean running=false;
+    private Runnable joystickUpdateRunnable=null;
+    private StickMotion stickMotion0=null;
+    private StickMotion stickMotion1=null;
+
+
+    public class StickMotion{
+        public float x=0;
+        public float y=0;
+        public boolean active=false;
+        public int pointer=0;
+    }
     public FocusOverlayView(Context context,
                             //float x, float y,
-                            WindowManager windowManager, WindowManager.LayoutParams params) {
+                            WindowManager windowManager, WindowManager.LayoutParams params
+    , ISGPS5Gamepad gamepad) {
         super(context);
 //        setFocusable(true);
 //        setFocusableInTouchMode(true);
@@ -88,7 +116,10 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
         centerX=params.x;centerY=params.y;
         this.windowManager = windowManager;
         this.layoutParams = params;
-
+        this.gamepad=(SGPS5Gamepad) gamepad;
+        handler = new Handler(Looper.getMainLooper());
+//        this.controller= (AndroidController) ((SGPS5Gamepad)gamepad).getController();
+//        this.controller=new AndroidController2 ((AndroidController) ((SGPS5Gamepad)gamepad).getController()) ;
         setupFocus();
 
         init();
@@ -120,6 +151,145 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
                 return false;
             }
         });
+
+        setOnGenericMotionListener(new OnGenericMotionListener() {
+            @Override
+            public boolean onGenericMotion(View v, MotionEvent event) {
+//                if((motionEvent.getSource() & InputDevice.SOURCE_CLASS_JOYSTICK) == 0) return false;
+//                AndroidController controller = controllerMap.get(motionEvent.getDeviceId());
+                ISGPS5Gamepad controller=gamepad;
+                if(controller != null) {
+//                    synchronized(eventQueue) {
+
+                int axisIndex = 0;
+                    MotionEvent motionEvent=event;
+//                for (int axisId: controller.getAxesIds()) {
+//                    MotionEvent motionEvent=event;
+//                    float axisValue = motionEvent.getAxisValue(axisId);
+//                    if(controller.getAxis(axisIndex) == axisValue) {
+//                        axisIndex++;
+//                        continue;
+//                    }
+////                    AndroidControllerEvent event = eventPool.obtain();
+////                    event.type = AndroidControllerEvent.AXIS;
+////                    event.controller = controller;
+////                    event.code = axisIndex;
+////                    event.axisValue = axisValue;
+////                    eventQueue.add(event);
+//                    axisIndex++;
+//                }
+                    float axisValueX = motionEvent.getAxisValue(gamepad.getX1());
+                    float inputX=gamepad.getAxisLeftSpace().filterX(axisValueX);
+                    float axisValueY = motionEvent.getAxisValue(gamepad.getY1());
+                    float inputY=gamepad.getAxisLeftSpace().filterY(axisValueY);
+                    boolean isActive=inputX!=0||inputY!=0;
+//                    if(isActive){
+////                        service.handleJoystickTouch();
+//                    }
+                    //摇杆半径，todo
+//                    float screenX = sticks.get(0).x + inputX * joystick.outerRadius;
+//                    float screenY = joystick.centerY + inputY * joystick.outerRadius;
+                    float radius=200;//100
+                    float screenX = sticks.get(0).x + inputX * radius;
+                    float screenY = sticks.get(0).y + inputY * radius;
+//                    callback.handleJoystickTouch(screenX,screenY,isActive,gamepad.getX1());
+//                    if(null==stickMotion0){stickMotion0=new StickMotion();}
+//                    stickMotion0.x=screenX;
+//                    stickMotion0.y=screenY;
+//                    stickMotion0.active=isActive;
+//                    stickMotion0.pointer=gamepad.getX1();
+//                    if(isActive&&!running){
+//                        startContinuousUpdates();
+//                    }
+                    if(null==stickMotion0&&!isActive){
+                    }else{
+                        if(null==stickMotion0){stickMotion0=new StickMotion();}
+                        stickMotion0.x=screenX;
+                        stickMotion0.y=screenY;
+                        stickMotion0.active=isActive;
+                        stickMotion0.pointer=gamepad.getX1();
+                        if(isActive&&!running){
+                            startContinuousUpdates();
+                        }
+                    }
+
+                    //右摇杆
+                     axisValueX = motionEvent.getAxisValue(gamepad.getX2());
+                     inputX=gamepad.getAxisRightSpace().filterX(axisValueX);
+                     axisValueY = motionEvent.getAxisValue(gamepad.getY2());
+                     inputY=gamepad.getAxisRightSpace().filterY(axisValueY);
+                     isActive=inputX!=0||inputY!=0;
+                    // radius=200;//100
+                     screenX = sticks.get(1).x + inputX * radius;
+                     screenY = sticks.get(1).y + inputY * radius;
+//                    callback.handleJoystickTouch(screenX,screenY,isActive,gamepad.getX1());
+//                    if(null==stickMotion1){stickMotion1=new StickMotion();}
+//                    stickMotion1.x=screenX;
+//                    stickMotion1.y=screenY;
+//                    stickMotion1.active=isActive;
+//                    stickMotion1.pointer=gamepad.getX2();
+//                    if(isActive&&!running){
+//                        startContinuousUpdates();
+//                    }
+
+                    if(null==stickMotion1&&!isActive){
+                    }else{
+                        if(null==stickMotion1){stickMotion1=new StickMotion();}
+                        stickMotion1.x=screenX;
+                        stickMotion1.y=screenY;
+                        stickMotion1.active=isActive;
+                        stickMotion1.pointer=gamepad.getX2();
+                        if(isActive&&!running){
+                            startContinuousUpdates();
+                        }
+                    }
+//                    }
+                    return true;
+                }
+                return false;
+            }
+        });
+    }
+
+    /**
+     * 开始持续更新循环
+     */
+    private void startContinuousUpdates() {
+        running=true;
+        if (joystickUpdateRunnable != null) {
+            handler.removeCallbacks(joystickUpdateRunnable);
+        }
+
+        joystickUpdateRunnable = new Runnable() {
+            @Override
+            public void run() {
+//                float axisValueX = motionEvent.getAxisValue(gamepad.getX1());
+//                float inputX=gamepad.getAxisLeftSpace().filterX(axisValueX);
+//                float axisValueY = motionEvent.getAxisValue(gamepad.getY1());
+//                float inputY=gamepad.getAxisLeftSpace().filterY(axisValueY);
+//                boolean isActive=inputX!=0||inputY!=0;
+//                updateJoystickPositions();
+//
+//                // 如果任一摇杆仍然活跃，继续更新
+//                if (isLeftActive || isRightActive) {
+//                    handler.postDelayed(this, JOYSTICK_UPDATE_INTERVAL);
+//                }
+                if(null!=stickMotion0){
+                    callback.handleJoystickTouch(stickMotion0.x,stickMotion0.y,stickMotion0.active,stickMotion0.pointer);
+                    if(!stickMotion0.active){stickMotion0=null;}
+                }
+                if(null!=stickMotion1){
+                    callback.handleJoystickTouch(stickMotion1.x,stickMotion1.y,stickMotion1.active,stickMotion1.pointer);
+                    if(!stickMotion1.active){stickMotion1=null;}
+                }
+                if(running){
+                    handler.postDelayed(this, JOYSTICK_UPDATE_INTERVAL);
+                }
+            }
+        };
+
+        handler.post(joystickUpdateRunnable);
+//        handler.postDelayed(joystickUpdateRunnable,JOYSTICK_UPDATE_INTERVAL);
     }
     private void init(){
         // 初始化绘制工具
@@ -136,7 +306,31 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
 
         buttons = new ArrayList<>();
         toolButtons = new ArrayList<>();
+        sticks=new ArrayList<>();
         loadButtonPositions();
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        drawButtons(canvas);
+    }
+
+    private void drawButtons(Canvas canvas) {
+
+        for (ButtonInfo button : toolButtons) {
+            // 绘制圆形按钮
+//            canvas.drawCircle(button.x, button.y, button.radius, buttonPaint);
+//            canvas.drawCircle(this.getX()+button.x,this.getY()+ button.y, button.radius, buttonPaint);
+            canvas.drawCircle(button.radius,button.radius, button.radius, buttonPaint);
+
+//            // 绘制按钮文字
+//            float textY = button.y - ((textPaint.descent() + textPaint.ascent()) / 2);
+////            canvas.drawText(button.label, button.x, textY, textPaint);
+//            canvas.drawText(button.label, this.getX()+button.x,this.getY()+ textY, textPaint);
+            float textY = radius - ((textPaint.descent() + textPaint.ascent()) / 2);
+            canvas.drawText(button.label, radius, textY, textPaint);
+        }
     }
     private void loadButtonPositions() {
         SharedPreferences prefs = getContext().getSharedPreferences("button_positions", Context.MODE_PRIVATE);
@@ -162,31 +356,19 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
                 40,
                 40
         ));
+        for(int i=0;2>i;i++){
+            sticks.add(new ButtonInfo(
+                    "S"+i,
+//                    prefs.getFloat("stick"+i+"_x", 100),
+//                    prefs.getFloat("stick"+i+"_y", 100),
+                    prefs.getFloat("S"+i+"_x", 100),
+                    prefs.getFloat("S"+i+"_y", 100),
+                    40
+            ));
+        }
         // 添加更多按钮...
     }
 
-    @Override
-    protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-        drawButtons(canvas);
-    }
-
-    private void drawButtons(Canvas canvas) {
-
-        for (ButtonInfo button : toolButtons) {
-            // 绘制圆形按钮
-//            canvas.drawCircle(button.x, button.y, button.radius, buttonPaint);
-//            canvas.drawCircle(this.getX()+button.x,this.getY()+ button.y, button.radius, buttonPaint);
-            canvas.drawCircle(button.radius,button.radius, button.radius, buttonPaint);
-
-//            // 绘制按钮文字
-//            float textY = button.y - ((textPaint.descent() + textPaint.ascent()) / 2);
-////            canvas.drawText(button.label, button.x, textY, textPaint);
-//            canvas.drawText(button.label, this.getX()+button.x,this.getY()+ textY, textPaint);
-            float textY = radius - ((textPaint.descent() + textPaint.ascent()) / 2);
-            canvas.drawText(button.label, radius, textY, textPaint);
-        }
-    }
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
@@ -386,7 +568,7 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         // 不处理触摸事件，返回 false 让事件传递到下层
-        ButtonOverlayView.printEvent(tag,event);
+        ButtonOverlayView.printEvent(TAG,event);
 //        if(0==event.getAction()||MotionEvent.ACTION_OUTSIDE==event.getAction()
 //        ){
 //            for(ButtonInfo i: toolButtons){
@@ -529,4 +711,13 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
 //        windowManager.getDefaultDisplay().getMetrics(displayMetrics);
 //        return displayMetrics.heightPixels;
 //    }
+
+    @Override
+    public void dispose() {
+        running=false;
+        if(null!=joystickUpdateRunnable){
+            handler.removeCallbacks(joystickUpdateRunnable);
+            joystickUpdateRunnable=null;
+        }
+    }
 }

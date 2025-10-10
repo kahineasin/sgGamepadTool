@@ -26,7 +26,12 @@ import com.badlogic.gdx.Gdx;
 import com.sellgirl.gamepadtool.AndroidGamepadTool;
 import com.sellgirl.gamepadtool.phone.ISGTouchSimulate;
 
-/** Launches the Android application. */
+/** Launches the Android application.
+ * 此版本可以利用手势类GestureDescription来模拟手柄按键和小摇杆，
+ * 但当前遇到个问题，GestureDescription无法表示DOWN MOVE UP的过程，于
+ * 是无法模拟虚拟摇杆一直按下的状态（在蛋仔派对中虽然能移动虚拟摇杆，却不能压住，表现为移动无效）
+ * 暂时问题无解，可试试改为
+ * */
 public class AndroidLauncher extends AndroidApplication {
 //    private ISGTouchSimulate touchSimulate;
     @Override
