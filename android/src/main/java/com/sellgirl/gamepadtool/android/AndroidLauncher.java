@@ -24,6 +24,7 @@ import java.io.File;
 import com.badlogic.gdx.Gdx;
 
 import com.sellgirl.gamepadtool.AndroidGamepadTool;
+import com.sellgirl.gamepadtool.android.simulate.TouchSimulationService;
 import com.sellgirl.gamepadtool.phone.ISGTouchSimulate;
 
 /** Launches the Android application.
@@ -310,6 +311,12 @@ public class AndroidLauncher extends AndroidApplication {
                 }
                 return touchService;
             }
+
+            @Override
+            public void startOverlayService() {
+               AndroidLauncher.this.startOverlayService();
+            }
+
             @Override
             public void dispose(){
                 Intent serviceIntent = new Intent(AndroidLauncher.this, OverlayService.class);

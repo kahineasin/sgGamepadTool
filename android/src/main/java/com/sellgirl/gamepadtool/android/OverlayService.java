@@ -1,6 +1,5 @@
 package com.sellgirl.gamepadtool.android;
 
-import android.app.Activity;
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
@@ -9,7 +8,6 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.graphics.PixelFormat;
 import android.os.Build;
-import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.Gravity;
@@ -22,12 +20,11 @@ import android.view.WindowManager;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.android.AndroidApplication;
-import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
 import com.badlogic.gdx.backends.android.AndroidInput;
-import com.badlogic.gdx.backends.android.DefaultAndroidInput;
-import com.badlogic.gdx.controllers.Controller;
 import com.badlogic.gdx.controllers.ControllerListener;
-import com.badlogic.gdx.controllers.Controllers;
+import com.sellgirl.gamepadtool.android.simulate.InstrumentationInjector;
+import com.sellgirl.gamepadtool.android.simulate.TouchSimulationService;
+import com.sellgirl.gamepadtool.phone.ISGTouchSimulate;
 import com.sellgirl.sgGameHelper.SGLibGdxHelper;
 import com.sellgirl.sgGameHelper.gamepad.ISGPS5Gamepad;
 
@@ -61,6 +58,7 @@ public class OverlayService extends Service implements GamepadCallback {
         bindGamepadService();
 
         gamepad= SGLibGdxHelper.getSGGamepad();
+        activeTouchPoints=new HashMap<>();
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
 //        createInputOverlay();
         showButtonOverlay();
@@ -682,33 +680,72 @@ public class OverlayService extends Service implements GamepadCallback {
         // 这里集成您之前的摇杆管理代码
     }
 
+    private ISGTouchSimulate getTouchSimulate(){
+        return TouchSimulationService.getInstance();
+    }
+    /**
+     * 触摸点信息类
+     */
+    private static class TouchPoint {
+        float x, y;
+//        GestureDescription.StrokeDescription stroke;
+
+        TouchPoint(float x, float y//, GestureDescription.StrokeDescription stroke
+        ) {
+            this.x = x;
+            this.y = y;
+//            this.stroke = stroke;
+        }
+    }
+    // 存储当前活动的触摸点
+    private Map<Integer, TouchPoint> activeTouchPoints = new HashMap<>();
+    /**
+     * 检查指定触摸点是否活跃
+     */
+    public boolean isTouchPointActive(int pointerId) {
+        return activeTouchPoints.containsKey(pointerId);
+    }
+
+    private InstrumentationInjector instrumentation=null;
+    private ISGTouchSimulate getTouchService(){
+        return TouchSimulationService.getInstance();
+//        if(null==instrumentation){instrumentation=new InstrumentationInjector();}
+//        return instrumentation;
+    }
     /**
      * 处理摇杆触摸事件
+     * 此方法职能是把摇杆事件格式转为touch:DOWN MOVE UP的格式
      * @param pointerId 计算轴的UP DOWN, 所以用axisX或axisY都可以的
      */
     public void handleJoystickTouch(//String joystickId,
                                     float x, float y, boolean isActive, int pointerId) {
-        TouchSimulationService touchService = TouchSimulationService.getInstance();
+        ISGTouchSimulate touchService = getTouchService();
         if (touchService == null) {
             Log.w("OverlayService", "Touch service not available");
             return;
         }
 
         if (isActive) {
-            if (!touchService.isTouchPointActive(pointerId)) {
+            if (!isTouchPointActive(pointerId)) {
                 // 第一次激活，发送 DOWN 事件
-                touchService.simulateTouchDown(x, y, pointerId);
-                Log.d(TAG, "simulateTouchDown:  at " + x + ", " + y+" id:"+pointerId);
+                if(touchService.simulateTouchDown(x, y, pointerId)){
+                    activeTouchPoints.put(pointerId, new TouchPoint(x, y));
+                }
+//                Log.d(TAG, "simulateTouchDown:  at " + x + ", " + y+" id:"+pointerId);
             } else {
                 // 持续激活，发送 MOVE 事件
-                touchService.simulateTouchMove(x, y, pointerId);
-                Log.d(TAG, "simulateTouchMove:  at " + x + ", " + y+" id:"+pointerId);
+                if(touchService.simulateTouchMove(x, y, pointerId)) {
+                    activeTouchPoints.put(pointerId, new TouchPoint(x, y));
+                }
+//                Log.d(TAG, "simulateTouchMove:  at " + x + ", " + y+" id:"+pointerId);
             }
         } else {
-            if (touchService.isTouchPointActive(pointerId)) {
+            if (isTouchPointActive(pointerId)) {
                 // 失活，发送 UP 事件
-                touchService.simulateTouchUp(x, y, pointerId);
-                Log.d(TAG, "simulateTouchUp:  at " + x + ", " + y+" id:"+pointerId);
+                if(touchService.simulateTouchUp(x, y, pointerId)){
+                    activeTouchPoints.remove(pointerId);
+                }
+//                Log.d(TAG, "simulateTouchUp:  at " + x + ", " + y+" id:"+pointerId);
             }
         }
     }

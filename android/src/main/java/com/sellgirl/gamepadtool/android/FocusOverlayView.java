@@ -83,7 +83,7 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
 
     //保持摇杆事件
     private Handler handler;
-    private static final int JOYSTICK_UPDATE_INTERVAL = 7;//16; // ~60fps
+    private static final int JOYSTICK_UPDATE_INTERVAL = 16;//7;//16; // ~60fps
     private boolean running=false;
     private Runnable joystickUpdateRunnable=null;
     private StickMotion stickMotion0=null;

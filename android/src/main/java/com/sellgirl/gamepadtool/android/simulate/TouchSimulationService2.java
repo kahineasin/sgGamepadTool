@@ -1,16 +1,13 @@
-package com.sellgirl.gamepadtool.android;
+package com.sellgirl.gamepadtool.android.simulate;
 
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.GestureDescription;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.graphics.Path;
 import android.os.Build;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.accessibility.AccessibilityEvent;
-
-import androidx.core.content.ContextCompat;
 
 import com.sellgirl.gamepadtool.phone.ISGTouchSimulate;
 
@@ -18,10 +15,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 // TouchSimulationService.java
-public class TouchSimulationService extends AccessibilityService implements ISGTouchSimulate {
-    private static final String TAG = "TouchSimulation";
-    private static TouchSimulationService instance;
 
+/**
+ * 手势方式模拟
+ * 此版本存在问题
+ * 1. 无法准确表达DOWN MOVE UP, 下次手势会cancel上次
+ */
+public class TouchSimulationService2 extends AccessibilityService implements ISGTouchSimulate {
+    private static final String TAG = "TouchSimulation";
+    private static TouchSimulationService2 instance;
+
+    private boolean testOneTime=true;
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {}
 
@@ -34,7 +38,7 @@ public class TouchSimulationService extends AccessibilityService implements ISGT
         instance = this;
     }
 
-    public static TouchSimulationService getInstance() {
+    public static TouchSimulationService2 getInstance() {
         return instance;
     }
 
@@ -65,7 +69,7 @@ public class TouchSimulationService extends AccessibilityService implements ISGT
                 .addStroke(stroke)
                 .build();
 
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             dispatchGesture(gesture, new GestureResultCallback() {
                 @Override
                 public void onCompleted(GestureDescription gestureDescription) {
@@ -141,6 +145,10 @@ public class TouchSimulationService extends AccessibilityService implements ISGT
      * @return 是否成功
      */
     public boolean simulateTouchDown(float x, float y, int pointerId) {
+        if(testOneTime){
+            simulateTouchDownTest(x,y,pointerId);
+            return true;
+        }
         if (!isEnabled()) {
             Log.w(TAG, "Service not enabled");
             return false;
@@ -194,6 +202,7 @@ public class TouchSimulationService extends AccessibilityService implements ISGT
      * @return 是否成功
      */
     public boolean simulateTouchMove(float x, float y, int pointerId) {
+        if(testOneTime){return true;}
         if (!isEnabled()) {
             Log.w(TAG, "Service not enabled");
             return false;
@@ -318,6 +327,7 @@ public class TouchSimulationService extends AccessibilityService implements ISGT
      * @return 是否成功
      */
     public boolean simulateTouchUp(float x, float y, int pointerId) {
+        if(testOneTime){return true;}
         if (!isEnabled()) {
             Log.w(TAG, "Service not enabled");
             return false;
@@ -445,5 +455,54 @@ public class TouchSimulationService extends AccessibilityService implements ISGT
         }
     }
 
+    public boolean simulateTouchDownTest(float x, float y, int pointerId) {
+        if (!isEnabled()) {
+            Log.w(TAG, "Service not enabled");
+            return false;
+        }
+
+        try {
+            Path path = new Path();
+            float x2=x+10;
+            float x3=x+20;
+            path.moveTo(x, y);
+            path.lineTo(x2, y);
+            path.lineTo(x3, y);
+
+            // 创建短暂的手势表示按下
+            GestureDescription.StrokeDescription stroke = new GestureDescription.StrokeDescription(
+                    path, 0,1000// time//10 // 持续10毫秒
+            );
+
+            GestureDescription gesture = new GestureDescription.Builder()
+                    .addStroke(stroke)
+                    .build();
+
+            // 存储触摸点信息
+            activeTouchPoints.put(pointerId, new TouchPoint(x, y, stroke));
+//            downTouchPoints.put(pointerId, new TouchPoint(x, y, stroke));
+
+            boolean success = dispatchGesture(gesture, new GestureResultCallback() {
+                @Override
+                public void onCompleted(GestureDescription gestureDescription) {
+                    super.onCompleted(gestureDescription);
+                    Log.d(TAG, "Touch DOWN completed at: " + x + ", " + y);
+                }
+
+                @Override
+                public void onCancelled(GestureDescription gestureDescription) {
+                    super.onCancelled(gestureDescription);
+                    Log.w(TAG, "Touch DOWN cancelled");
+                }
+            }, null);
+
+            Log.d(TAG, "Touch DOWN dispatched: " + success + " at " + x + ", " + y);
+            return success;
+
+        } catch (Exception e) {
+            Log.e(TAG, "Error simulating touch DOWN: " + e.getMessage());
+            return false;
+        }
+    }
     //-----------------------模拟摇杆 end--------------------------
 }

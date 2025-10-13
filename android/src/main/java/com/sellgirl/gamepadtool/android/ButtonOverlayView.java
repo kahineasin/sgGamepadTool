@@ -1,32 +1,21 @@
 package com.sellgirl.gamepadtool.android;
 
 import android.content.Context;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
-import android.app.Service;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.PixelFormat;
-import android.os.Build;
-import android.os.IBinder;
-import android.view.Gravity;
 import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.FrameLayout;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.math.MathUtils;
 import com.sellgirl.gamepadtool.android.model.ButtonInfo;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.sellgirl.gamepadtool.android.simulate.TouchSimulationService;
 import com.sellgirl.sgJavaHelper.time.Waiter;
 
 // ButtonOverlayView.java - 专门用于绘制按钮的自定义View

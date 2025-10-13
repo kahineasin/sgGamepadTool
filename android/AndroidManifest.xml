@@ -41,7 +41,7 @@
           />
       <!-- 在 application 标签内 -->
       <service
-          android:name="com.sellgirl.gamepadtool.android.TouchSimulationService"
+          android:name="com.sellgirl.gamepadtool.android.simulate.TouchSimulationService"
           android:exported="false"
           android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
           <intent-filter>

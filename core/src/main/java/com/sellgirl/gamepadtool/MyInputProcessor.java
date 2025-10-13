@@ -2,9 +2,21 @@ package com.sellgirl.gamepadtool;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
+import com.sellgirl.sgJavaHelper.config.SGDataHelper;
 
 // 使用InputProcessor拦截手柄事件
+
+/**
+ * 测试情况：
+ * 1. 正常情况下Gdx.input.setInputProcessor(MyInputProcessor)
+ *     touch:DOWN->DRAGGED多次->UP
+ * 2. TouchSimulationService中
+ *     touch:Down->Cancelled  这显然是不正常的
+ *     后来测试单次模拟，可以正常触发DOWN->DRAGGED->UP，
+ *     发现问题在于下次手势模拟时会cancel上次的(这种方式应用于帧游戏是基本无解了)
+ */
 public class MyInputProcessor implements InputProcessor {
+    private String TAG="MyInputProcessor";
     @Override
     public boolean keyDown(int keycode) {
         return true;
@@ -47,21 +59,33 @@ public class MyInputProcessor implements InputProcessor {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+//        SGDataHelper.getLog().print(SGDataHelper.FormatString("touchDown x:{0} y:{1} pointer:{2} button:{3}",screenX,screenY,pointer,button));
+        print(SGDataHelper.FormatString("touchDown x:{0} y:{1} pointer:{2} button:{3}",screenX,screenY,pointer,button));
         return false;
     }
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+//        SGDataHelper.getLog().print(SGDataHelper.FormatString("touchUp x:{0} y:{1} pointer:{2} button:{3}",screenX,screenY,pointer,button));
+        print(SGDataHelper.FormatString("touchUp x:{0} y:{1} pointer:{2} button:{3}",screenX,screenY,pointer,button));
         return false;
+    }
+    private void print(String s){
+//        SGDataHelper.getLog().printException(new Exception(s),TAG);
+        SGDataHelper.getLog().print(TAG+" "+s);
     }
 
     @Override
     public boolean touchCancelled(int screenX, int screenY, int pointer, int button) {
+//        SGDataHelper.getLog().print(SGDataHelper.FormatString("touchCancelled x:{0} y:{1} pointer:{2} button:{3}",screenX,screenY,pointer,button));
+        print(SGDataHelper.FormatString("touchCancelled x:{0} y:{1} pointer:{2} button:{3}",screenX,screenY,pointer,button));
         return false;
     }
 
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer) {
+//        SGDataHelper.getLog().print(SGDataHelper.FormatString("touchDragged x:{0} y:{1} pointer:{2}",screenX,screenY,pointer));
+        print(SGDataHelper.FormatString("touchDragged x:{0} y:{1} pointer:{2}",screenX,screenY,pointer));
         return false;
     }
 

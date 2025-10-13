@@ -58,6 +58,8 @@ public class ControllerMappingScreen implements Screen {
             controller.addListener(new SGXInputControllerListener());
 
         }
+
+        game.startOverlayService();
     }
 
     private void createDefaultButtons() {
