@@ -148,16 +148,26 @@ public class ButtonOverlayView extends View {
         }
     }
 
+    private String[] btnLbls=new String[]{"A","B","X","Y"};
     private void loadButtonPositions() {
         SharedPreferences prefs = getContext().getSharedPreferences("button_positions", Context.MODE_PRIVATE);
 
-        // 从SharedPreferences加载按钮位置
-        buttons.add(new ButtonInfo(
-                "A",
-                prefs.getFloat("buttonA_x", 100),
-                prefs.getFloat("buttonA_y", 100),
-                40
-        ));
+//        // 从SharedPreferences加载按钮位置
+//        buttons.add(new ButtonInfo(
+//                "A",
+//                prefs.getFloat("buttonA_x", 100),
+//                prefs.getFloat("buttonA_y", 100),
+//                40
+//        ));
+        for(String i:btnLbls){
+            // 从SharedPreferences加载按钮位置
+            buttons.add(new ButtonInfo(
+                    i,//"A",
+                    prefs.getFloat("button"+i+"_x", 100),
+                    prefs.getFloat("button"+i+"_y", 100),
+                    40
+            ));
+        }
 
         toolButtons.add(new ButtonInfo(
                 "simulate",

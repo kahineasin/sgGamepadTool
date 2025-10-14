@@ -56,8 +56,8 @@ public class AndroidLauncher extends AndroidApplication {
         // 检查并请求通知权限
         checkAndRequestSimulatePermission();
 
-        // 启动服务
-        startGamepadServices();
+//        // 启动服务
+//        startGamepadServices();
 
 //        Context context= this.getContext();
 //        // 在你的 Activity 中启动服务
@@ -164,25 +164,25 @@ public class AndroidLauncher extends AndroidApplication {
     //--------------------模拟触屏---------------------
     private TouchSimulationService touchService;
 
-    // 供LibGDX调用的方法
-    public void simulateTouchFromGdx(final float x, final float y, final int action) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (touchService != null) {
-                    // 转换坐标：LibGDX坐标 -> Android屏幕坐标
-                    float screenX = x;
-                    float screenY = getResources().getDisplayMetrics().heightPixels - y;
-
-                    touchService.simulateTouch(screenX, screenY, action, 50);
-                } else {
-//                    // 提示用户开启无障碍服务
-//                    showAccessibilityPrompt();
-
-                }
-            }
-        });
-    }
+//    // 供LibGDX调用的方法
+//    public void simulateTouchFromGdx(final float x, final float y, final int action) {
+//        runOnUiThread(new Runnable() {
+//            @Override
+//            public void run() {
+//                if (touchService != null) {
+//                    // 转换坐标：LibGDX坐标 -> Android屏幕坐标
+//                    float screenX = x;
+//                    float screenY = getResources().getDisplayMetrics().heightPixels - y;
+//
+//                    touchService.simulateTouch(screenX, screenY, action, 50);
+//                } else {
+////                    // 提示用户开启无障碍服务
+////                    showAccessibilityPrompt();
+//
+//                }
+//            }
+//        });
+//    }
 
     public void setTouchService(TouchSimulationService service) {
         this.touchService = service;
@@ -385,12 +385,12 @@ public class AndroidLauncher extends AndroidApplication {
 
 
     //--------------------手柄事件---------------------
-    private void startGamepadServices() {
-
-        // 启动游戏手柄服务
-        Intent gamepadIntent = new Intent(this, GamepadService.class);
-        startService(gamepadIntent);
-    }
+//    private void startGamepadServices() {
+//
+//        // 启动游戏手柄服务
+//        Intent gamepadIntent = new Intent(this, GamepadService.class);
+//        startService(gamepadIntent);
+//    }
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {

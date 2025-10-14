@@ -20,12 +20,19 @@
 // * 手势方式模拟
 // * 此版本存在问题
 // * 1. 无法准确表达DOWN MOVE UP, 下次手势会cancel上次
+// *
+// * 尝试使用StrokeDescription.mContinued解决上面问题。成功解决DOWN UP问题
+// *
+// * 但有新问题：
+// * 1. 多点触摸时，mContinued无效了。
 // */
-//public class TouchSimulationService2 extends AccessibilityService implements ISGTouchSimulate {
+//public class TouchSimulationService3 extends AccessibilityService implements ISGTouchSimulate {
 //    private static final String TAG = "TouchSimulation";
-//    private static TouchSimulationService2 instance;
+//    private static TouchSimulationService3 instance;
 //
 //    private boolean testOneTime=true;
+//
+////    private GestureDescription.Builder builder=null;
 //    @Override
 //    public void onAccessibilityEvent(AccessibilityEvent event) {}
 //
@@ -36,15 +43,82 @@
 //    protected void onServiceConnected() {
 //        super.onServiceConnected();
 //        instance = this;
+////         builder=new GestureDescription.Builder();
 //    }
 //
-//    public static TouchSimulationService2 getInstance() {
+//    public static TouchSimulationService3 getInstance() {
 //        return instance;
 //    }
 //
 //    // 核心：模拟触摸事件
 //    public void simulateTouch(float x, float y, int action, long duration) {
+////        if(true) {
+////            return;
+////        }
 //        if (!isEnabled()) return;
+//
+//
+////        GestureDescription gesture = new GestureDescription.Builder()
+////                .addStroke(stroke)
+////                .build();
+//        GestureDescription.Builder builder=new GestureDescription.Builder()
+//                ;
+////        if(true) {//这里为止,摇杆不断
+////            return;
+////        }
+//
+//        if(null!=downStroke){
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//////                Path path2 = new Path(downStroke.getPath());
+//                Path path2 = new Path();
+//                path2.moveTo(this.x, this.y);
+////                path2.lineTo(this.x, this.y);
+////                TouchPoint previousPoint = activeTouchPoints.get(pointerId);
+////                Path path2 = new Path();
+////                path2.moveTo(previousPoint.x, previousPoint.y);
+////                path2.lineTo(x, y);
+//                GestureDescription.StrokeDescription downStroke2=downStroke.continueStroke(path2,0,time,true);
+//                builder.addStroke(downStroke2);
+//
+////                //有downStroke3的情况下，无论如何摇杆都会断
+////                Path path3 = new Path();
+//////                path2.moveTo(this.x, this.y);
+////                path3.moveTo(x, y);
+//////                GestureDescription.StrokeDescription downStroke3=downStroke.continueStroke(path3,0,10,false);//断摇杆
+////                GestureDescription.StrokeDescription downStroke3= new GestureDescription.StrokeDescription(path3, 0, 10);//断摇杆
+//////                GestureDescription.StrokeDescription downStroke3=downStroke.continueStroke(path3,0,10,true);//断摇杆
+////                builder.addStroke(downStroke3);
+//
+//                downStroke=downStroke2;
+//            }
+////            if(true) {//这里为止,摇杆不断
+////                return;
+////            }
+//        }
+////        else{
+////            if(true) {//这里为止,摇杆不断
+////                return;
+////            }
+////            Path path = new Path();
+////            path.moveTo(x, y);
+////
+////            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
+////            ) {
+////
+////            }else{
+////                return;
+////            }
+////
+////            GestureDescription.StrokeDescription stroke;
+////            if (action == MotionEvent.ACTION_DOWN) {
+////                // 按下事件
+////                stroke = new GestureDescription.StrokeDescription(path, 0, duration);
+////            } else {
+////                // 其他事件处理
+////                stroke = new GestureDescription.StrokeDescription(path, 0, 10);
+////            }
+////            builder.addStroke(stroke);
+////        }
 //
 //        Path path = new Path();
 //        path.moveTo(x, y);
@@ -65,8 +139,10 @@
 //            stroke = new GestureDescription.StrokeDescription(path, 0, 10);
 //        }
 //
-//        GestureDescription gesture = new GestureDescription.Builder()
-//                .addStroke(stroke)
+//        builder.addStroke(stroke);
+//
+////        builder.addStroke(stroke);
+//        GestureDescription gesture =builder
 //                .build();
 //
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -136,7 +212,11 @@
 //    private Map<Integer, TouchPoint> activeTouchPoints = new HashMap<>();
 ////    private Map<Integer, TouchPoint> downTouchPoints = new HashMap<>();
 //
-//    private long time=50;//2000;//50;//17;
+//    private long time=10;//100;//13较少cancel;//2000;//50;//17;
+//    private GestureDescription.StrokeDescription downStroke=null;
+////    private GestureDescription.StrokeDescription clickStroke=null;
+//    private float x=0;
+//    private float y=0;
 //    /**
 //     * 模拟触摸按下事件 (ACTION_DOWN)
 //     * @param x 屏幕X坐标
@@ -145,10 +225,10 @@
 //     * @return 是否成功
 //     */
 //    public boolean simulateTouchDown(float x, float y, int pointerId) {
-//        if(testOneTime){
-//            simulateTouchDownTest(x,y,pointerId);
-//            return true;
-//        }
+////        if(testOneTime){
+////            simulateTouchDownTest(x,y,pointerId);
+////            return true;
+////        }
 //        if (!isEnabled()) {
 //            Log.w(TAG, "Service not enabled");
 //            return false;
@@ -159,12 +239,27 @@
 //            path.moveTo(x, y);
 //
 //            // 创建短暂的手势表示按下
-//            GestureDescription.StrokeDescription stroke = new GestureDescription.StrokeDescription(
-//                    path, 0,10// time//10 // 持续10毫秒
-//            );
+//            GestureDescription.StrokeDescription stroke = null;
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//                stroke = new GestureDescription.StrokeDescription(
+//                        path, 0,10// time//10 // 持续10毫秒
+//                        ,true
+//                );
+//                downStroke=stroke;
+////                clickStroke = new GestureDescription.StrokeDescription(
+////                        new Path(), 0,10// time//10 // 持续10毫秒
+////                        ,true
+////                );
+//            }else{
+//                stroke = new GestureDescription.StrokeDescription(
+//                        path, 0,time// time//10 // 持续10毫秒
+//                        //,true
+//                );
+//            }
 //
 //            GestureDescription gesture = new GestureDescription.Builder()
 //                    .addStroke(stroke)
+////                    .addStroke(clickStroke)
 //                    .build();
 //
 //            // 存储触摸点信息
@@ -175,17 +270,17 @@
 //                @Override
 //                public void onCompleted(GestureDescription gestureDescription) {
 //                    super.onCompleted(gestureDescription);
-//                    Log.d(TAG, "Touch DOWN completed at: " + x + ", " + y);
+////                    Log.d(TAG, "Touch DOWN completed at: " + x + ", " + y);
 //                }
 //
 //                @Override
 //                public void onCancelled(GestureDescription gestureDescription) {
 //                    super.onCancelled(gestureDescription);
-//                    Log.w(TAG, "Touch DOWN cancelled");
+////                    Log.w(TAG, "Touch DOWN cancelled");
 //                }
 //            }, null);
 //
-//            Log.d(TAG, "Touch DOWN dispatched: " + success + " at " + x + ", " + y);
+////            Log.d(TAG, "Touch DOWN dispatched: " + success + " at " + x + ", " + y);
 //            return success;
 //
 //        } catch (Exception e) {
@@ -202,7 +297,46 @@
 //     * @return 是否成功
 //     */
 //    public boolean simulateTouchMove(float x, float y, int pointerId) {
-//        if(testOneTime){return true;}
+//
+//        if(testOneTime){
+//            if(null!=downStroke){
+//                TouchPoint previousPoint = activeTouchPoints.get(pointerId);
+//                Path path = new Path();
+//                path.moveTo(previousPoint.x, previousPoint.y);
+//                path.lineTo(x, y);
+//                this.x=x;
+//                this.y=y;
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//                    downStroke=
+//                            downStroke.continueStroke(path,0,time,true);
+////                    clickStroke=clickStroke.continueStroke(new Path(),0,time,true);
+//
+//                    GestureDescription.StrokeDescription stroke=downStroke;
+//                    GestureDescription gesture = new GestureDescription.Builder()
+//                            .addStroke(stroke)
+////                            .addStroke(clickStroke)
+//                            .build();
+//
+//                    // 更新触摸点信息
+//                    activeTouchPoints.put(pointerId, new TouchPoint(x, y, stroke));
+//
+//                    boolean success = dispatchGesture(gesture, new GestureResultCallback() {
+//                        @Override
+//                        public void onCompleted(GestureDescription gestureDescription) {
+//                            super.onCompleted(gestureDescription);
+////                            Log.d(TAG, "Touch MOVE completed to: " + x + ", " + y);
+//                        }
+//
+//                        @Override
+//                        public void onCancelled(GestureDescription gestureDescription) {
+//                            super.onCancelled(gestureDescription);
+////                            Log.w(TAG, "Touch MOVE cancelled");
+//                        }
+//                    }, null);
+//                }
+//            }
+//            return true;
+//        }
 //        if (!isEnabled()) {
 //            Log.w(TAG, "Service not enabled");
 //            return false;
@@ -245,17 +379,17 @@
 //                @Override
 //                public void onCompleted(GestureDescription gestureDescription) {
 //                    super.onCompleted(gestureDescription);
-//                    Log.d(TAG, "Touch MOVE completed to: " + x + ", " + y);
+////                    Log.d(TAG, "Touch MOVE completed to: " + x + ", " + y);
 //                }
 //
 //                @Override
 //                public void onCancelled(GestureDescription gestureDescription) {
 //                    super.onCancelled(gestureDescription);
-//                    Log.w(TAG, "Touch MOVE cancelled");
+////                    Log.w(TAG, "Touch MOVE cancelled");
 //                }
 //            }, null);
 //
-//            Log.d(TAG, "Touch MOVE dispatched: " + success + " to " + x + ", " + y);
+////            Log.d(TAG, "Touch MOVE dispatched: " + success + " to " + x + ", " + y);
 //            return success;
 //
 //        } catch (Exception e) {
@@ -264,61 +398,61 @@
 //        }
 //    }
 //
-//    public boolean simulateTouchMove2(float bx,float by,float x, float y, int pointerId) {
-//        if (!isEnabled()) {
-//            Log.w(TAG, "Service not enabled");
-//            return false;
-//        }
-//
-//        TouchPoint previousPoint = activeTouchPoints.get(pointerId);
-//        if (previousPoint == null) {
-//            Log.w(TAG, "No active touch point found for pointer: " + pointerId);
-//            // 如果没有找到先前的触摸点，创建一个新的按下事件
-//            return simulateTouchDown(x, y, pointerId);
-//        }
-//
-//        try {
-//            Path path = new Path();
-//
-//            // 从上一个点移动到新点
-////            path.moveTo(previousPoint.x, previousPoint.y);
-//            path.moveTo(bx, by);
-//            path.lineTo(x, y);
-//
-//            // 创建移动手势，持续时间稍长以模拟真实移动
-//            GestureDescription.StrokeDescription stroke = new GestureDescription.StrokeDescription(
-//                    path, 0, time//50 // 持续50毫秒
-//            );
-//
-//            GestureDescription gesture = new GestureDescription.Builder()
-//                    .addStroke(stroke)
-//                    .build();
-//
-//            // 更新触摸点信息
-//            activeTouchPoints.put(pointerId, new TouchPoint(x, y, stroke));
-//
-//            boolean success = dispatchGesture(gesture, new GestureResultCallback() {
-//                @Override
-//                public void onCompleted(GestureDescription gestureDescription) {
-//                    super.onCompleted(gestureDescription);
-//                    Log.d(TAG, "Touch MOVE completed to: " + x + ", " + y);
-//                }
-//
-//                @Override
-//                public void onCancelled(GestureDescription gestureDescription) {
-//                    super.onCancelled(gestureDescription);
-//                    Log.w(TAG, "Touch MOVE cancelled");
-//                }
-//            }, null);
-//
-//            Log.d(TAG, "Touch MOVE dispatched: " + success + " to " + x + ", " + y);
-//            return success;
-//
-//        } catch (Exception e) {
-//            Log.e(TAG, "Error simulating touch MOVE: " + e.getMessage());
-//            return false;
-//        }
-//    }
+////    public boolean simulateTouchMove2(float bx,float by,float x, float y, int pointerId) {
+////        if (!isEnabled()) {
+////            Log.w(TAG, "Service not enabled");
+////            return false;
+////        }
+////
+////        TouchPoint previousPoint = activeTouchPoints.get(pointerId);
+////        if (previousPoint == null) {
+////            Log.w(TAG, "No active touch point found for pointer: " + pointerId);
+////            // 如果没有找到先前的触摸点，创建一个新的按下事件
+////            return simulateTouchDown(x, y, pointerId);
+////        }
+////
+////        try {
+////            Path path = new Path();
+////
+////            // 从上一个点移动到新点
+//////            path.moveTo(previousPoint.x, previousPoint.y);
+////            path.moveTo(bx, by);
+////            path.lineTo(x, y);
+////
+////            // 创建移动手势，持续时间稍长以模拟真实移动
+////            GestureDescription.StrokeDescription stroke = new GestureDescription.StrokeDescription(
+////                    path, 0, time//50 // 持续50毫秒
+////            );
+////
+////            GestureDescription gesture = new GestureDescription.Builder()
+////                    .addStroke(stroke)
+////                    .build();
+////
+////            // 更新触摸点信息
+////            activeTouchPoints.put(pointerId, new TouchPoint(x, y, stroke));
+////
+////            boolean success = dispatchGesture(gesture, new GestureResultCallback() {
+////                @Override
+////                public void onCompleted(GestureDescription gestureDescription) {
+////                    super.onCompleted(gestureDescription);
+////                    Log.d(TAG, "Touch MOVE completed to: " + x + ", " + y);
+////                }
+////
+////                @Override
+////                public void onCancelled(GestureDescription gestureDescription) {
+////                    super.onCancelled(gestureDescription);
+////                    Log.w(TAG, "Touch MOVE cancelled");
+////                }
+////            }, null);
+////
+////            Log.d(TAG, "Touch MOVE dispatched: " + success + " to " + x + ", " + y);
+////            return success;
+////
+////        } catch (Exception e) {
+////            Log.e(TAG, "Error simulating touch MOVE: " + e.getMessage());
+////            return false;
+////        }
+////    }
 //    /**
 //     * 模拟触摸释放事件 (ACTION_UP)
 //     * @param x 释放时的屏幕X坐标
@@ -327,7 +461,44 @@
 //     * @return 是否成功
 //     */
 //    public boolean simulateTouchUp(float x, float y, int pointerId) {
-//        if(testOneTime){return true;}
+//        if(testOneTime){
+//            if(null!=downStroke){
+//                TouchPoint previousPoint = activeTouchPoints.get(pointerId);
+//                Path path = new Path();
+//                path.moveTo(previousPoint.x, previousPoint.y);
+//                path.lineTo(x, y);
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//                    downStroke=
+//                            downStroke.continueStroke(path,0,10,false);
+////                    clickStroke=clickStroke.continueStroke(new Path(),0,10,false);
+//
+//                    GestureDescription.StrokeDescription stroke=downStroke;
+//                    downStroke=null;
+//                    GestureDescription gesture = new GestureDescription.Builder()
+//                            .addStroke(stroke)
+////                            .addStroke(clickStroke)
+//                            .build();
+//
+//                    // 更新触摸点信息
+//                    activeTouchPoints.put(pointerId, new TouchPoint(x, y, stroke));
+//
+//                    boolean success = dispatchGesture(gesture, new GestureResultCallback() {
+//                        @Override
+//                        public void onCompleted(GestureDescription gestureDescription) {
+//                            super.onCompleted(gestureDescription);
+////                            Log.d(TAG, "Touch MOVE completed to: " + x + ", " + y);
+//                        }
+//
+//                        @Override
+//                        public void onCancelled(GestureDescription gestureDescription) {
+//                            super.onCancelled(gestureDescription);
+////                            Log.w(TAG, "Touch MOVE cancelled");
+//                        }
+//                    }, null);
+//                }
+//            }
+//            return true;
+//        }
 //        if (!isEnabled()) {
 //            Log.w(TAG, "Service not enabled");
 //            return false;
@@ -352,17 +523,17 @@
 //                    super.onCompleted(gestureDescription);
 //                    // 从活动触摸点中移除
 //                    activeTouchPoints.remove(pointerId);
-//                    Log.d(TAG, "Touch UP completed at: " + x + ", " + y);
+////                    Log.d(TAG, "Touch UP completed at: " + x + ", " + y);
 //                }
 //
 //                @Override
 //                public void onCancelled(GestureDescription gestureDescription) {
 //                    super.onCancelled(gestureDescription);
-//                    Log.w(TAG, "Touch UP cancelled");
+////                    Log.w(TAG, "Touch UP cancelled");
 //                }
 //            }, null);
 //
-//            Log.d(TAG, "Touch UP dispatched: " + success + " at " + x + ", " + y);
+////            Log.d(TAG, "Touch UP dispatched: " + success + " at " + x + ", " + y);
 //            return success;
 //
 //        } catch (Exception e) {

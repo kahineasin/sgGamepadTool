@@ -47,7 +47,7 @@ public class OverlayService extends Service implements GamepadCallback {
     private Map<Integer, ButtonMapping> buttonMappings = new HashMap<>();
 
 
-    private GamepadService gamepadService;
+//    private GamepadService gamepadService;
     private boolean isBound = false;
     private ISGPS5Gamepad gamepad;
     @Override
@@ -55,7 +55,7 @@ public class OverlayService extends Service implements GamepadCallback {
         super.onCreate();
         setupButtonMappings();
 
-        bindGamepadService();
+//        bindGamepadService();
 
         gamepad= SGLibGdxHelper.getSGGamepad();
         activeTouchPoints=new HashMap<>();
@@ -93,11 +93,13 @@ public class OverlayService extends Service implements GamepadCallback {
 
             switch (action) {
                 case ACTION_SIMULATE:
-                    windowManager.removeView(buttonView);
+//                    windowManager.removeView(buttonView);
+                    removeButtonOverlay();
                     showSimulateOverlay();
                     break;
                 case ACTION_SETTING:
-                    windowManager.removeView(simulateView);
+//                    windowManager.removeView(simulateView);
+                    removeSimulateOverlay();
                     showButtonOverlay();
                     break;
                 default:
@@ -267,33 +269,36 @@ public class OverlayService extends Service implements GamepadCallback {
         params.y = 100;
 
         simulateView = new FocusOverlayView(this,windowManager,params,gamepad);
-        simulateView.setCallback(new GamepadCallback() {
-            @Override
-            public void onButtonPressed(int buttonCode, int deviceId) {
-//                handleGamepadButton(buttonCode, deviceId, true);
-//                TouchSimulationService.getInstance().simulateTouch(simulateView.buttons.get(0).x,simulateView.buttons.get(0).y,MotionEvent.ACTION_DOWN,50);
-                int a=1;
-            }
-
-            @Override
-            public void onButtonReleased(int buttonCode, int deviceId) {
-//                handleGamepadButton(buttonCode, deviceId, false);
-                TouchSimulationService.getInstance().simulateTouch(simulateView.buttons.get(0).x,simulateView.buttons.get(0).y,MotionEvent.ACTION_DOWN,50);
-                int a=1;
-            }
-
-            @Override
-            public void onAxisMoved(int axis, float value, int deviceId) {
-                int a=1;
-            }
-
-            @Override
-            public void handleJoystickTouch(//String joystickId,
-                                            float x, float y, boolean isActive, int pointerId) {
-                    OverlayService.this.handleJoystickTouch(//joystickId,
-                            x, y, isActive, pointerId);
-            }
-        });
+        simulateView.setCallback(
+                OverlayService.this
+//                new GamepadCallback() {
+//                    @Override
+//                    public void onButtonPressed(int buttonCode, int deviceId) {
+//        //                handleGamepadButton(buttonCode, deviceId, true);
+//        //                TouchSimulationService.getInstance().simulateTouch(simulateView.buttons.get(0).x,simulateView.buttons.get(0).y,MotionEvent.ACTION_DOWN,50);
+//                        int a=1;
+//                    }
+//
+//                    @Override
+//                    public void onButtonReleased(int buttonCode, int deviceId) {
+//        //                handleGamepadButton(buttonCode, deviceId, false);
+//                        TouchSimulationService.getInstance().simulateTouch(simulateView.buttons.get(0).x,simulateView.buttons.get(0).y,MotionEvent.ACTION_DOWN,50);
+//                        int a=1;
+//                    }
+//
+//                    @Override
+//                    public void onAxisMoved(int axis, float value, int deviceId) {
+//                        int a=1;
+//                    }
+//
+//                    @Override
+//                    public void handleJoystickTouch(//String joystickId,
+//                                                    float x, float y, boolean isActive, int pointerId) {
+//                            OverlayService.this.handleJoystickTouch(//joystickId,
+//                                    x, y, isActive, pointerId);
+//                    }
+//                }
+        );
 
         simulateView.setService(this);
         windowManager.addView(simulateView, params);
@@ -451,12 +456,13 @@ public class OverlayService extends Service implements GamepadCallback {
     public void onDestroy() {
         super.onDestroy();
         removeOverlay();
-        if (simulateView != null && windowManager != null) {
-            windowManager.removeView(simulateView);
-        }
+//        if (simulateView != null && windowManager != null) {
+//            windowManager.removeView(simulateView);
+//        }
+        removeSimulateOverlay();
         windowManager=null;
         if (isBound) {
-            unbindService(serviceConnection);
+//            unbindService(serviceConnection);
             isBound = false;
         }
 
@@ -557,29 +563,29 @@ public class OverlayService extends Service implements GamepadCallback {
     }
     //-------------------------------手柄事件-----------------------
 
-    private void bindGamepadService() {
-        Intent intent = new Intent(this, GamepadService.class);
-        intent.setAction("com.yourpackage.GAMEPAD_SERVICE");
-        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
-    }
+//    private void bindGamepadService() {
+//        Intent intent = new Intent(this, GamepadService.class);
+//        intent.setAction("com.yourpackage.GAMEPAD_SERVICE");
+//        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+//    }
 
-    private ServiceConnection serviceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            Log.d("OverlayService", "GamepadService connected");
-            GamepadService.GamepadBinder binder = (GamepadService.GamepadBinder) service;
-            gamepadService = binder.getService();
-            gamepadService.setCallback(OverlayService.this);
-            isBound = true;
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            Log.d("OverlayService", "GamepadService disconnected");
-            gamepadService = null;
-            isBound = false;
-        }
-    };
+//    private ServiceConnection serviceConnection = new ServiceConnection() {
+//        @Override
+//        public void onServiceConnected(ComponentName name, IBinder service) {
+//            Log.d("OverlayService", "GamepadService connected");
+//            GamepadService.GamepadBinder binder = (GamepadService.GamepadBinder) service;
+//            gamepadService = binder.getService();
+//            gamepadService.setCallback(OverlayService.this);
+//            isBound = true;
+//        }
+//
+//        @Override
+//        public void onServiceDisconnected(ComponentName name) {
+//            Log.d("OverlayService", "GamepadService disconnected");
+//            gamepadService = null;
+//            isBound = false;
+//        }
+//    };
 
     private void setupButtonMappings() {
         // 配置按钮映射
@@ -591,80 +597,89 @@ public class OverlayService extends Service implements GamepadCallback {
         buttonMappings.put(KeyEvent.KEYCODE_BUTTON_R1, new ButtonMapping("R1", "shoot"));
     }
 
+//    @Override
+//    public void onButtonPressed(int buttonCode, int deviceId) {
+//        Log.d("OverlayService", "Button pressed: " + buttonCode + ", device: " + deviceId);
+//
+//        ButtonMapping mapping = buttonMappings.get(buttonCode);
+//        if (mapping != null) {
+//            // 执行映射动作
+//            performMappedAction(mapping.action, true);
+//
+//            // 记录日志
+//            Log.i("GamepadInput", "Button " + mapping.buttonName + " pressed, action: " + mapping.action);
+//        }
+//    }
+
     @Override
-    public void onButtonPressed(int buttonCode, int deviceId) {
-        Log.d("OverlayService", "Button pressed: " + buttonCode + ", device: " + deviceId);
-
-        ButtonMapping mapping = buttonMappings.get(buttonCode);
-        if (mapping != null) {
-            // 执行映射动作
-            performMappedAction(mapping.action, true);
-
-            // 记录日志
-            Log.i("GamepadInput", "Button " + mapping.buttonName + " pressed, action: " + mapping.action);
+//    public void onButtonReleased(int buttonCode, int deviceId) {
+    public void onButtonReleased(float x, float y, int deviceId){
+//        Log.d("OverlayService", "Button released: " + buttonCode + ", device: " + deviceId);
+//
+//        ButtonMapping mapping = buttonMappings.get(buttonCode);
+//        if (mapping != null) {
+//            performMappedAction(mapping.action, false);
+//        }
+        ISGTouchSimulate touchService = getTouchService();
+        if (touchService == null) {
+            Log.w("OverlayService", "Touch service not available");
+            return;
         }
-    }
-
-    @Override
-    public void onButtonReleased(int buttonCode, int deviceId) {
-        Log.d("OverlayService", "Button released: " + buttonCode + ", device: " + deviceId);
-
-        ButtonMapping mapping = buttonMappings.get(buttonCode);
-        if (mapping != null) {
-            performMappedAction(mapping.action, false);
-        }
+//        float x=simulateView.buttons.get(0).x;
+//        float y=simulateView.buttons.get(0).y;
+        touchService.simulateTouchFromGdx(x, y);
     }
 //
-    @Override
-    public void onAxisMoved(int axis, float value, int deviceId) {
-        // 处理摇杆移动
-        Log.d("OverlayService", "Axis moved: " + axis + " = " + value + ", device: " + deviceId);
+//    @Override
+//    public void onAxisMoved(int axis, float value, int deviceId) {
+//        // 处理摇杆移动
+//        Log.d("OverlayService", "Axis moved: " + axis + " = " + value + ", device: " + deviceId);
+//
+//        // 这里可以根据摇杆输入实现更复杂的控制
+//        if (Math.abs(value) > 0.5f) {
+//            // 处理显著的摇杆移动
+//        }
+//    }
 
-        // 这里可以根据摇杆输入实现更复杂的控制
-        if (Math.abs(value) > 0.5f) {
-            // 处理显著的摇杆移动
-        }
-    }
+//    private void performMappedAction(String action, boolean pressed) {
+//        switch (action) {
+//            case "jump":
+//                if (pressed) simulateTouchAtMappedPosition("jump_button");
+//                break;
+//            case "attack":
+//                if (pressed) simulateTouchAtMappedPosition("attack_button");
+//                break;
+//            case "reload":
+//                if (pressed) simulateTouchAtMappedPosition("reload_button");
+//                break;
+//            case "switch_weapon":
+//                if (pressed) simulateTouchAtMappedPosition("switch_button");
+//                break;
+//            case "aim":
+//                if (pressed) startAiming();
+//                else stopAiming();
+//                break;
+//            case "shoot":
+//                if (pressed) simulateTouchAtMappedPosition("shoot_button");
+//                break;
+//        }
+//    }
 
-    private void performMappedAction(String action, boolean pressed) {
-        switch (action) {
-            case "jump":
-                if (pressed) simulateTouchAtMappedPosition("jump_button");
-                break;
-            case "attack":
-                if (pressed) simulateTouchAtMappedPosition("attack_button");
-                break;
-            case "reload":
-                if (pressed) simulateTouchAtMappedPosition("reload_button");
-                break;
-            case "switch_weapon":
-                if (pressed) simulateTouchAtMappedPosition("switch_button");
-                break;
-            case "aim":
-                if (pressed) startAiming();
-                else stopAiming();
-                break;
-            case "shoot":
-                if (pressed) simulateTouchAtMappedPosition("shoot_button");
-                break;
-        }
-    }
-
-    private void simulateTouchAtMappedPosition(String buttonId) {
-        // 从配置中获取按钮位置并模拟点击
-        SharedPreferences prefs = getSharedPreferences("button_positions", MODE_PRIVATE);
-        float x = prefs.getFloat(buttonId + "_x", 0);
-        float y = prefs.getFloat(buttonId + "_y", 0);
-
-        if (x > 0 && y > 0) {
-            // 使用无障碍服务模拟点击
-            if (TouchSimulationService.getInstance() != null) {
-                TouchSimulationService.getInstance().simulateTouchFromGdx(x, y);
-            } else {
-                Log.w("OverlayService", "Accessibility service not available");
-            }
-        }
-    }
+//    private void simulateTouchAtMappedPosition(String buttonId) {
+//        // 从配置中获取按钮位置并模拟点击
+//        SharedPreferences prefs = getSharedPreferences("button_positions", MODE_PRIVATE);
+//        float x = prefs.getFloat(buttonId + "_x", 0);
+//        float y = prefs.getFloat(buttonId + "_y", 0);
+//
+//        if (x > 0 && y > 0) {
+//            // 使用无障碍服务模拟点击
+//            if (TouchSimulationService.getInstance() != null) {
+//                TouchSimulationService.getInstance().simulateTouchFromGdx(x, y);
+//            } else {
+//                Log.w("OverlayService", "Accessibility service not available");
+//            }
+//        }
+//    }
 
     private void startAiming() {
         // 实现瞄准开始逻辑
@@ -750,6 +765,7 @@ public class OverlayService extends Service implements GamepadCallback {
         }
     }
 
+
     /**
      * 处理按钮点击事件
      */
@@ -761,5 +777,15 @@ public class OverlayService extends Service implements GamepadCallback {
         }
     }
 
+    @Override
+    public boolean simulate() {
+        ISGTouchSimulate touchService = getTouchService();
+        if (touchService == null) {
+            Log.w("OverlayService", "Touch service not available");
+            return false;
+        }
+        return touchService.simulate();
+
+    }
     //-------------------------------处理摇杆 end-----------------------
 }

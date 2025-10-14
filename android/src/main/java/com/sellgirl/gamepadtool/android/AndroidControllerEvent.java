@@ -23,6 +23,9 @@ public class AndroidControllerEvent// extends AndroidController
     /** the axis value if this is an #AXIS event **/
     public float axisValue;
 
+    /**y轴和x放同一个event里面，模拟时更方法，性能也更好**/
+    public int codeY=0;
+    public float axisValueY=0f;
 //    public AndroidControllerEvent(int deviceId, String name) {
 //        super(deviceId, name);
 //    }

@@ -9,4 +9,6 @@ public interface ISGTouchSimulate {
     boolean simulateTouchDown(float x, float y, int pointerId);
     boolean simulateTouchMove(float x, float y, int pointerId);
     boolean simulateTouchUp(float x, float y, int pointerId);
+
+    boolean simulate();
 }

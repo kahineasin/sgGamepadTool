@@ -178,7 +178,13 @@ public class InstrumentationInjector implements ISGTouchSimulate {
         });
         return true;
     }
-//    @Override
+
+    @Override
+    public boolean simulate() {
+        return false;
+    }
+
+    //    @Override
     public boolean doSimulateTouchUp(float x, float y, int pointerId) {
 //        downTime = SystemClock.uptimeMillis();
         long eventTime = SystemClock.uptimeMillis();
