@@ -347,6 +347,9 @@ ISGPS5Gamepad sgcontroller;
 				}
 			});
 		}
+//		if(Application.ApplicationType.Android==Gdx.app.getType()){
+//			((AndroidGamepadTool)game).checkSimulateService();
+//		}
 	}
 	// private int cnt=0;
 
@@ -796,43 +799,43 @@ ISGPS5Gamepad sgcontroller;
 		textButtonStyle.background = tmp1;//非必需,但设置了可以挡住后面
 		return textButtonStyle;
 	}
-	/**
-	 * 风格为:
-	 * 白色字
-	 * 已启用: 白色
-	 * 未启用: 深色
-	 * @return
-	 */
-	public static Skin getSkin() {
-		// A skin can be loaded via JSON or defined programmatically, either is fine.
-		// Using a skin is optional but strongly
-		// recommended solely for the convenience of getting a texture, region, etc as a
-		// drawable, tinted drawable, etc.
-		Skin skin = new Skin();
-
-		// Generate a 1x1 white texture and store it in the skin named "white".
-		Pixmap pixmap = new Pixmap(1, 1, Format.RGBA8888);
-		pixmap.setColor(Color.WHITE);
-		pixmap.fill();
-		skin.add("white", new Texture(pixmap));
-
-//		Pixmap pixmap2 = new Pixmap(5, 5, Format.RGBA8888);
-//		pixmap2.setColor(Color.WHITE);
-//		pixmap2.fill();
-//		skin.add("white5", new Texture(pixmap2));
-
-		// Store the default libGDX font under the name "default".
-		// skin.add("default", new BitmapFont());
-//		/**
-//		 * BitmapFont的初始化。
-//		 * 3个参数分别为:fontFile(字体文件)、imageFile(所对应的png文件)、是否翻转
-//		 */
-		// skin.add("default", new BitmapFont(Gdx.files.internal("sasha_font.fnt"),
-		// Gdx.files.internal("sasha_font.png"), false));
-
-		skin.add("default", getFont2());
-		return skin;
-	}
+//	/**
+//	 * 风格为:
+//	 * 白色字
+//	 * 已启用: 白色
+//	 * 未启用: 深色
+//	 * @return
+//	 */
+//	public static Skin getSkin() {
+//		// A skin can be loaded via JSON or defined programmatically, either is fine.
+//		// Using a skin is optional but strongly
+//		// recommended solely for the convenience of getting a texture, region, etc as a
+//		// drawable, tinted drawable, etc.
+//		Skin skin = new Skin();
+//
+//		// Generate a 1x1 white texture and store it in the skin named "white".
+//		Pixmap pixmap = new Pixmap(1, 1, Format.RGBA8888);
+//		pixmap.setColor(Color.WHITE);
+//		pixmap.fill();
+//		skin.add("white", new Texture(pixmap));
+//
+////		Pixmap pixmap2 = new Pixmap(5, 5, Format.RGBA8888);
+////		pixmap2.setColor(Color.WHITE);
+////		pixmap2.fill();
+////		skin.add("white5", new Texture(pixmap2));
+//
+//		// Store the default libGDX font under the name "default".
+//		// skin.add("default", new BitmapFont());
+////		/**
+////		 * BitmapFont的初始化。
+////		 * 3个参数分别为:fontFile(字体文件)、imageFile(所对应的png文件)、是否翻转
+////		 */
+//		// skin.add("default", new BitmapFont(Gdx.files.internal("sasha_font.fnt"),
+//		// Gdx.files.internal("sasha_font.png"), false));
+//
+//		skin.add("default", getFont2());
+//		return skin;
+//	}
 
 	/**
 	 * 一套的样式，原本没有中文字
@@ -850,8 +853,8 @@ ISGPS5Gamepad sgcontroller;
 		return skin;
 	}
 
-	private static FreeTypeFontGenerator generator;// TTF字体发生器
-	private static FreeTypeBitmapFontData fontData;// 负责处理FreeTypeFontGenerator的数据.可以简单地理解成为一个加工好的字符库
+//	private static FreeTypeFontGenerator generator;// TTF字体发生器
+//	private static FreeTypeBitmapFontData fontData;// 负责处理FreeTypeFontGenerator的数据.可以简单地理解成为一个加工好的字符库
 	//private static BitmapFont font;// 要现实的内容
 //	//private static SpriteBatch batch;
 //
@@ -876,52 +879,52 @@ ISGPS5Gamepad sgcontroller;
 //		generator.dispose();
 //		return font;
 //	}
-	/**
-	 * @return
-	 */
-	public static BitmapFont getFont2() {
-//		if(null!=font) {return font;}
-		if(null==generator) {
-
-			/**
-			 * 以下是进行初始化
-			 */
-			generator = new FreeTypeFontGenerator(Gdx.files.internal("simhei.ttf"));//generator这个东西就算dispose也没用的,内存增加9MB,没办法了
-		}
-
-		if(null==fontData) {//测试发现fontData就算dispose了,还是消耗内存,原因不明
-			FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-			FileHandle file = Gdx.files.internal("font_cn.txt");
-			String text = file.readString(SGDataHelper.encoding);
-//			if(GameSetting.isGameX()) {
-//				FileHandle filex = Gdx.files.internal("txtx/font_cn.txt");
-//				try {
-//					//text += AES.AESDecryptDemo(filex.readString(), SGDataHelper.decodeBase64(key)) ;
-//					File filexF=filex.file();
+//	/**
+//	 * @return
+//	 */
+//	public static BitmapFont getFont2() {
+////		if(null!=font) {return font;}
+//		if(null==generator) {
 //
-//					try(FileInputStream fs=new FileInputStream(filexF);) {
-//						String text2 = SGEncryptByte.DecryptByteToString(fs,SGEncryptByte.DEFAULT_BUFFER_SIZE, Integer.decode(SGDataHelper.decodeBase64(key2)));
-//						text=text+text2;
-//					}catch(Exception e) {}
-//				} catch (Exception e) {
-//					e.printStackTrace();
-//				}
-//			}
-
-			parameter.characters = FreeTypeFontGenerator.DEFAULT_CHARS
-					+"△○□↑→↓←↖↗↘↙∞"
-					+ text;
-
-			parameter.size=24;
-			fontData = generator.generateData(parameter);
-		}
-
-		BitmapFont font = new BitmapFont(fontData, fontData.regions, false);
-		font.setColor(Color.WHITE);
-//		generator.dispose();
-//		fontData.dispose();
-		return font;
-	}
+//			/**
+//			 * 以下是进行初始化
+//			 */
+//			generator = new FreeTypeFontGenerator(Gdx.files.internal("simhei.ttf"));//generator这个东西就算dispose也没用的,内存增加9MB,没办法了
+//		}
+//
+//		if(null==fontData) {//测试发现fontData就算dispose了,还是消耗内存,原因不明
+//			FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+//			FileHandle file = Gdx.files.internal("font_cn.txt");
+//			String text = file.readString(SGDataHelper.encoding);
+////			if(GameSetting.isGameX()) {
+////				FileHandle filex = Gdx.files.internal("txtx/font_cn.txt");
+////				try {
+////					//text += AES.AESDecryptDemo(filex.readString(), SGDataHelper.decodeBase64(key)) ;
+////					File filexF=filex.file();
+////
+////					try(FileInputStream fs=new FileInputStream(filexF);) {
+////						String text2 = SGEncryptByte.DecryptByteToString(fs,SGEncryptByte.DEFAULT_BUFFER_SIZE, Integer.decode(SGDataHelper.decodeBase64(key2)));
+////						text=text+text2;
+////					}catch(Exception e) {}
+////				} catch (Exception e) {
+////					e.printStackTrace();
+////				}
+////			}
+//
+//			parameter.characters = FreeTypeFontGenerator.DEFAULT_CHARS
+//					+"△○□↑→↓←↖↗↘↙∞"
+//					+ text;
+//
+//			parameter.size=24;
+//			fontData = generator.generateData(parameter);
+//		}
+//
+//		BitmapFont font = new BitmapFont(fontData, fontData.regions, false);
+//		font.setColor(Color.WHITE);
+////		generator.dispose();
+////		fontData.dispose();
+//		return font;
+//	}
 //	public static BitmapFont getFont3(AssetManager manager) {
 //		/**
 //		 * 以下是进行初始化

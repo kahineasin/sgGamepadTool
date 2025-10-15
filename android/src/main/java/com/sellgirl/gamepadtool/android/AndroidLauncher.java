@@ -111,7 +111,7 @@ public class AndroidLauncher extends AndroidApplication {
     private void showNotificationPermissionExplanation() {
         new AlertDialog.Builder(this)
                 .setTitle("需要通知权限")
-                .setMessage("音乐播放器需要通知权限来显示播放控制界面，并在后台持续播放音乐。")
+                .setMessage("手柄映射工具需要在后台运行。")
                 .setPositiveButton("授予权限", (dialog, which) -> {
                     // 请求权限
                     NotificationPermissionHelper.requestNotificationPermission(
@@ -189,11 +189,12 @@ public class AndroidLauncher extends AndroidApplication {
     }
     private void checkAndRequestSimulatePermission() {
         if (!TouchSimulationService.areNotificationsEnabled(this)) {
-            // 显示解释为什么需要这个权限（可选但推荐）
-            showNotificationPermissionExplanation();
+//            // 显示解释为什么需要这个权限（可选但推荐）
+//            showNotificationPermissionExplanation();
+            startSimulateServiceIfNeeded();
         } else {
             // 已经有权限，可以启动服务
-            startSimulateServiceIfNeeded();
+//            startSimulateServiceIfNeeded();
         }
     }
     private void startSimulateServiceIfNeeded() {
@@ -317,6 +318,13 @@ public class AndroidLauncher extends AndroidApplication {
                AndroidLauncher.this.startOverlayService();
             }
 
+//            @Override
+//            public void checkSimulateService() {
+//                if(null==TouchSimulationService.getInstance()){
+//                    startSimulateServiceIfNeeded();
+//                }
+//            }
+
             @Override
             public void dispose(){
                 Intent serviceIntent = new Intent(AndroidLauncher.this, OverlayService.class);
@@ -349,6 +357,7 @@ public class AndroidLauncher extends AndroidApplication {
     protected void onPause() {
         super.onPause();
 ////        // 应用进入后台时启动悬浮窗
+        checkAndRequestSimulatePermission();
         startOverlayService();
     }
 

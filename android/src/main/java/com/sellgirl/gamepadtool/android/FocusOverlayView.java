@@ -71,7 +71,7 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
     // 用于稳定坐标计算的变量
     private float initialTouchX, initialTouchY;
     private float initialCenterX, initialCenterY;
-
+    private boolean noGamepad;
     private  SGPS5Gamepad gamepad;
     private AndroidController controller;
 //    protected final float[] axes;
@@ -80,7 +80,7 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
     protected final IntFloatMap axes;
     protected final IntFloatMap axesOld;
     protected final IntIntMap btns;//当前按钮的状态
-    protected final int[] btnIds;
+    protected  int[] btnIds=null;
 //    protected final int[] axesIds;
     //参考AndroidControllers
     public static boolean ignoreNoGamepadButtons = true;
@@ -144,9 +144,16 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
         centerX=params.x;centerY=params.y;
         this.windowManager = windowManager;
         this.layoutParams = params;
-        this.gamepad=(SGPS5Gamepad) gamepad;
+        noGamepad=null==gamepad;
+        if(!noGamepad) {
+            this.gamepad = (SGPS5Gamepad) gamepad;
+            this.controller= (AndroidController) ((SGPS5Gamepad)gamepad).getController();
+            btnIds=new int[]{
+                    this.gamepad.getCROSS(),this.gamepad.getROUND(),this.gamepad.getSQUARE(),this.gamepad.getTRIANGLE(),
+                    this.gamepad.getL1(),this.gamepad.getR1(),this.gamepad.getL2(),this.gamepad.getR2()
+            };
+        }
         handler = new Handler(Looper.getMainLooper());
-        this.controller= (AndroidController) ((SGPS5Gamepad)gamepad).getController();
 //        this.controller=new AndroidController2 ((AndroidController) ((SGPS5Gamepad)gamepad).getController()) ;
         setupFocus();
 
@@ -154,10 +161,6 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
         axes=new IntFloatMap();
         axesOld=new IntFloatMap();
         btns = new IntIntMap();
-        btnIds=new int[]{
-                this.gamepad.getCROSS(),this.gamepad.getROUND(),this.gamepad.getSQUARE(),this.gamepad.getTRIANGLE(),
-                this.gamepad.getL1(),this.gamepad.getR1(),this.gamepad.getL2(),this.gamepad.getR2()
-        };
 //        axesIds=new int[]{this.gamepad.getX1(),};
         uuid=instanceCnt++;
         setupEventQueue();
@@ -193,6 +196,7 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
             //参考自AndroidControllers
             @Override
             public boolean onKey (View view, int keyCode, KeyEvent keyEvent) {
+                if(noGamepad){return false;}
                 if (ignoreNoGamepadButtons && !KeyEvent.isGamepadButton(keyCode)) {
                     return false;
                 }
@@ -332,6 +336,7 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
             //参考自AndroidControllers
             @Override
             public boolean onGenericMotion (View view, MotionEvent motionEvent) {
+                if(noGamepad){return false;}
 //                if((motionEvent.getSource() & InputDevice.SOURCE_CLASS_JOYSTICK) == 0) return false;
 //                AndroidController controller = controllerMap.get(motionEvent.getDeviceId());
                 if(//controller != null
@@ -683,7 +688,7 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
             @SuppressWarnings("synthetic-access")
             @Override
             public void run () {
-                if(null!=callback){
+                if(null!=callback&&!noGamepad){
                 synchronized(eventQueue) {
                     boolean update=false;
                     for(AndroidControllerEvent event: eventQueue) {
@@ -919,7 +924,7 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
 //        ));
 
         toolButtons.add(new ButtonInfo(
-                "setting",
+                noGamepad?"noPad":"setting",
                 40,
                 40,
                 40

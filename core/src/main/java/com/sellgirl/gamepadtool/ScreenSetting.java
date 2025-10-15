@@ -18,4 +18,5 @@ public class ScreenSetting {
 	 * 像素:米
 	 */
     public static float PIXEL_DIVIDE_METER=WORLD_HEIGHT/WORLD_HEIGHT_METER;
+	public static int FONT_SIZE=24;//36;
 }

@@ -11,6 +11,7 @@ import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -21,12 +22,18 @@ import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidInput;
+import com.badlogic.gdx.controllers.Controller;
 import com.badlogic.gdx.controllers.ControllerListener;
+import com.badlogic.gdx.controllers.Controllers;
+import com.badlogic.gdx.controllers.android.AndroidController;
 import com.sellgirl.gamepadtool.android.simulate.InstrumentationInjector;
 import com.sellgirl.gamepadtool.android.simulate.TouchSimulationService;
 import com.sellgirl.gamepadtool.phone.ISGTouchSimulate;
+import com.sellgirl.sgGameHelper.SGGameHelper;
 import com.sellgirl.sgGameHelper.SGLibGdxHelper;
 import com.sellgirl.sgGameHelper.gamepad.ISGPS5Gamepad;
+import com.sellgirl.sgGameHelper.gamepad.SGPS5Gamepad;
+import com.sellgirl.sgGameHelper.list.Array2;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,7 +51,7 @@ public class OverlayService extends Service implements GamepadCallback {
 //    private WindowManager windowManager;
 
     // 按钮映射配置
-    private Map<Integer, ButtonMapping> buttonMappings = new HashMap<>();
+//    private Map<Integer, ButtonMapping> buttonMappings = new HashMap<>();
 
 
 //    private GamepadService gamepadService;
@@ -53,7 +60,7 @@ public class OverlayService extends Service implements GamepadCallback {
     @Override
     public void onCreate() {
         super.onCreate();
-        setupButtonMappings();
+//        setupButtonMappings();
 
 //        bindGamepadService();
 
@@ -268,6 +275,18 @@ public class OverlayService extends Service implements GamepadCallback {
         params.x = 100;
         params.y = 100;
 
+        if(null==gamepad){
+//            //此方法依赖于AndroidControllers类，主线程停止后无法更新了
+//            gamepad= SGLibGdxHelper.getSGGamepad();
+            gatherControllers();
+        }
+//        if(null==getTouchService()){
+//            //Service中好像没有办法使用AndroidApplication的方法
+//            Intent intent = new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS);
+////            startActivity(intent);
+////            this.getApplicationContext().startActivity(intent);
+//            this.getBaseContext().startActivity(intent);
+//        }
         simulateView = new FocusOverlayView(this,windowManager,params,gamepad);
         simulateView.setCallback(
                 OverlayService.this
@@ -347,7 +366,28 @@ public class OverlayService extends Service implements GamepadCallback {
 //            int aa=1;
 //        }
     }
-    private AndroidInput input=null;
+    private void gatherControllers(//boolean sendEvent
+    ) {
+        Array2<AndroidController> controllers=new Array2<>();
+        for(int deviceId: InputDevice.getDeviceIds()) {
+            InputDevice device = InputDevice.getDevice(deviceId);
+            if (!isController(device)) {continue;}
+            String name = device.getName();
+            AndroidController controller = new AndroidController(deviceId, name);
+            controllers.add(controller);
+        }
+        Controller c=SGLibGdxHelper.getGamepad(controllers);
+        if(null!=c){
+            this.gamepad=new SGPS5Gamepad(c);
+        }
+    }
+    private boolean isController(InputDevice device) {
+        return ((device.getSources() & InputDevice.SOURCE_CLASS_JOYSTICK) == InputDevice.SOURCE_CLASS_JOYSTICK)
+                && (((device.getSources() & InputDevice.SOURCE_GAMEPAD) == InputDevice.SOURCE_GAMEPAD)
+                || (device.getKeyboardType() != InputDevice.KEYBOARD_TYPE_ALPHABETIC))
+                && !"uinput-fpc".equals(device.getName());
+    }
+//    private AndroidInput input=null;
     private ControllerListener controllerListener;
 
     private boolean isAppInBackground() {
@@ -355,10 +395,12 @@ public class OverlayService extends Service implements GamepadCallback {
                 ((AndroidApplication)Gdx.app).isFinishing();
     }
     public void removeSimulateOverlay(){
-        windowManager.removeView(simulateView);
-        simulateView.dispose();
-        simulateView=null;
-        input=null;
+        if(null!=simulateView) {
+            windowManager.removeView(simulateView);
+            simulateView.dispose();
+            simulateView=null;
+        }
+//        input=null;
 
     }
 //    @Override
@@ -587,15 +629,15 @@ public class OverlayService extends Service implements GamepadCallback {
 //        }
 //    };
 
-    private void setupButtonMappings() {
-        // 配置按钮映射
-        buttonMappings.put(KeyEvent.KEYCODE_BUTTON_A, new ButtonMapping("A", "jump"));
-        buttonMappings.put(KeyEvent.KEYCODE_BUTTON_B, new ButtonMapping("B", "attack"));
-        buttonMappings.put(KeyEvent.KEYCODE_BUTTON_X, new ButtonMapping("X", "reload"));
-        buttonMappings.put(KeyEvent.KEYCODE_BUTTON_Y, new ButtonMapping("Y", "switch_weapon"));
-        buttonMappings.put(KeyEvent.KEYCODE_BUTTON_L1, new ButtonMapping("L1", "aim"));
-        buttonMappings.put(KeyEvent.KEYCODE_BUTTON_R1, new ButtonMapping("R1", "shoot"));
-    }
+//    private void setupButtonMappings() {
+//        // 配置按钮映射
+//        buttonMappings.put(KeyEvent.KEYCODE_BUTTON_A, new ButtonMapping("A", "jump"));
+//        buttonMappings.put(KeyEvent.KEYCODE_BUTTON_B, new ButtonMapping("B", "attack"));
+//        buttonMappings.put(KeyEvent.KEYCODE_BUTTON_X, new ButtonMapping("X", "reload"));
+//        buttonMappings.put(KeyEvent.KEYCODE_BUTTON_Y, new ButtonMapping("Y", "switch_weapon"));
+//        buttonMappings.put(KeyEvent.KEYCODE_BUTTON_L1, new ButtonMapping("L1", "aim"));
+//        buttonMappings.put(KeyEvent.KEYCODE_BUTTON_R1, new ButtonMapping("R1", "shoot"));
+//    }
 
 //    @Override
 //    public void onButtonPressed(int buttonCode, int deviceId) {

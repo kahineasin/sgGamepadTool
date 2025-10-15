@@ -312,7 +312,8 @@ public class BezierScreen implements Screen// ApplicationListener
 //        skin.add("default", MainMenuScreen.getLabelStyle(skin));
 //        skin.add("default", MainMenuScreen.getTextFieldStyle(skin));
 
-        font = MainMenuScreen.getFont2();//刷新新的中文字
+//        font = MainMenuScreen.getFont2();//刷新新的中文字
+        font = game.getFont2();//刷新新的中文字
         skin = MainMenuScreen.getSkin2(font);
 //        skin.add("default", font);
         stage = new Stage(new StretchViewport(ScreenSetting.WORLD_WIDTH, ScreenSetting.WORLD_HEIGHT),batch);

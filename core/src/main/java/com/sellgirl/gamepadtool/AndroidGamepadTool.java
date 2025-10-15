@@ -11,6 +11,7 @@ public abstract class AndroidGamepadTool extends GamepadTool {
     public abstract ISGTouchSimulate getTouchSimulate();
     //测试事件需要
     public abstract void startOverlayService();
+//    public abstract void checkSimulateService();
 //    private  void goToGamepadToKeyboardPage() {
 //
 ////		game.setScreen(new com.mygdx.game.sasha.screen.KeySettingScreen(game, //manager,

@@ -55,14 +55,14 @@
           android:name="com.sellgirl.gamepadtool.android.OverlayService"
           android:enabled="true"
           android:exported="false" />
-      <service
+      <!--<service
           android:name="com.sellgirl.gamepadtool.android.GamepadService"
           android:enabled="true"
           android:exported="true">
           <intent-filter>
               <action android:name="com.sellgirl.gamepadtool.android.GAMEPAD_SERVICE" />
           </intent-filter>
-      </service>
+      </service>-->
     <activity
         android:name="com.sellgirl.gamepadtool.android.AndroidLauncher"
         android:label="@string/app_name"

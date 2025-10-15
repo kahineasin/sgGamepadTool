@@ -261,31 +261,31 @@ public class ButtonOverlayView extends View {
 //    }
 
 
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        Log.d("FocusOverlay", "Key down: " + keyCode + ", source: " + event.getSource());
-        if(null!=TouchSimulationService.getInstance()) {
-
-            return true;
-        }
-        return false;
-    }
-    @Override
-    public boolean onKeyUp(int keyCode, KeyEvent event) {
-        Log.d("FocusOverlay", "Key up: " + keyCode);
-
-        if(null!=TouchSimulationService.getInstance()) {
-            //这里需要把手柄对应到view中的button todo
-            if (KeyEvent.ACTION_UP == event.getAction()
-
-            ) {
-                TouchSimulationService.getInstance().simulateTouchFromGdx(buttons.get(0).x, buttons.get(0).y);
-
-            }
-            return true;
-        }
-        return false;
-    }
+//    @Override
+//    public boolean onKeyDown(int keyCode, KeyEvent event) {
+//        Log.d("FocusOverlay", "Key down: " + keyCode + ", source: " + event.getSource());
+//        if(null!=TouchSimulationService.getInstance()) {
+//
+//            return true;
+//        }
+//        return false;
+//    }
+//    @Override
+//    public boolean onKeyUp(int keyCode, KeyEvent event) {
+//        Log.d("FocusOverlay", "Key up: " + keyCode);
+//
+//        if(null!=TouchSimulationService.getInstance()) {
+//            //这里需要把手柄对应到view中的button todo
+//            if (KeyEvent.ACTION_UP == event.getAction()
+//
+//            ) {
+//                TouchSimulationService.getInstance().simulateTouchFromGdx(buttons.get(0).x, buttons.get(0).y);
+//
+//            }
+//            return true;
+//        }
+//        return false;
+//    }
 
     private boolean dragging=false;
     private String dragId="";

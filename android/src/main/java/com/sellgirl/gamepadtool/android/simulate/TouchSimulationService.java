@@ -240,6 +240,7 @@ public class TouchSimulationService extends AccessibilityService implements ISGT
     }
 
     public static boolean areNotificationsEnabled(Context context) {
+
 //        // 只有在 Android 13 (API 33) 及以上版本才需要此权限
 //        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
 //            return true;
@@ -251,8 +252,9 @@ public class TouchSimulationService extends AccessibilityService implements ISGT
 //
 //        return b1
 //                ;
-        return true;
+        return null!=instance;
     }
+
 
     //-----------------------模拟摇杆--------------------------
     // 存储当前活动的触摸点
