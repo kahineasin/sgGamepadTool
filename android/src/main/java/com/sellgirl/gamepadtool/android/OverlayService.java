@@ -792,7 +792,7 @@ public class OverlayService extends Service implements GamepadCallback {
     public boolean simulate() {
         ISGTouchSimulate touchService = getTouchService();
         if (touchService == null) {
-            Log.w("OverlayService", "Touch service not available");
+//            Log.w("OverlayService", "Touch service not available");
             return false;
         }
         return touchService.simulate();

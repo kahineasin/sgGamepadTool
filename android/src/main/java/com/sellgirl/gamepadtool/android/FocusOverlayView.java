@@ -337,6 +337,7 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
                 if(//controller != null
                         motionEvent.getDeviceId()==controller.getDeviceId()
                 ) {
+                    boolean got=false;
                     synchronized(eventQueue) {
 //                        if (controller.hasPovAxis()) {
 //                            float povX = motionEvent.getAxisValue(MotionEvent.AXIS_HAT_X);
@@ -469,6 +470,8 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
                         float inputY=gamepad.getAxisLeftSpace().filterY(axisValueY);
                         axes.put(gamepad.getX1(),inputX);
                         axes.put(gamepad.getY1(),inputY);
+                            boolean isActive = inputX != 0 || inputY != 0;
+                            if(isActive&&!got){got=true;}
 //                        if(axes.get(gamepad.getX1(),0)!=inputX||
 //                                axes.get(gamepad.getY1(),0)!=inputY) {
 ////                            boolean isActive = inputX != 0 || inputY != 0;
@@ -512,6 +515,8 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
                          inputY=gamepad.getAxisRightSpace().filterY(axisValueY);
                         axes.put(gamepad.getX2(),inputX);
                         axes.put(gamepad.getY2(),inputY);
+                         isActive = inputX != 0 || inputY != 0;
+                        if(isActive&&!got){got=true;}
 //                        if(axes.get(gamepad.getX2(),0)!=inputX||
 //                                axes.get(gamepad.getY2(),0)!=inputY) {
 //                            AndroidControllerEvent event = eventPool.obtain();
@@ -525,7 +530,7 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
 ////                            axisIndex++;
 //                        }
                     }
-                    return true;
+                    return got;
                 }
                 return false;
             }
@@ -680,6 +685,7 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
             public void run () {
                 if(null!=callback){
                 synchronized(eventQueue) {
+                    boolean update=false;
                     for(AndroidControllerEvent event: eventQueue) {
 //                        boolean processed=false;
                         switch(event.type) {
@@ -776,6 +782,7 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
                             btns.remove(i, -2);
 //                            callback.onButtonReleased(i, controller.getDeviceId());
                             callback.onButtonReleased(buttons.get(idx).x,buttons.get(idx).y, controller.getDeviceId());
+                            if(!update){update=true;}
                         }
                         idx++;
                     }
@@ -799,6 +806,7 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
                                 callback.handleJoystickTouch(x0,y0,screenX,screenY,isActive,gamepad.getX1());
                                 axesOld.put(gamepad.getX1(),x);
                                 axesOld.put(gamepad.getY1(),y);
+                                if(!update){update=true;}
                     }
                     //右摇杆
                     x=axes.get(gamepad.getX2(),-2);
@@ -823,9 +831,10 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
                         callback.simulateDrag(x0, y0, screenX, screenY);
                         axesOld.put(gamepad.getX2(),x);
                         axesOld.put(gamepad.getY2(),y);
+                        if(!update){update=true;}
                     }
 
-                    if(null!=callback) {
+                    if(null!=callback&&update) {
                         callback.simulate();
                     }
                     eventPool.freeAll(eventQueue);
