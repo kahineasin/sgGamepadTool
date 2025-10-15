@@ -52,10 +52,14 @@ public static final String TEXTURE_ATLAS_LIBGDX_UI = "skin/uiskin.atlas";
     // Delay after game finished
     public static final float TIME_DELAY_GAME_FINISHED = 6;
 
+    public static final String LAST_APK_VERSION_URL="https://html.sellgirl.com/gamepadTool/android/version.html";
+    public static final String APK_URL="https://html.sellgirl.com/gamepadTool/android/sgGamepadTool.apk";
+    public static final String EXTERNAL_APK_FILE ="sgGamepadTool/sgGamepadTool.apk";
+
 //    public static final String LAST_JAR_VERSION_URL="https://gitee.com/sellgirl/sgGamepadToolRelease/raw/main/version.html";//gitee需要登陆
 //    public static final String JAR_URL="https://gitee.com/sellgirl/sgGamepadToolRelease/raw/main/lib/sgGamepadTool-fusion.jar";
-    public static final String LAST_JAR_VERSION_URL="https://html.sellgirl.com/gamepadTool/version.html";
-    public static final String JAR_URL="https://html.sellgirl.com/gamepadTool/sgGamepadTool-fusion.jar";
+    public static final String LAST_JAR_VERSION_URL="https://html.sellgirl.com/gamepadTool/pc/version.html";
+    public static final String JAR_URL="https://html.sellgirl.com/gamepadTool/pc/sgGamepadTool-fusion.jar";
     public static final String LOCAL_JAR_FILE="sgGamepadTool-fusion.jar";
 
 }

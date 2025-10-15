@@ -46,6 +46,30 @@
 # You will probably need this line in most cases:
 -keep public class com.badlogic.gdx.graphics.Color { *; }
 
+# sgGamepadTool
+-keep class com.sellgirl.sgGameHelper.** implements com.sellgirl.sgJavaHelper.ISGUnProGuard{*;}
+-keep class com.sellgirl.gamepadtool.** implements com.sellgirl.sgJavaHelper.ISGUnProGuard{*;}
+#-keep public class com.sellgirl.gamepadtool.android.AndroidLauncher{
+#    public protected *;
+#}
+#-keep public class com.sellgirl.gamepadtool.lwjgl3.Lwjgl3Launcher {
+#    public protected *;
+#}
+
 # These two lines are used with mapping files; see https://developer.android.com/build/shrink-code#retracing
 -keepattributes LineNumberTable,SourceFile
 -renamesourcefileattribute SourceFile
+
+# Please add these rules to your existing keep rules in order to suppress warnings.
+# This is generated automatically by the Android Gradle plugin.
+-dontwarn com.google.common.collect.Multimap
+-dontwarn java.awt.AWTException
+-dontwarn java.awt.Color
+-dontwarn java.awt.Font
+-dontwarn java.awt.MouseInfo
+-dontwarn java.awt.Point
+-dontwarn java.awt.PointerInfo
+-dontwarn java.awt.Rectangle
+-dontwarn java.awt.Robot
+-dontwarn springfox.documentation.spring.web.json.Json
+-dontwarn sun.reflect.annotation.AnnotationType

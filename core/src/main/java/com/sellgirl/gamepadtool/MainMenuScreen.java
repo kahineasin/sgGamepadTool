@@ -330,9 +330,6 @@ ISGPS5Gamepad sgcontroller;
 								new Consumer<Object>() {
 									@Override
 									public void accept(Object o) {
-//										if (Application.ApplicationType.Android == Gdx.app.getType()) {
-//											downloadJar(true);
-//										}
 										downloadJar(true);
 									}
 								},
@@ -432,9 +429,9 @@ ISGPS5Gamepad sgcontroller;
 				stage.addActor(jarPB);
 			}
 			if(100<=game.getJarDownloader().progress){
-//				if(game instanceof AndroidMusicPlayer){
-//					((AndroidMusicPlayer)game).updateApk(Constants.EXTERNAL_APK_FILE);
-//				}else
+				if(game instanceof AndroidGamepadTool){
+					((AndroidGamepadTool)game).updateApk(Constants.EXTERNAL_APK_FILE);
+				}else
 				if(Application.ApplicationType.Desktop== Gdx.app.getType()){// 启动更新脚本并退出当前应用
 					try {
 						new ProcessBuilder("cmd", "/c", "start", "updater.bat").start();
@@ -1195,9 +1192,9 @@ ISGPS5Gamepad sgcontroller;
 		if(null!=game.getJarDownloader()){return;}
 		game.setJarDownloader(new SGFileDownloader());
 		switch (Gdx.app.getType()){
-//			case Android:
-//				game.getJarDownloader().download(Constants.APK_URL,Gdx.files.external( Constants.EXTERNAL_APK_FILE),forceUpdate);
-//				break;
+			case Android:
+				game.getJarDownloader().download(Constants.APK_URL,Gdx.files.external( Constants.EXTERNAL_APK_FILE),forceUpdate);
+				break;
 			case Desktop:
 				game.getJarDownloader().download(Constants.JAR_URL,Gdx.files.local( Constants.LOCAL_JAR_FILE),forceUpdate);
 				break;
@@ -1207,9 +1204,9 @@ ISGPS5Gamepad sgcontroller;
 	}
 	public static void getLastVersion(SGAction1<String> action){
 		switch (Gdx.app.getType()){
-//			case Android:
-//				SGLibGdxHelper.getHttpStringAsync(Constants.LAST_VERSION_URL,action);
-//				break;
+			case Android:
+				SGLibGdxHelper.getHttpStringAsync(Constants.LAST_APK_VERSION_URL,action);
+				break;
 			case Desktop:
 				SGLibGdxHelper.getHttpStringAsync(Constants.LAST_JAR_VERSION_URL,action);
 				break;
