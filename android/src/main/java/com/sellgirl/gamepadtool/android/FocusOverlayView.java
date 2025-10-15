@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.View;
 import android.app.Service;
@@ -60,7 +61,7 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
     private GamepadCallback callback;
     private OverlayService service=null;
 
-    private Waiter waiter=new Waiter(1);
+    private Waiter waiter=new Waiter(5);
     private WindowManager windowManager;
     private WindowManager.LayoutParams layoutParams;
 
@@ -147,12 +148,7 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
         this.layoutParams = params;
         noGamepad=null==gamepad;
         if(!noGamepad) {
-            this.gamepad = (SGPS5Gamepad) gamepad;
-            this.controller= (AndroidController) ((SGPS5Gamepad)gamepad).getController();
-            btnIds=new int[]{
-                    this.gamepad.getCROSS(),this.gamepad.getROUND(),this.gamepad.getSQUARE(),this.gamepad.getTRIANGLE(),
-                    this.gamepad.getL1(),this.gamepad.getR1(),this.gamepad.getL2(),this.gamepad.getR2()
-            };
+            setGamepad(gamepad);
         }
         handler = new Handler(Looper.getMainLooper());
 //        this.controller=new AndroidController2 ((AndroidController) ((SGPS5Gamepad)gamepad).getController()) ;
@@ -167,7 +163,14 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
 
 //        axes = new float[axesIDList.size()];
     }
-
+    private void setGamepad(ISGPS5Gamepad gamepad){
+        this.gamepad = (SGPS5Gamepad) gamepad;
+        this.controller= (AndroidController) ((SGPS5Gamepad)gamepad).getController();
+        btnIds=new int[]{
+                this.gamepad.getCROSS(),this.gamepad.getROUND(),this.gamepad.getSQUARE(),this.gamepad.getTRIANGLE(),
+                this.gamepad.getL1(),this.gamepad.getR1(),this.gamepad.getL2(),this.gamepad.getR2()
+        };
+    }
     private void setupFocus() {
         // 关键步骤1：设置为可获取焦点
         setFocusable(true);
@@ -851,6 +854,37 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
                     handler.postDelayed(this, JOYSTICK_UPDATE_INTERVAL);
 //                    //uuid会变，但检查过没有同时多个实例
 //                    SGDataHelper.getLog().print(TAG+" uuid:"+uuid+" "+ SGDate.Now().toString());
+                }
+            }
+        }.run();
+
+        new Runnable() {
+            @SuppressWarnings("synthetic-access")
+            @Override
+            public void run () {
+                //检查手柄断线并重连接
+                if(!noGamepad){
+                    boolean alive=false;
+                    for(int deviceId: InputDevice.getDeviceIds()) {
+                        if(deviceId==controller.getDeviceId()){
+                            alive=true;
+                            break;
+                        }
+                    }
+//                    noGamepad=!alive;
+                    if(!alive){
+                        noGamepad=true;
+//                        running=false;
+                    }
+                }else{
+                       SGPS5Gamepad gamepad2=OverlayService.gatherControllers();
+                       if(null!=gamepad2){
+                           setGamepad(gamepad2);
+                           noGamepad=false;
+                       }
+                }
+                if(running){
+                    handler.postDelayed(this, 5000);
                 }
             }
         }.run();

@@ -280,7 +280,7 @@ public class OverlayService extends Service implements GamepadCallback {
         if(null==gamepad){
 //            //此方法依赖于AndroidControllers类，主线程停止后无法更新了
 //            gamepad= SGLibGdxHelper.getSGGamepad();
-            gatherControllers();
+            gamepad=gatherControllers();
         }
 //        if(null==getTouchService()){
 //            //Service中好像没有办法使用AndroidApplication的方法
@@ -368,7 +368,7 @@ public class OverlayService extends Service implements GamepadCallback {
 //            int aa=1;
 //        }
     }
-    private void gatherControllers(//boolean sendEvent
+    public static SGPS5Gamepad gatherControllers(//boolean sendEvent
     ) {
         Array2<AndroidController> controllers=new Array2<>();
         for(int deviceId: InputDevice.getDeviceIds()) {
@@ -380,10 +380,11 @@ public class OverlayService extends Service implements GamepadCallback {
         }
         Controller c=SGLibGdxHelper.getGamepad(controllers);
         if(null!=c){
-            this.gamepad=new SGPS5Gamepad(c);
+            return new SGPS5Gamepad(c);
         }
+        return null;
     }
-    private boolean isController(InputDevice device) {
+    private static boolean isController(InputDevice device) {
         return ((device.getSources() & InputDevice.SOURCE_CLASS_JOYSTICK) == InputDevice.SOURCE_CLASS_JOYSTICK)
                 && (((device.getSources() & InputDevice.SOURCE_GAMEPAD) == InputDevice.SOURCE_GAMEPAD)
                 || (device.getKeyboardType() != InputDevice.KEYBOARD_TYPE_ALPHABETIC))

@@ -1252,8 +1252,8 @@ public class TouchSimulationService extends AccessibilityService implements ISGT
             return true;
         }
 
-        //uuid永远是0
-        SGDataHelper.getLog().print(TAG+" uuid:"+uuid+" "+ SGDate.Now().toString());
+//        //uuid永远是0
+//        SGDataHelper.getLog().print(TAG+" uuid:"+uuid+" "+ SGDate.Now().toString());
 
         int cnt=0;
         GestureDescription.Builder builder=new GestureDescription.Builder();
