@@ -148,7 +148,9 @@ public class ButtonOverlayView extends View {
         }
     }
 
-    private String[] btnLbls=new String[]{"A","B","X","Y"};
+    public static String[] btnLbls=new String[]{
+            "A","B","X","Y","L1","R1","L2","R2",
+    };
     private void loadButtonPositions() {
         SharedPreferences prefs = getContext().getSharedPreferences("button_positions", Context.MODE_PRIVATE);
 

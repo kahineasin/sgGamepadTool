@@ -154,7 +154,10 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
         axes=new IntFloatMap();
         axesOld=new IntFloatMap();
         btns = new IntIntMap();
-        btnIds=new int[]{this.gamepad.getCROSS(),this.gamepad.getROUND(),this.gamepad.getSQUARE(),this.gamepad.getTRIANGLE()};
+        btnIds=new int[]{
+                this.gamepad.getCROSS(),this.gamepad.getROUND(),this.gamepad.getSQUARE(),this.gamepad.getTRIANGLE(),
+                this.gamepad.getL1(),this.gamepad.getR1(),this.gamepad.getL2(),this.gamepad.getR2()
+        };
 //        axesIds=new int[]{this.gamepad.getX1(),};
         uuid=instanceCnt++;
         setupEventQueue();
@@ -878,7 +881,7 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
             canvas.drawText(button.label, radius, textY, textPaint);
         }
     }
-    private String[] btnLbls=new String[]{"A","B","X","Y"};
+//    private String[] btnLbls=new String[]{"A","B","X","Y"};
     private void loadButtonPositions() {
         SharedPreferences prefs = getContext().getSharedPreferences("button_positions", Context.MODE_PRIVATE);
 
@@ -889,7 +892,7 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
 //                prefs.getFloat("buttonA_y", 100),
 //                40
 //        ));
-        for(String i:btnLbls){
+        for(String i:ButtonOverlayView.btnLbls){
             // 从SharedPreferences加载按钮位置
             buttons.add(new ButtonInfo(
                     i,//"A",
