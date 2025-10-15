@@ -140,6 +140,7 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
 //        v.requestFocus();
 //        v.setOnGenericMotionListener(this);
 
+        uuid=instanceCnt++;
 //        centerX=x;centerY=y;
         centerX=params.x;centerY=params.y;
         this.windowManager = windowManager;
@@ -162,7 +163,6 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
         axesOld=new IntFloatMap();
         btns = new IntIntMap();
 //        axesIds=new int[]{this.gamepad.getX1(),};
-        uuid=instanceCnt++;
         setupEventQueue();
 
 //        axes = new float[axesIDList.size()];
@@ -849,7 +849,8 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
 //                Gdx.app.postRunnable(this);
                 if(running){
                     handler.postDelayed(this, JOYSTICK_UPDATE_INTERVAL);
-//                    SGDataHelper.getLog().print("uuid:"+uuid+" "+SGDate.Now().toString());
+//                    //uuid会变，但检查过没有同时多个实例
+//                    SGDataHelper.getLog().print(TAG+" uuid:"+uuid+" "+ SGDate.Now().toString());
                 }
             }
         }.run();

@@ -19,6 +19,7 @@ import java.util.Map;
 import com.sellgirl.gamepadtool.android.GestureUtils;
 import com.sellgirl.gamepadtool.android.FocusOverlayView;
 import com.sellgirl.sgGameHelper.list.Array2;
+import com.sellgirl.sgJavaHelper.SGDate;
 import com.sellgirl.sgJavaHelper.config.SGDataHelper;
 
 // TouchSimulationService.java
@@ -37,6 +38,8 @@ public class TouchSimulationService extends AccessibilityService implements ISGT
 
 {
     private static final String TAG = "TouchSimulation";
+    private static int instanceCnt=0;
+    public int uuid=0;
     private static TouchSimulationService instance;
 
     //测试用的字段
@@ -57,6 +60,7 @@ public class TouchSimulationService extends AccessibilityService implements ISGT
     protected void onServiceConnected() {
         super.onServiceConnected();
         instance = this;
+        uuid=instanceCnt++;
 //         builder=new GestureDescription.Builder();
 
         handler = new Handler(Looper.getMainLooper());
@@ -1247,6 +1251,10 @@ public class TouchSimulationService extends AccessibilityService implements ISGT
         if((downStroke.isEmpty()||needMove.isEmpty())&&keyStrokes.isEmpty()){
             return true;
         }
+
+        //uuid永远是0
+        SGDataHelper.getLog().print(TAG+" uuid:"+uuid+" "+ SGDate.Now().toString());
+
         int cnt=0;
         GestureDescription.Builder builder=new GestureDescription.Builder();
         if(!downStroke.isEmpty()){

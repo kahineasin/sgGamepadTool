@@ -68,7 +68,9 @@ public class OverlayService extends Service implements GamepadCallback {
         activeTouchPoints=new HashMap<>();
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
 //        createInputOverlay();
-        showButtonOverlay();
+
+//        showButtonOverlay();//pause启动后进入本service,如果开始就显示这个，系统的drag的UP事件可能会被挡，然后卡住
+        showSimulateOverlay();
 
 //        // 等待触摸服务可用
 //        waitForTouchService();
