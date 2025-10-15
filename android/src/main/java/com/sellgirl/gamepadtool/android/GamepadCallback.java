@@ -9,6 +9,8 @@ public interface GamepadCallback {
 //        void onAxisMoved(int axis, float value, int deviceId);
         //摇杆
         void handleJoystickTouch(//String joystickId,
+                                 float x0, float y0,
                                  float x, float y, boolean isActive, int pointerId);
+        boolean simulateDrag(float x0, float y0,float x, float y);
         boolean simulate();
 }

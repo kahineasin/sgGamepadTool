@@ -45,6 +45,7 @@ public class TouchSimulationService extends AccessibilityService implements ISGT
     private Array2<GestureDescription.StrokeDescription> keyStrokes=null;
 //    private Array2<GestureDescription.StrokeDescription> needRemoveStrokes=null;
     private Array2<Integer> needRemoveStrokes=null;
+    private boolean showLog=false;
 //    private GestureDescription.Builder builder=null;
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {}
@@ -208,20 +209,34 @@ public class TouchSimulationService extends AccessibilityService implements ISGT
     }
     // 供LibGDX调用的方法
     @Override
-    public void simulateTouchFromGdx( float x,  float y//, final int action
+    public void simulateTouchFromGdx(
+            float x,  float y//, final int action
     ) {
 
-        // 转换坐标：LibGDX坐标 -> Android屏幕坐标
-        float screenX = x;
-//        float screenY = getResources().getDisplayMetrics().heightPixels - y;
-        float screenY = y;
-
+//        // 转换坐标：LibGDX坐标 -> Android屏幕坐标
+//        float screenX = x;
+////        float screenY = getResources().getDisplayMetrics().heightPixels - y;
+//        float screenY = y;
+////        simulateTouch(screenX, screenY,
+////                MotionEvent.ACTION_DOWN,//action,
+////                50);
 //        simulateTouch(screenX, screenY,
-//                MotionEvent.ACTION_DOWN,//action,
+//                MotionEvent.ACTION_UP,//action,
 //                50);
-        simulateTouch(screenX, screenY,
-                MotionEvent.ACTION_UP,//action,
-                50);
+
+        if (!isEnabled()) return;
+
+        Path path = new Path();
+        path.moveTo(x, y);
+//        Path path = new Path();
+//        path.moveTo(x0, y0);
+//        path.lineTo(x, y);
+
+        GestureDescription.StrokeDescription stroke;
+        stroke = new GestureDescription.StrokeDescription(path, 0, 10);
+        keyStrokes.add(stroke);
+        log( "tap ["+x+","+y+"]");
+
     }
 
     public static boolean areNotificationsEnabled(Context context) {
@@ -251,13 +266,17 @@ public class TouchSimulationService extends AccessibilityService implements ISGT
     private static class DownStroke{
         public int pointerId=0;
         public GestureDescription.StrokeDescription stroke=null;
+        public float x0;
+        public float y0;
     }
 //    private boolean needMove=false;
     private HashMap<Integer,Boolean> needMove;
 //    private GestureDescription.StrokeDescription clickStroke=null;
 //    private float x=0;
 //    private float y=0;
-    private void setStroke(int pointerId,GestureDescription.StrokeDescription stroke){
+    private void setStroke(int pointerId,GestureDescription.StrokeDescription stroke
+
+    ){
         int idx=0;
         int result=-1;
         for(DownStroke i:downStroke){
@@ -275,6 +294,29 @@ public class TouchSimulationService extends AccessibilityService implements ISGT
         }
     }
 
+    private void setStroke(int pointerId,GestureDescription.StrokeDescription stroke
+            ,float x0,float y0
+    ){
+        int idx=0;
+        int result=-1;
+        for(DownStroke i:downStroke){
+            if(i.pointerId==pointerId){
+                result=idx;
+                i.stroke=stroke;
+                i.x0=x0;
+                i.y0=y0;
+            }
+            idx++;
+        }
+        if(0>result){
+            DownStroke n=new DownStroke();
+            n.pointerId=pointerId;
+            n.stroke=stroke;
+            n.x0=x0;
+            n.y0=y0;
+            downStroke.add(n);
+        }
+    }
     private GestureDescription.StrokeDescription getStroke(int pointerId){
 //        int idx=0;
 //        int result=-1;
@@ -301,7 +343,7 @@ public class TouchSimulationService extends AccessibilityService implements ISGT
      * @param pointerId 触摸点ID（用于多点触控）
      * @return 是否成功
      */
-    public boolean simulateTouchDown(float x, float y, int pointerId) {
+    public boolean simulateTouchDown(float x0, float y0,float x, float y, int pointerId) {
         if(testOneTime){
 //            simulateTouchDownTest(x,y,pointerId);
 //            simulateTouchMultiStrokeTest(x,y,pointerId);//ok
@@ -317,8 +359,11 @@ public class TouchSimulationService extends AccessibilityService implements ISGT
         }
 
         try {
+//            Path path = new Path();
+//            path.moveTo(x, y);
             Path path = new Path();
-            path.moveTo(x, y);
+            path.moveTo(x0, y0);
+            path.lineTo(x, y);
 
             // 创建短暂的手势表示按下
             GestureDescription.StrokeDescription stroke = null;
@@ -328,10 +373,11 @@ public class TouchSimulationService extends AccessibilityService implements ISGT
                         ,true
                 );
 //                downStroke=stroke;
-                setStroke(pointerId,stroke);
+//                setStroke(pointerId,stroke);
+                setStroke(pointerId,stroke,x0,y0);
 //                needMove=true;
                 needMove.put(pointerId,true);
-                Log.w(TAG, "DOWN ["+x+","+y+"]");
+                log(  "DOWN ["+x+","+y+"]");
 //                clickStroke = new GestureDescription.StrokeDescription(
 //                        new Path(), 0,10// time//10 // 持续10毫秒
 //                        ,true
@@ -410,7 +456,7 @@ public class TouchSimulationService extends AccessibilityService implements ISGT
                 setStroke(pointerId,downStroke);
 //                needMove=true;
                 needMove.put(pointerId,true);
-                Log.w(TAG, "MOVE ["+x2+","+y2+"]->["+x+","+y+"]");
+                log(  "MOVE ["+x2+","+y2+"]->["+x+","+y+"]");
                 GestureDescription.StrokeDescription stroke=downStroke;
 //                GestureDescription gesture = new GestureDescription.Builder()
 //                        .addStroke(stroke)
@@ -584,7 +630,8 @@ public class TouchSimulationService extends AccessibilityService implements ISGT
 ////                downStroke=null;
 //                needMove=true;
                 needMove.put(pointerId,true);
-                Log.w(TAG, "UP ["+x2+","+y2+"]->["+x+","+y+"]");
+                log( "UP ["+x2+","+y2+"]->["+x+","+y+"]");
+
 //                needRemoveStrokes.add(downStroke);
                 needRemoveStrokes.add(pointerId);
 //                GestureDescription gesture = new GestureDescription.Builder()
@@ -653,6 +700,24 @@ public class TouchSimulationService extends AccessibilityService implements ISGT
         return false;
     }
 
+    @Override
+    public boolean simulateDrag(float x0, float y0, float x, float y) {
+
+        if (!isEnabled()) return false;
+
+//        Path path = new Path();
+//        path.moveTo(x, y);
+        Path path = new Path();
+        path.moveTo(x0, y0);
+        path.lineTo(x, y);
+
+        GestureDescription.StrokeDescription stroke;
+        stroke = new GestureDescription.StrokeDescription(path, 0, 10);
+        keyStrokes.add(stroke);
+        log( "UP ["+x0+","+y0+"]->["+x+","+y+"]");
+        return true;
+    }
+
 
     /**
      * 模拟完整的点击事件（按下+释放）
@@ -660,7 +725,9 @@ public class TouchSimulationService extends AccessibilityService implements ISGT
      * @param y 点击的屏幕Y坐标
      * @param duration 点击持续时间（毫秒）
      * @return 是否成功
+     * @Deprecated 改为批量simulate()
      */
+    @Deprecated
     public boolean simulateTap(float x, float y, long duration) {
         if (!isEnabled()) {
             Log.w(TAG, "Service not enabled");
@@ -1194,7 +1261,15 @@ public class TouchSimulationService extends AccessibilityService implements ISGT
                 //for(DownStroke i:downStroke){
                 for(int idx=0;downStroke.size()>idx;idx++){
                     DownStroke i=downStroke.get(idx);
-                    GestureDescription.StrokeDescription stroke=new GestureDescription.StrokeDescription(i.stroke.getPath(),0,10,true);
+                    TouchPoint previousPoint = activeTouchPoints.get(i.pointerId);
+
+                    Path path2 = new Path();
+                    path2.moveTo(i.x0, i.y0);
+                    if(null!=previousPoint) {
+                        path2.lineTo(previousPoint.x, previousPoint.y);
+                    }
+//                    GestureDescription.StrokeDescription stroke=new GestureDescription.StrokeDescription(i.stroke.getPath(),0,10,true);
+                    GestureDescription.StrokeDescription stroke=new GestureDescription.StrokeDescription(path2,0,10,true);
 //                    if(!needRemoveStrokes.isEmpty()){
 //                        needRemoveStrokes.clear();
 //                        needRemoveStrokes.add(stroke);
@@ -1212,7 +1287,7 @@ public class TouchSimulationService extends AccessibilityService implements ISGT
             builder.addStroke(i);
             cnt++;
         }
-        Log.w(TAG, "simulate strokeCnt "+cnt);
+        log( "simulate strokeCnt "+cnt);
 
         GestureDescription gesture=builder.build();
         boolean success = dispatchGesture(gesture, gestureResultCallback, null);
@@ -1235,7 +1310,30 @@ public class TouchSimulationService extends AccessibilityService implements ISGT
                 }
             }
             needRemoveStrokes.clear();
+            //为保证pointerId,从后往前删除，遇到未UP的，往前都保留
+            for(int j=downStroke.size()-1;0<=j;j++){
+                int find=-1;
+//                int idx=0;
+                for (Integer i : needRemoveStrokes) {
+                    if(downStroke.get(j).pointerId==i){
+                        find=j;
+                        break;
+                    }
+//                    idx++;
+                }
+                if(-1<find){
+                    downStroke.removeIndex(j);
+                    needRemoveStrokes.removeValue(downStroke.get(j).pointerId,true);
+                }else{
+                    break;
+                }
+            }
         }
         return success;
+    }
+    private void log(String s){
+        if(showLog) {
+            Log.d(TAG, s);
+        }
     }
 }

@@ -675,6 +675,7 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
             @SuppressWarnings("synthetic-access")
             @Override
             public void run () {
+                if(null!=callback){
                 synchronized(eventQueue) {
                     for(AndroidControllerEvent event: eventQueue) {
 //                        boolean processed=false;
@@ -784,31 +785,39 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
                                 float radius=200;//100
 //                                int stickIdx=event.code==gamepad.getX1()?0:1;
                                 int stickIdx=0;
+                                float x0=sticks.get(stickIdx).x;
+                                float y0=sticks.get(stickIdx).y;
                                 float screenX = sticks.get(stickIdx).x + x * radius;
                                 float screenY = sticks.get(stickIdx).y +y * radius;
                                 //现在发现，其实左右摇杆的行为多是不一样的
                                 //左摇杆: 摇杆回中时xy回中
                                 //右摇杆: 摇杆回中时xy不应该回中（因为一般右摇杆用于转视角，视角也会跟着回中就不对了） todo
-                                callback.handleJoystickTouch(screenX,screenY,isActive,gamepad.getX1());
+//                                callback.handleJoystickTouch(screenX,screenY,isActive,gamepad.getX1());
+                                callback.handleJoystickTouch(x0,y0,screenX,screenY,isActive,gamepad.getX1());
                                 axesOld.put(gamepad.getX1(),x);
                                 axesOld.put(gamepad.getY1(),y);
                     }
                     //右摇杆
                     x=axes.get(gamepad.getX2(),-2);
                      y=axes.get(gamepad.getY2(),-2);
-                    if(x!=axesOld.get(gamepad.getX2(),-2)
-                            ||y!=axesOld.get(gamepad.getY2(),-2)
+                    if(
+                            (x!=axesOld.get(gamepad.getX2(),-2)
+                            ||y!=axesOld.get(gamepad.getY2(),-2))
+                            ||(x!=0||y!=0)//右摇杆就算不变动，也要持续事件
                     ){
                         boolean isActive=x!=0||y!=0;
-                        float radius=200;//100
+                        float radius=80;//视觉200太快;20视觉不动
 //                                int stickIdx=event.code==gamepad.getX1()?0:1;
                         int stickIdx=1;
+                        float x0=sticks.get(stickIdx).x;
+                        float y0=sticks.get(stickIdx).y;
                         float screenX = sticks.get(stickIdx).x + x * radius;
                         float screenY = sticks.get(stickIdx).y +y * radius;
                         //现在发现，其实左右摇杆的行为多是不一样的
                         //左摇杆: 摇杆回中时xy回中
                         //右摇杆: 摇杆回中时xy不应该回中（因为一般右摇杆用于转视角，视角也会跟着回中就不对了） todo
-                        callback.handleJoystickTouch(screenX,screenY,isActive,gamepad.getX2());
+                        //callback.handleJoystickTouch(x0,y0,screenX,screenY,isActive,gamepad.getX2());
+                        callback.simulateDrag(x0, y0, screenX, screenY);
                         axesOld.put(gamepad.getX2(),x);
                         axesOld.put(gamepad.getY2(),y);
                     }
@@ -818,6 +827,7 @@ implements View.OnTouchListener, View.OnKeyListener, View.OnGenericMotionListene
                     }
                     eventPool.freeAll(eventQueue);
                     eventQueue.clear();
+                }
                 }
 //                Gdx.app.postRunnable(this);
                 if(running){

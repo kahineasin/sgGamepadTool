@@ -96,7 +96,8 @@ public class InstrumentationInjector implements ISGTouchSimulate {
     }
 
     @Override
-    public boolean simulateTouchDown(float x, float y, int pointerId) {
+    public boolean simulateTouchDown(
+            float x0, float y0,float x, float y, int pointerId) {
 
         backgroundHandler.post(new Runnable() {
             @Override
@@ -107,7 +108,8 @@ public class InstrumentationInjector implements ISGTouchSimulate {
         return true;
     }
 
-    public boolean doSimulateTouchDown(float x, float y, int pointerId) {
+    public boolean doSimulateTouchDown(
+            float x, float y, int pointerId) {
 
         downTime = SystemClock.uptimeMillis();
         long eventTime = SystemClock.uptimeMillis();
@@ -177,6 +179,11 @@ public class InstrumentationInjector implements ISGTouchSimulate {
             }
         });
         return true;
+    }
+
+    @Override
+    public boolean simulateDrag(float x0, float y0, float x, float y) {
+        return false;
     }
 
     @Override

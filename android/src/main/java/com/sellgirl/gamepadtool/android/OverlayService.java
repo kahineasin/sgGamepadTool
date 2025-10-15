@@ -733,6 +733,7 @@ public class OverlayService extends Service implements GamepadCallback {
      * @param pointerId 计算轴的UP DOWN, 所以用axisX或axisY都可以的
      */
     public void handleJoystickTouch(//String joystickId,
+                                    float x0, float y0,
                                     float x, float y, boolean isActive, int pointerId) {
         ISGTouchSimulate touchService = getTouchService();
         if (touchService == null) {
@@ -743,7 +744,7 @@ public class OverlayService extends Service implements GamepadCallback {
         if (isActive) {
             if (!isTouchPointActive(pointerId)) {
                 // 第一次激活，发送 DOWN 事件
-                if(touchService.simulateTouchDown(x, y, pointerId)){
+                if(touchService.simulateTouchDown(x0,y0,x, y, pointerId)){
                     activeTouchPoints.put(pointerId, new TouchPoint(x, y));
                 }
 //                Log.d(TAG, "simulateTouchDown:  at " + x + ", " + y+" id:"+pointerId);
@@ -765,17 +766,27 @@ public class OverlayService extends Service implements GamepadCallback {
         }
     }
 
-
-    /**
-     * 处理按钮点击事件
-     */
-    public void handleButtonTap(float x, float y) {
-        TouchSimulationService touchService = TouchSimulationService.getInstance();
-        if (touchService != null) {
-            // 使用简单的点击模拟
-            touchService.simulateTap(x, y, 50);
+    @Override
+    public boolean simulateDrag(float x0, float y0, float x, float y) {
+        ISGTouchSimulate touchService = getTouchService();
+        if (touchService == null) {
+            Log.w("OverlayService", "Touch service not available");
+            return false;
         }
+        return touchService.simulateDrag(x0,y0,x,y);
     }
+
+
+//    /**
+//     * 处理按钮点击事件
+//     */
+//    public void handleButtonTap(float x, float y) {
+//        TouchSimulationService touchService = TouchSimulationService.getInstance();
+//        if (touchService != null) {
+//            // 使用简单的点击模拟
+//            touchService.simulateTap(x, y, 50);
+//        }
+//    }
 
     @Override
     public boolean simulate() {
