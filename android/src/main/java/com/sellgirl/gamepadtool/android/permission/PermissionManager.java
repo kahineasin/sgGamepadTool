@@ -179,6 +179,7 @@ public class PermissionManager {
 
     /**
      * 检查无障碍权限是否已开启
+     * @param serviceName accessibilityService的类全名
      */
     public static boolean isAccessibilityServiceEnabled(Context context, String serviceName) {
         try {

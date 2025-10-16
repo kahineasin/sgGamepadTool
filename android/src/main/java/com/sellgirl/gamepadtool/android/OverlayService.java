@@ -525,6 +525,7 @@ public class OverlayService extends Service implements GamepadCallback {
         if (touchService != null) {
             touchService.stopAllTouchPoints();
         }
+        instance=null;
     }
     private void removeOverlay() {
         if (buttonView != null) {

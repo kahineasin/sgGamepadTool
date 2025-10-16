@@ -41,9 +41,10 @@ import com.sellgirl.gamepadtool.phone.ISGTouchSimulate;
  * 暂时问题无解，可试试改为
  * */
 public class AndroidLauncher extends AndroidApplication {
-//    private static final int REQUEST_OVERLAY_PERMISSION = 1001;
-//    private static final int REQUEST_CAMERA_PERMISSION = 1002;
-//    private static final int REQUEST_LOCATION_PERMISSION = 1003;
+    private static final int REQUEST_OVERLAY_PERMISSION = 1001;
+    private static final int REQUEST_ACCESSIBILITY_PERMISSION = 1002;
+    private static final int REQUEST_WRITE_EXTERNAL_STORAGE_PERMISSION = 1003;
+    private static final int REQUEST_LOCATION_PERMISSION = 1004;
 //    private ISGTouchSimulate touchSimulate;
 //    @Override
 //    protected void onCreate(Bundle savedInstanceState) {
@@ -235,7 +236,7 @@ public class AndroidLauncher extends AndroidApplication {
     //--------------------模拟触屏 end---------------------
 
     //--------------------悬浮按钮---------------------
-    private static final int REQUEST_OVERLAY_PERMISSION = 1001;
+//    private static final int REQUEST_OVERLAY_PERMISSION = 1001;
     private void requestOverlayPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
@@ -371,33 +372,46 @@ public class AndroidLauncher extends AndroidApplication {
 ////////        // 应用进入后台时启动悬浮窗
 //        checkAndRequestSimulatePermission();
 
-        // 检查无障碍权限状态（用户可能刚从设置页面返回）
-        if (permissionManager != null) {
-            permissionManager.checkAccessibilityPermission(this,TouchSimulationService.class,
-                    new PermissionManager.PermissionCallback() {
-                @Override
-                public void onAllPermissionsCompleted(boolean allGranted) {}
-
-                @Override
-                public void onSinglePermissionResult(String permission, boolean granted) {
-                    if (granted) {
-                        Gdx.app.postRunnable(() -> {
-                            myGame.onAccessibilityEnabled();
-                        });
-                    }
-                }
-            });
-        }
-        if(OverlayService.isOk()) {
-//        if(PermissionUtils.hasOverlayPermission(this))
-            startOverlayService();
+        //pause时app.postRunnable其实应该有问题
+//        // 检查无障碍权限状态（用户可能刚从设置页面返回）
+//        if (permissionManager != null) {
+//            permissionManager.checkAccessibilityPermission(this,TouchSimulationService.class,
+//                    new PermissionManager.PermissionCallback() {
+//                @Override
+//                public void onAllPermissionsCompleted(boolean allGranted) {}
+//
+//                @Override
+//                public void onSinglePermissionResult(String permission, boolean granted) {
+//                    if (granted) {
+//                        Gdx.app.postRunnable(() -> {
+//                            myGame.onAccessibilityEnabled();
+//                        });
+//                    }
+//                }
+//            });
 //        }
+        if(!isAccessibilityServiceEnabled()){
+            PermissionManager.requestAccessibilityPermission(this);
+        }
+//        if(OverlayService.isOk()) {
+////        if(PermissionUtils.hasOverlayPermission(this))
+//            startOverlayService();
+////        }
+//        }
+        if(null==OverlayService.getInstance()){
+            if(PermissionUtils.hasOverlayPermission(this)){
+                startOverlayService();
+            }else{
+                PermissionUtils.requestOverlayPermission(this,REQUEST_OVERLAY_PERMISSION);
+            }
+
+        }else{
+            startOverlayService();
         }
     }
 
     @Override
     protected void onResume() {
-
         super.onResume();
 //        if(null==input){
 //            return;
@@ -410,6 +424,22 @@ public class AndroidLauncher extends AndroidApplication {
         stopOverlayService();
 //        startOverlayService();
     }
+
+//    @Override
+//    public void exit() {
+//        stopOverlayService();
+//        super.exit();
+//    }
+
+    @Override
+    protected void onDestroy() {
+        stopOverlayService();
+        if(null!=TouchSimulationService.getInstance()){
+            TouchSimulationService.getInstance().disableSelf();
+        }
+        super.onDestroy();
+    }
+
     // 在请求权限前显示说明
     private void showOverlayPermissionExplanation() {
         new AlertDialog.Builder(this)
@@ -454,10 +484,13 @@ public class AndroidLauncher extends AndroidApplication {
     private boolean hasAccessibility=false;
     public boolean isAccessibilityServiceEnabled(){
         //这样判断不了
-//        boolean b=ContextCompat.checkSelfPermission(this, "ACCESSIBILITY")
-//                == PackageManager.PERMISSION_GRANTED;
-        hasAccessibility=TouchSimulationService.areNotificationsEnabled(this);
-        return hasAccessibility;
+////        boolean b=ContextCompat.checkSelfPermission(this, "ACCESSIBILITY")
+////                == PackageManager.PERMISSION_GRANTED;
+//        hasAccessibility=TouchSimulationService.areNotificationsEnabled(this);
+//        return hasAccessibility;
+        return null!=TouchSimulationService.getInstance()
+                &&PermissionManager.isAccessibilityServiceEnabled(
+                        this,TouchSimulationService.class.getName());
     }
     //--------------------无障碍权限 end---------------------
 
@@ -553,7 +586,7 @@ public class AndroidLauncher extends AndroidApplication {
                     .addPermission(new PermissionRequest.Builder()
                             .setName("OVERLAY")
                             .setDesc("悬浮窗权限")
-                            .setCode(1001)
+                            .setCode(REQUEST_OVERLAY_PERMISSION)
                             .setType(PermissionRequest.TYPE_OVERLAY)
                             .setOnGranted(this::onOverlayPermissionGranted)
                             .setOnDenied(this::onOverlayPermissionDenied)
@@ -564,7 +597,7 @@ public class AndroidLauncher extends AndroidApplication {
                     .addPermission(new PermissionRequest.Builder()
                             .setName("ACCESSIBILITY")
                             .setDesc("无障碍权限")
-                            .setCode(1002)
+                            .setCode(REQUEST_ACCESSIBILITY_PERMISSION)
                             .setType(PermissionRequest.TYPE_ACCESSIBILITY)
                             .setOnGranted(this::onAccessibilityPermissionGranted)
                             .setOnDenied(this::onAccessibilityPermissionDenied)
@@ -575,7 +608,7 @@ public class AndroidLauncher extends AndroidApplication {
                     .addPermission(new PermissionRequest.Builder()
                             .setName(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                             .setDesc("存储权限")
-                            .setCode(1003)
+                            .setCode(REQUEST_WRITE_EXTERNAL_STORAGE_PERMISSION)
                             .setType(PermissionRequest.TYPE_NORMAL)
                             .setOnGranted(this::onStoragePermissionGranted)
                             .setOnDenied(this::onStoragePermissionDenied)
