@@ -92,7 +92,9 @@ public class ControllerMappingScreen implements Screen {
         Gdx.gl.glClearColor(0.2f, 0.2f, 0.2f, 0.3f); // 半透明背景
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        handleControllerInput();
+        if(null!=gamepad) {
+            handleControllerInput();
+        }
         drawButtons();
     }
 

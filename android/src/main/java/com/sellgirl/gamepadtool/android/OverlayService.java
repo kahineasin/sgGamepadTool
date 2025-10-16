@@ -41,6 +41,7 @@ import java.util.Map;
 public class OverlayService extends Service implements GamepadCallback {
 
     private String TAG="OverlayService";
+    private static OverlayService instance=null;
     public static final String ACTION_SIMULATE = "SIMULATE";
     public static final String ACTION_SETTING = "SETTING";
     private WindowManager windowManager;
@@ -74,6 +75,8 @@ public class OverlayService extends Service implements GamepadCallback {
 
 //        // 等待触摸服务可用
 //        waitForTouchService();
+
+        instance=this;
     }
 //    private void waitForTouchService() {
 //        new Handler().postDelayed(new Runnable() {
@@ -91,6 +94,12 @@ public class OverlayService extends Service implements GamepadCallback {
 //        }, 1000);
 //    }
 
+    public static OverlayService getInstance() {
+        return instance;
+    }
+    public static boolean isOk(){
+        return null!=instance&& PermissionUtils.hasOverlayPermission(instance);
+    }
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 //        if (!isOverlayShowing) {

@@ -21,6 +21,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.List;
@@ -431,6 +432,8 @@ ISGPS5Gamepad sgcontroller;
 			if(100<=game.getJarDownloader().progress){
 				if(game instanceof AndroidGamepadTool){
 					((AndroidGamepadTool)game).updateApk(Constants.EXTERNAL_APK_FILE);
+					//在某些系统上，可能有漏掉的权限导致updateApk没反应，下面这行是为了防止死循环
+					game.getJarDownloader().downloading=false;
 				}else
 				if(Application.ApplicationType.Desktop== Gdx.app.getType()){// 启动更新脚本并退出当前应用
 					try {
@@ -445,6 +448,7 @@ ISGPS5Gamepad sgcontroller;
 			}
 		}
 
+		if(null==stage){return;}    //这句也一定不能少
 
 //		ScreenUtils.clear(0, 0, 0.2f, 1);
 		ScreenUtils.clear(Color.PINK);
@@ -796,6 +800,16 @@ ISGPS5Gamepad sgcontroller;
 		textButtonStyle.background = tmp1;//非必需,但设置了可以挡住后面
 		return textButtonStyle;
 	}
+	public static ImageButton.ImageButtonStyle getImageButtonStyle(Skin skin) {
+
+		ImageButton.ImageButtonStyle textButtonStyle = new ImageButton.ImageButtonStyle();
+		textButtonStyle.up = skin.newDrawable("white", Color.DARK_GRAY);//DARK_GRAY);
+		textButtonStyle.down = skin.newDrawable("white", Color.DARK_GRAY);
+		textButtonStyle.checked = skin.newDrawable("white", Color.BLUE);
+		textButtonStyle.over = skin.newDrawable("white", Color.LIGHT_GRAY);
+		// textButtonStyle.background = skin.newDrawable("white", Color.YELLOW);
+		return textButtonStyle;
+	}
 //	/**
 //	 * 风格为:
 //	 * 白色字
@@ -847,6 +861,16 @@ ISGPS5Gamepad sgcontroller;
 		skin.get(TextButton.TextButtonStyle.class).font=font;
 		skin.get(Label.LabelStyle.class).font=font;
 		skin.get(SelectBox.SelectBoxStyle.class).font=font;
+		skin.add("default", font);
+////		skin.get(SelectBox.SelectBoxStyle.class).font=font;//
+////		skin.get(List.ListStyle.class).font=font;//
+//		skin.get(SelectBox.SelectBoxStyle.class).listStyle.font=font;
+////		skin.add("default", MainMenuScreen.getSelectBoxStyle(skin));//没有这句的话，下拉菜单的字显示不出来--benjamin20250911
+//		skin.get(CheckBox.CheckBoxStyle.class).font=font;//没这句显示不了中文字
+////		skin.add("default", MainMenuScreen.getCheckBoxStyle(skin));//没有这句的话，checkbox的文字显示不出来
+////		skin.get(ScrollPane.ScrollPaneStyle.class).font=font;
+////		skin.add("default", MainMenuScreen.getScrollStyle(skin));
+//		skin.add("default", MainMenuScreen.getImageButtonStyle(skin));
 		return skin;
 	}
 

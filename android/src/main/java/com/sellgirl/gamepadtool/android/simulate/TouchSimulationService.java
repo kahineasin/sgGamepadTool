@@ -59,7 +59,7 @@ public class TouchSimulationService extends AccessibilityService implements ISGT
     @Override
     protected void onServiceConnected() {
         super.onServiceConnected();
-        instance = this;
+        instance = this;//这句似乎放在onServiceConnected的最后执行比较合适？好像不一定，再考虑一下
         uuid=instanceCnt++;
 //         builder=new GestureDescription.Builder();
 
