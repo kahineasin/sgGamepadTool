@@ -1,5 +1,6 @@
 package com.sellgirl.gamepadtool.android.permission;
 
+import android.accessibilityservice.AccessibilityService;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -244,12 +245,18 @@ public class PermissionManager {
     /**
      * 检查无障碍权限状态（在 onResume 中调用）
      */
-    public void checkAccessibilityPermission(Activity activity, PermissionCallback callback) {
+    public void checkAccessibilityPermission(Activity activity,
+                                             Class<? extends AccessibilityService> serviceCls,
+                                             PermissionCallback callback
+
+                                             ) {
         if (currentRequest != null &&
                 currentRequest.getPermissionType() == PermissionRequest.TYPE_ACCESSIBILITY) {
 
             // 构建服务完整名称
-            String serviceName = activity.getPackageName() + "/.MyAccessibilityService";
+//            String serviceName = activity.getPackageName() + "/.MyAccessibilityService";
+//            String serviceName = activity.getPackageName() + "."+serviceCls.getName();
+            String serviceName = serviceCls.getName();
 
             if (isAccessibilityServiceEnabled(activity, serviceName)) {
                 executeGrantedAction(currentRequest);

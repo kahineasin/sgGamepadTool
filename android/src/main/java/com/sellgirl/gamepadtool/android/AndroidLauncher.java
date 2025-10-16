@@ -373,7 +373,8 @@ public class AndroidLauncher extends AndroidApplication {
 
         // 检查无障碍权限状态（用户可能刚从设置页面返回）
         if (permissionManager != null) {
-            permissionManager.checkAccessibilityPermission(this, new PermissionManager.PermissionCallback() {
+            permissionManager.checkAccessibilityPermission(this,TouchSimulationService.class,
+                    new PermissionManager.PermissionCallback() {
                 @Override
                 public void onAllPermissionsCompleted(boolean allGranted) {}
 
