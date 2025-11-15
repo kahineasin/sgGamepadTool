@@ -29,8 +29,10 @@ import com.badlogic.gdx.Gdx;
 
 import com.sellgirl.gamepadtool.AndroidGamepadTool;
 import com.sellgirl.gamepadtool.MainMenuScreen;
-import com.sellgirl.gamepadtool.android.permission.PermissionManager;
-import com.sellgirl.gamepadtool.android.permission.PermissionRequest;
+//import com.sellgirl.gamepadtool.android.permission.PermissionManager;
+//import com.sellgirl.gamepadtool.android.permission.PermissionRequest;
+import com.sellgirl.sgAndroidHelper.permission.PermissionManager;
+import com.sellgirl.sgAndroidHelper.permission.PermissionRequest;
 import com.sellgirl.gamepadtool.android.simulate.TouchSimulationService;
 import com.sellgirl.gamepadtool.phone.ISGTouchSimulate;
 
