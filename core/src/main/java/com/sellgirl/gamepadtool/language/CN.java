@@ -81,7 +81,7 @@ public class CN {
 		r.put("please input email first", "请先填写邮箱");
 		r.put("backup or upload character data", "备份或上传角色数据");
 		r.put("need become vip first", "需要先加入vip");
-		r.put("confirm", "确定");
+//		r.put("confirm", "确定");
 		r.put("close", "关闭");
 		r.put("game guide X", "操作说明 X");
 
