@@ -715,7 +715,7 @@ public class GamepadSettingScreen implements Screen {
 		});
 		tabUi.addItem(axisRightAutoBtn);
 
-		//-------------------------
+		//-----------自动L2 R2死区--------------
 		int pow=3;
 		axisL2Lbl=new Label("L2偏移:",skin);
 
