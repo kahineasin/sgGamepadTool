@@ -138,7 +138,7 @@ public class GamepadSettingScreen implements Screen {
 	IKnightSashaGameKey gameKey=null;
 	HashMap<String,Integer> gameKeyMap=null;
 	/**
-	 * 当前正在设定的手柄
+	 * 当前正在设定的手柄(含死区配置)
 	 */
 	ISGPS5Gamepad gamepad;
 	boolean settingDefault=true;
@@ -1099,10 +1099,23 @@ public class GamepadSettingScreen implements Screen {
 		if(axisRightCalculating){
 
 			if(2>axisRightCalculatingTime){
-				axisRightTmp.x1=Math.min(axisRightTmp.x1,gamepad.axisRightX());
-				axisRightTmp.x2=Math.max(axisRightTmp.x2,gamepad.axisRightX());
-				axisRightTmp.y1=Math.min(axisRightTmp.y1,gamepad.axisRightY());
-				axisRightTmp.y2=Math.max(axisRightTmp.y2,gamepad.axisRightY());
+//				axisRightTmp.x1=Math.min(axisRightTmp.x1,gamepad.axisRightX());
+//				axisRightTmp.x2=Math.max(axisRightTmp.x2,gamepad.axisRightX());
+//				axisRightTmp.y1=Math.min(axisRightTmp.y1,gamepad.axisRightY());
+//				axisRightTmp.y2=Math.max(axisRightTmp.y2,gamepad.axisRightY());
+
+				if(SGPS5Gamepad.class==gamepad.getClass()){
+					SGPS5Gamepad tmp=(SGPS5Gamepad) gamepad;
+					axisRightTmp.x1=Math.min(axisRightTmp.x1,tmp.getController().getAxis(tmp.getX2()));
+					axisRightTmp.x2=Math.max(axisRightTmp.x2,tmp.getController().getAxis(tmp.getX2()));
+					axisRightTmp.y1=Math.min(axisRightTmp.y1,tmp.getController().getAxis(tmp.getY2()));
+					axisRightTmp.y2=Math.max(axisRightTmp.y2,tmp.getController().getAxis(tmp.getY2()));
+				}else{
+					axisRightTmp.x1=Math.min(axisRightTmp.x1,gamepad.axisRightX());
+					axisRightTmp.x2=Math.max(axisRightTmp.x2,gamepad.axisRightX());
+					axisRightTmp.y1=Math.min(axisRightTmp.y1,gamepad.axisRightY());
+					axisRightTmp.y2=Math.max(axisRightTmp.y2,gamepad.axisRightY());
+				}
 				axisRightCalculatingTime+=delta;
 			}else{
 				updateUIAfterChangeGamepadSetting();
@@ -1115,10 +1128,22 @@ public class GamepadSettingScreen implements Screen {
 		if(axisLeftCalculating){
 
 			if(2>axisLeftCalculatingTime){
-				axisLeftTmp.x1=Math.min(axisLeftTmp.x1,gamepad.axisLeftX());
-				axisLeftTmp.x2=Math.max(axisLeftTmp.x2,gamepad.axisLeftX());
-				axisLeftTmp.y1=Math.min(axisLeftTmp.y1,gamepad.axisLeftY());
-				axisLeftTmp.y2=Math.max(axisLeftTmp.y2,gamepad.axisLeftY());
+//				axisLeftTmp.x1=Math.min(axisLeftTmp.x1,gamepad.axisLeftX());
+//				axisLeftTmp.x2=Math.max(axisLeftTmp.x2,gamepad.axisLeftX());
+//				axisLeftTmp.y1=Math.min(axisLeftTmp.y1,gamepad.axisLeftY());
+//				axisLeftTmp.y2=Math.max(axisLeftTmp.y2,gamepad.axisLeftY());
+				if(SGPS5Gamepad.class==gamepad.getClass()) {
+					SGPS5Gamepad tmp = (SGPS5Gamepad) gamepad;
+					axisLeftTmp.x1=Math.min(axisLeftTmp.x1,tmp.getController().getAxis(tmp.getX1()));
+					axisLeftTmp.x2=Math.max(axisLeftTmp.x2,tmp.getController().getAxis(tmp.getX1()));
+					axisLeftTmp.y1=Math.min(axisLeftTmp.y1,tmp.getController().getAxis(tmp.getY1()));
+					axisLeftTmp.y2=Math.max(axisLeftTmp.y2,tmp.getController().getAxis(tmp.getY1()));
+				}else{
+					axisLeftTmp.x1=Math.min(axisLeftTmp.x1,gamepad.axisLeftX());
+					axisLeftTmp.x2=Math.max(axisLeftTmp.x2,gamepad.axisLeftX());
+					axisLeftTmp.y1=Math.min(axisLeftTmp.y1,gamepad.axisLeftY());
+					axisLeftTmp.y2=Math.max(axisLeftTmp.y2,gamepad.axisLeftY());
+				}
 				axisLeftCalculatingTime+=delta;
 			}else{
 				updateUIAfterChangeGamepadSetting();
@@ -1130,7 +1155,12 @@ public class GamepadSettingScreen implements Screen {
 
 		if(axisL2Calculating){
 			if(2>axisL2CalculatingTime){
-				axisL2Tmp=Math.max(axisL2Tmp,gamepad.axisL2());
+				if(SGPS5Gamepad.class==gamepad.getClass()) {
+					SGPS5Gamepad tmp = (SGPS5Gamepad) gamepad;
+					axisL2Tmp=Math.max(axisL2Tmp,tmp.getController().getAxis(tmp.getX3()));
+				}else{
+					axisL2Tmp=Math.max(axisL2Tmp,gamepad.axisL2());
+				}
 				axisL2CalculatingTime+=delta;
 			}else{
 				updateUIAfterChangeGamepadSetting();
@@ -1142,7 +1172,12 @@ public class GamepadSettingScreen implements Screen {
 
 		if(axisR2Calculating){
 			if(2>axisR2CalculatingTime){
-				axisR2Tmp=Math.max(axisR2Tmp,gamepad.axisR2());
+				if(SGPS5Gamepad.class==gamepad.getClass()) {
+					SGPS5Gamepad tmp = (SGPS5Gamepad) gamepad;
+					axisR2Tmp=Math.max(axisR2Tmp,tmp.getController().getAxis(tmp.getY3()));
+				}else{
+					axisR2Tmp=Math.max(axisR2Tmp,gamepad.axisR2());
+				}
 				axisR2CalculatingTime+=delta;
 			}else{
 				updateUIAfterChangeGamepadSetting();
